@@ -1,0 +1,5 @@
+interface:
+  display_name: "Merge Worktrees"
+  short_description: "Merge verified, merge-ready spec worktrees."
+policy:
+  allow_implicit_invocation: false
