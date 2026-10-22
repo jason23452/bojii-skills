@@ -1,0 +1,5 @@
+interface:
+  display_name: "Update Skills"
+  short_description: "Update this project using the bojii-skills CLI."
+policy:
+  allow_implicit_invocation: false

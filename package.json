@@ -1,0 +1,20 @@
+{
+  "name": "bojii-skills-cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Install and update bojii-skills from GitHub Releases.",
+  "bin": {
+    "bojii-skills": "./cli/src/cli.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jason23452/bojii-skills.git"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}
