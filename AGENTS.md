@@ -28,3 +28,7 @@ This repo uses a single-context domain docs layout. See `docs/agents/domain.md`.
 ### Spec 與 tickets 收尾
 
 建立 spec 或 tickets 後，遵循互動確認與 commit 流程。詳見 `docs/agents/spec-and-tickets.md`。
+
+### Worktree 隔離
+
+建立 worktree 與 Docker 隔離環境時，使用 `worktree` skill 並遵循其安全界線。

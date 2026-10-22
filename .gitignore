@@ -3,6 +3,9 @@
 .env.*
 !.env.example
 
+# Git worktree 工作目錄
+.worktree/
+
 # 作業系統產生的檔案
 .DS_Store
 Thumbs.db

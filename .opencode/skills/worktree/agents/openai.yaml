@@ -1,0 +1,5 @@
+interface:
+  display_name: "Create Isolated Worktree"
+  short_description: "Create a worktree with an isolated Docker environment."
+policy:
+  allow_implicit_invocation: true
