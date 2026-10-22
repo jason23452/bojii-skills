@@ -32,6 +32,7 @@
 
 - 只有在所有 tickets 都已實作完成、變更都已合併至 `<spec_name>-merge`，且所有 ticket worktree 與其專屬隔離環境資源（containers、images、volumes、ports）都已清理後，才可建立或發送 PR；不得提前建立 draft PR。
 - PR 建立後，確認平台的合併狀態、必要檢查與衝突狀態，再將 PR 標註為目前可以合併。若任何條件未通過或無法確認，明確回報阻擋原因，不得標註為可合併。
+- 任何 worktree 或分支都不得由 agent 推送至遠端。若 PR 所需分支尚未由使用者推送，完成本地 PR HTML 文件並回報；等待使用者處理遠端分支後，才可繼續建立或發送 PR。
 
 ## Code review
 
