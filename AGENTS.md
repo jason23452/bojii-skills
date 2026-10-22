@@ -24,3 +24,7 @@ This repo uses a single-context domain docs layout. See `docs/agents/domain.md`.
 ### Implement-spec code review
 
 使用 `implement-spec` 時遵循 repo 專屬流程。詳見 `docs/agents/implement-spec.md`。
+
+### Spec 與 tickets 收尾
+
+建立 spec 或 tickets 後，遵循互動確認與 commit 流程。詳見 `docs/agents/spec-and-tickets.md`。
