@@ -7,7 +7,7 @@
 
 ### Grilling 互動提問
 
-使用 `grilling`、`grill-me` 或 `grill-with-docs` 時，遵循互動式提問流程。詳見 `docs/agents/grilling.md`。
+使用 `grilling`、`grill-me` 或 `grill-with-docs` 時，遵循互動式提問流程，並在訪談達成共識後更新相關領域文件。詳見 `docs/agents/grilling.md`。
 
 ### Issue tracker
 
