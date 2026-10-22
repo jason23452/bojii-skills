@@ -29,6 +29,8 @@ npx --yes --package="github:jason23452/bojii-skills#${TAG}" -- bojii-skills upda
 
 若目的端有同路徑但內容不同的檔案，CLI 會列出並詢問是否覆寫；`--yes` 可略過確認。已移除的舊檔案不會自動刪除。
 
+安裝採逐檔合併，既有 `.opencode/skills/` 中的其他 skills 與同一 skill 內安裝包未包含的額外檔案都會保留；全域安裝也適用。
+
 ## 發布
 
 推送符合 `vX.Y.Z` 的 tag（例如 `v0.1.0`）會觸發 GitHub Actions：執行測試、建立 skills pack、產生 SHA-256 checksum，並發布 GitHub Release。Tag 版本必須與根目錄 `package.json` 的版本一致。CLI 本身由 npx 從該 GitHub tag 直接執行，不發佈到 npm registry。
