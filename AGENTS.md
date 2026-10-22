@@ -20,3 +20,7 @@ Use the five canonical labels: `needs-triage`, `needs-info`, `ready-for-agent`, 
 ### Domain docs
 
 This repo uses a single-context domain docs layout. See `docs/agents/domain.md`.
+
+### Implement-spec code review
+
+使用 `implement-spec` 時遵循 repo 專屬流程。詳見 `docs/agents/implement-spec.md`。
