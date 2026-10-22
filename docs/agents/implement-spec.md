@@ -11,7 +11,11 @@
 ## 完整實作
 
 - 目標是完成整份 spec 及其所有 tickets，不只完成部分票券或留下未實作項目。持續處理可解鎖的工作，直到整份 spec 完成；若仍有阻擋，清楚列出未完成項目及原因。
+- integration/合併 worktree 固定命名為 `<spec_name>-merge`；`<spec_name>` 使用 spec 的名稱，並轉成適合 worktree 名稱的格式。
+- 每張 ticket 的實作 worktree 固定命名為 `<spec_name>-tickets-<number>`；`<number>` 使用 issue tracker 中該 ticket 的編號。
 - 按專案慣例執行相關測試與驗證，並依 `implement-spec` 原有流程完成整合、票券收尾及回報。
+- 全部 tickets 完成並確認變更已合併後，刪除各 ticket/implementer 使用的 worktree；只保留包含完整合併結果的 integration worktree。刪除前確認沒有未合併工作或使用者變更。
+- 刪除 ticket worktree 時，同步清理專屬於該 worktree 隔離環境的 Docker 資源：停止並刪除容器、刪除專屬 volumes 與 images，並釋放容器所佔用的 ports。先用名稱、labels 或其他明確關聯確認資源歸屬；不得刪除其他 worktree、專案共用或使用者既有的資源。若無法確認資源是否專屬，先保留並詢問使用者。
 
 ## PR HTML 文件
 
