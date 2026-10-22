@@ -1,0 +1,15 @@
+# 本機環境變數與機密設定
+.env
+.env.*
+!.env.example
+
+# 作業系統產生的檔案
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# 編輯器與 IDE 暫存檔
+.idea/
+*.swp
+*.swo
+*~
