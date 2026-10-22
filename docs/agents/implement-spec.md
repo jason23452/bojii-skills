@@ -19,10 +19,15 @@
 
 ## PR HTML 文件
 
-- 實作完成後，在最終會合併的 integration branch worktree 中建立 `pr/<識別碼>.html`，讓文件隨實作一起進入合併分支；不要只放在不會合併的 implementer worktree。
+- 通過下方 PR 發送條件後，在最終合併的 `<spec_name>-merge` worktree 中建立 `pr/<識別碼>.html`，讓文件隨實作一起進入合併分支；不要只放在不會合併的 implementer worktree。
 - `<識別碼>` 使用對應的 PR 編號；若尚未建立 PR，使用 spec 或主要 ticket 的識別碼，不要虛構編號。
 - 使用 `pr` skill 的內容架構撰寫 HTML：Summary、Evidence、Merge Danger。摘要使用適合變更的視圖；Evidence 記錄實際的前後驗證結果；Merge Danger 說明可逆性與影響範圍。HTML 必須有效，不能只把 Markdown 原文存成 `.html`。
 - 只填入已知且可驗證的內容；尚未取得的前後證據或資訊要明確標示，不得捏造。
+
+## PR 發送條件
+
+- 只有在所有 tickets 都已實作完成、變更都已合併至 `<spec_name>-merge`，且所有 ticket worktree 與其專屬隔離環境資源（containers、images、volumes、ports）都已清理後，才可建立或發送 PR；不得提前建立 draft PR。
+- PR 建立後，確認平台的合併狀態、必要檢查與衝突狀態，再將 PR 標註為目前可以合併。若任何條件未通過或無法確認，明確回報阻擋原因，不得標註為可合併。
 
 ## Code review
 
