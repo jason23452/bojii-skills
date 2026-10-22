@@ -5,6 +5,10 @@
 
 ## Agent skills
 
+### Grilling 互動提問
+
+使用 `grilling`、`grill-me` 或 `grill-with-docs` 時，遵循互動式提問流程。詳見 `docs/agents/grilling.md`。
+
 ### Issue tracker
 
 Issues live as markdown files under `.scratch/<feature>/`. See `docs/agents/issue-tracker.md`.
