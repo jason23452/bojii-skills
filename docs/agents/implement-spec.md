@@ -20,6 +20,7 @@
 - 實作、整合與驗證後，更新 spec、tickets 或專案既有 TODO/進度清單，反映已完成與仍待處理的項目；只有完成且驗證通過的項目才能標記完成，受阻項目須保留並註明原因。
 - integration/合併 worktree 固定命名為 `<spec_name>-merge`；`<spec_name>` 使用 spec 的名稱，並轉成適合 worktree 名稱的格式。
 - 每張 ticket 的實作 worktree 固定命名為 `<spec_name>-tickets-<number>`；`<number>` 使用 issue tracker 中該 ticket 的編號。
+- 統一合併門檻：所有 tickets 均完成實作、通過各自驗證並經主 agent 確認後，才能開始統一合併至 `<spec_name>-merge`。不得在實作途中逐張合併；若仍有未完成或受阻 ticket，須暫緩統一合併。合併後再執行整體整合驗證。
 - 按專案慣例執行相關測試與驗證，並依 `implement-spec` 原有流程完成整合、票券收尾及回報。
 - 全部 tickets 完成並確認變更已合併後，刪除各 ticket/implementer 使用的 worktree；只保留包含完整合併結果的 integration worktree。刪除前確認沒有未合併工作或使用者變更。
 - 刪除 ticket worktree 時，同步清理專屬於該 worktree 隔離環境的 Docker 資源：停止並刪除容器、刪除專屬 volumes 與 images，並釋放容器所佔用的 ports。依開工前確認的清理範圍，用名稱、labels 或其他明確關聯查證資源歸屬；不得刪除其他 worktree、專案共用或使用者既有的資源。若仍無法確認資源是否專屬，保留並記錄為收尾阻擋，繼續其餘可行清理，不在此時再次詢問使用者。
