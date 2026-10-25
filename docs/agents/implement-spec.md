@@ -9,6 +9,17 @@
 - 開工前也要確認整合、驗證與收尾所需條件，包括 worktree 與 Docker 資源的歸屬及清理範圍。不得猜測或以臨時假設掩蓋阻擋因素；憑證由使用者透過適當的環境設定提供，不要求在對話中貼出秘密。
 - 每張 ticket 都必須指派 subagent 實作，不因 ticket 規模小、修改單純或預期耗時短而由主 agent 直接實作。主 agent 先提供 ticket、spec、驗收標準、相關脈絡與 worktree 要求，再等待 subagent 回報。
 
+## TDD 雙 subagent 流程
+
+- 每張 ticket 預設使用 `tdd` skill，將測試撰寫與 Red → Green 實作分派給兩個不同 session 的 subagent：test subagent 與 implementer subagent。同一個 subagent 不得兼任兩個角色；主 agent 負責分派、交接與驗證。
+- 兩個 subagent 依序使用該 ticket 的 `<spec_name>-tickets-<number>` worktree，同一時間僅由一個角色修改。每次以一個可驗證行為推進測試 → Red → Green，完成後再進入下一個行為，不先一次寫完所有測試再實作。
+1. **Test：** test subagent 依 spec 與驗收標準撰寫行為測試，執行並確認測試因預期的功能缺失而失敗，不修改產品實作。交接時提供測試變更、對應驗收項目、執行指令與實際 Red 證據；環境、依賴或測試本身的錯誤須先排除，不能作為有效 Red。
+2. **Red → Green：** 主 agent 確認測試與 Red 證據後，將上述內容交給另一個 implementer subagent。implementer 先重跑並確認 Red，再以最小必要實作使測試通過，執行受影響的回歸測試；必要重構須維持 Green。回報實作 diff、驗證指令及結果。
+3. **測試修正：** implementer 若發現測試有誤或需要新增測試，將原因與證據交回主 agent，由 test subagent 修正或補充後重新交接；不得自行刪改測試或降低斷言以取得 Green。
+4. **完成檢查：** 主 agent 檢查每輪的測試、Red/Green 證據與驗收對應，尚有未涵蓋行為時繼續下一輪。所有驗收項目完成且相關測試通過，才符合 ticket 的 TDD 完成門檻。符合預期的 Red 是交接狀態；非預期失敗依「自行排錯迴圈」處理，並維持上述角色分工。
+
+- 純文件等沒有可執行行為測試的 ticket，由主 agent 在開工前記錄不適用 TDD 的理由與替代驗證方式，仍須指派 subagent 實作。
+
 ## 完整實作
 
 - 目標是完成整份 spec 及其所有 tickets，不只完成部分票券或留下未實作項目。持續處理可解鎖的工作，直到整份 spec 完成；若仍有阻擋，清楚列出未完成項目及原因。
