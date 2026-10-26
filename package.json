@@ -1,6 +1,6 @@
 {
   "name": "bojii-skills-cli",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "private": true,
   "type": "module",
   "description": "Install and update bojii-skills from GitHub Releases.",
