@@ -16,6 +16,8 @@
 ## 多 session 的目錄與修改權
 
 - 主 agent 在 `.scratch/<feature>/execution-state.md` 維護執行表，逐列記錄 ticket、角色、session ID、worktree 絕對路徑、branch、基底／依賴 SHA、目前切片、狀態與唯一寫入者。由主 agent 單獨更新；subagent 透過回報提供變更。此表記錄執行狀態，不取代 ticket 的驗收條件。
+- 執行表的唯一權威位置固定為主 repo 的 `<project-root>/.scratch/<feature>/execution-state.md`；`<project-root>` 依 worktree 路徑規則辨識，不隨 session 工作目錄改變。主 agent 開工時解析並記錄此絕對路徑，每次派工都提供；其他 worktree 中同名檔案僅為副本，不作即時派工依據。此表作為主 repo 本機協調紀錄，不混入 ticket 或 integration 的提交。
+- 執行表以 ticket branch／commit 及證據檔案絕對路徑連結各票進度。主 agent 依該票實際 worktree 與最新已驗收成果更新表格，不把某個分支中的舊 ticket 狀態當作所有分支的現況；票券驗收文件仍由其負責角色在對應 ticket branch 更新並提交，最終隨成果合併。已有權威紀錄時先核對與恢復，不另建一份或覆蓋未釐清內容。
 - 不同 ticket 可同時執行，各自使用獨立 worktree。Test 與 Green 使用不同 session，但依序操作同一 ticket worktree；一個 session 同時只承接一個修改任務。探索角色唯讀，結果不得被當成對正在變動檔案的穩定驗收證據。
 - 啟動新 session 或恢復舊 session 時，先以不修改檔案的前置階段核對實際工作目錄、`git rev-parse --show-toplevel`、branch、HEAD、`git status --short`、必要測試檔與依賴 SHA。回傳 session ID 與核對結果，由主 agent 核准並記錄寫入者後，才委派修改階段。
 - Prompt 中指定路徑不代表 session 已切換。若工具可指定子 session 的 directory，就明確設定；若需移動 session，須明確指向該子 session ID，並在其閒置時操作，再重新核對。只切換主 agent 目錄不能證明其他 subagent 已切換。

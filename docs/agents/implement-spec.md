@@ -136,6 +136,15 @@
 - 整合票若需要前置功能一起存在，在自己的 ticket worktree 合併已驗收前置 commits 完成跨模組驗收；不以提前寫入 integration 作為整合票可開工的條件。
 - 最終合併後執行整體整合驗證。若有失敗或衝突，依既有排錯流程與 Test／Green 分工派修，記錄修正與下游影響，重新驗收並合併必要修正後再重驗；全部通過才進入清理與 PR 收尾。
 
+### 最終整合失敗的修正位置
+
+- 已合併後的測試／執行失敗，以發生錯誤的 integration HEAD 作為修正基底，不直接回缺少其他票券變更的舊 worktree 修復。主 agent 保存失敗命令、環境與 commit，在執行表登記修正識別碼、對應 AC、負責角色與驗收條件。
+- 從該 integration commit 建立本地 `<spec_name>-integration-fix-<number>` branch，worktree 固定於主 repo 的 `.worktree/<同名分支>`；明確指定 base，沿用 worktree 的路徑核對與 Docker 資源隔離要求。這是整合修正專用基底，不套用一般 ticket 從其他前置票取得成果的起點。
+- Test／Green 使用不同 session，依序取得此修正 worktree 的修改權。Test agent 先重現原始整合失敗，必要時補回歸測試；Green agent 修改產品實作。已有有效測試時直接沿用，不為流程另造重複測試。驗收及提交遵循有效 Red 與 Green 檢查點規則。
+- 修正完成後，由單一 merger 將已驗收修正 commit 合回 integration，再於 integration 重跑原始失敗情境與受影響的整合驗證。若 integration 已有新變更，先同步至修正 branch 並重驗；記錄新的驗收 SHA，不能只憑舊基底的通過結果收尾。
+- Git merge 尚有未解衝突時，不把該半完成狀態當作可建立修正分支的基底。由 merger 持有 integration 修改權並記錄衝突；需要 Test／Green 處理內容時依序交接。若需隔離排查，保存診斷後確認無其他工作受影響，再中止本次 merge，從最後完整 integration commit 建立上述修正 worktree，重現相同來源合併並處理，完成後交 merger 整合。
+- 整合驗證全數通過後，確認修正成果已合併且沒有未提交或使用者變更，再清理修正 worktree 及其專屬環境；更新執行表與驗收證據。清理範圍與 ticket worktree 相同，最終保留完整 integration 結果。
+
 ## 自行排錯迴圈
 
 1. 保留失敗指令、錯誤輸出與相關環境，建立能重現問題的最小測試或驗證步驟，明確指出預期與實際結果。
