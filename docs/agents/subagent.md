@@ -17,11 +17,22 @@
 - **唯一位置**：主 repo 的 `<project-root>/.scratch/<feature>/execution-state.md`。根目錄依 worktree 規則解析，開工時記錄絕對路徑並隨每次派工提供，不隨 session 目錄改變。其他 worktree 的副本不作即時依據；此本機紀錄不提交到 ticket／integration。
 - **進度來源**：表內連結 ticket branch／commit 與證據絕對路徑，依實際 worktree、最新驗收成果更新，不沿用其他分支舊狀態。票券文件由負責角色在其 branch 更新提交，最終合併；既有權威紀錄先核對恢復，不另建或覆蓋未知內容。
 - **並行邊界**：不同 ticket 用獨立 worktree；同票 Test／Green 用不同 session 依序修改；每個 session 同時只接一個修改任務。探索唯讀，不能把變動中檔案的觀察當穩定驗收證據。
-- **接手核對**：新啟動或恢復 session，先唯讀核對實際目錄、`git rev-parse --show-toplevel`、branch、HEAD、`git status --short`、必要測試與依賴 SHA；回報 session ID／結果，主 agent 核准並登記寫入者後才派修改。
-- **目錄設定**：明確設定子 session directory；移動時指定閒置子 session ID，移後重查。Prompt 路徑或主 agent 切換目錄不算子 session 已切換。無法設定時，檔案全用絕對路徑、shell 全指定 workdir／等效參數；無法保證位置就暫緩，不猜路徑或試寫。
+- **Session 綁定**：新建／恢復子 session 均依下方 V2 流程核對；一張 ticket 固定 Test／Green session 配對，不跨票搬動重用。整合修正與 merger 使用各自對應 worktree 的 session。
 - **基準**：可接手前一角色未提交測試，但逐檔核對路徑、diff／hash、歸屬。未知變更先查明，不以 reset、clean 或覆寫消除差異。
 - **修改權**：原角色回報並停寫 → 確認背景 shell／測試／產生器結束 → 主 agent 驗收釋放 → 接手者核對基準 → 授權。Commit、合併、文件更新、清理亦適用；主 agent 不與 subagent 同時操作同一 worktree。
 - **退回／恢復**：測試修正前 Green 交回修改權，Test 修正並更新基準後再交還。取消／逾時須確認程序與工具已停止才改派；不明時保留 worktree、推進其他票。中斷恢復核對表格與實際 session／程序／Git，不憑舊「閒置」狀態重複派寫入任務。
+
+## OpenCode V2：先綁定，再派實作
+
+依 [V2 Tools 的 Sessions／Subagent 說明](https://opencode.ai/v2/docs/tools/)：`session_move` 在安全邊界生效，依賴目的目錄的操作必須在後續呼叫。不得假設 `subagent` 支援 `directory` 參數；以目前工具 schema 為準。主 agent 保持主 repo 的協調位置，各子 session 分別處理：
+
+1. **建立唯讀 session**：首次 `subagent` 只要求回報預設目錄與環境，不實作、不執行會寫入的測試／安裝／產生器。取得工具回傳的 `sessionID`，記入執行表。多票可平行初始化，但每個 ID 都須對應自己的 ticket／角色／目標 worktree。
+2. **等待完成並移動**：收到初始化完成通知，確認該子 session 閒置且無背景寫入後，主 agent 用獨立 `execute` 呼叫 `tools.opencode.session_move({ sessionID: "<子 session ID>", directory: "<worktree 絕對路徑>" })`。必須帶子 ID；省略會移動主 session。不同子 session 可各自移動，但同一 session 的移動與續派不可平行，也不可放在同一 `execute` 批次。
+3. **後續呼叫驗證**：移動呼叫完成後，另呼叫 `subagent` 並帶同一 `sessionID`，僅做唯讀核對。先用不指定 `workdir`、不含 `cd`／`git -C` 的 shell 查看預設目錄（PowerShell 用 `Get-Location`）與 `git rev-parse --show-toplevel`，確認均為目標 worktree；再核對 branch、HEAD、`git status --short`、依賴 SHA 及必要測試檔。用相對路徑唯讀既有檔案並與目標內容對照，避免只證明 shell 的目錄覆寫可用。重新讀取目標 `AGENTS.md`、適用文件及所需 skills，不假設移動會清除舊對話脈絡。
+4. **授權實作**：主 agent 比對回報與執行表，位置、分支、依賴、檔案基準均符合後，才登記寫入者並在下一次呼叫派實作。綁定後仍明確使用目標絕對路徑／shell `workdir`，但它們不是 session 綁定成功的證據。
+5. **恢復與失敗**：後續切片恢復固定 session，先重做第 3 步核對；位置正確不必重移。位置錯誤則收回修改權，待閒置後重做移動與驗證。工具缺失、移動失敗或預設工具上下文仍不符時，保留錯誤、版本、子 ID、預期／實際位置，依阻擋流程處理並推進其他票；不能只在 prompt 寫路徑或靠 shell `workdir` 就放行修改。
+
+Worktree 是否建立正確與 session 是否綁定正確分開驗證：依 worktree 規則使用明確路徑建立，再用 `git worktree list --porcelain` 核對主 repo、實際路徑、branch／base；UI 顯示、`worktree_create` 回傳路徑或主 session 位置均不能取代子 session 驗證。
 
 ## Subagent 回報格式
 

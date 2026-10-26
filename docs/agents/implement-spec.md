@@ -11,7 +11,7 @@
 
 ## Subagent 交接與續作
 
-開工前讀取 [subagent.md](subagent.md)。每次派工、回報、驗收與續作均遵循其流程；切片完成不等於 ticket／spec 完成。
+開工前讀取 [subagent.md](subagent.md)。每次派工、回報、驗收與續作均遵循其流程；OpenCode V2 子 session 須先唯讀初始化、指定 ID 移動、後續呼叫核對，再授權實作。切片完成不等於 ticket／spec 完成。
 
 ## 開工前確認阻擋
 
