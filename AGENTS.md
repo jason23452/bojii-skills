@@ -25,6 +25,10 @@ This repo uses a single-context domain docs layout. See `docs/agents/domain.md`.
 
 使用 `implement-spec` 時遵循 repo 專屬流程。詳見 `docs/agents/implement-spec.md`。
 
+### Subagent 交接
+
+執行 `implement-spec` 的 subagent 派工、回報與續作時，主 agent 與 subagent 都必須遵循 `docs/agents/subagent.md`。其他流程使用各自的交接規則。
+
 ### Spec 與 tickets 收尾
 
 建立 spec 或 tickets 後，遵循互動確認與 commit 流程。詳見 `docs/agents/spec-and-tickets.md`。

@@ -1,5 +1,9 @@
 # Implement-spec 流程
 
+## Subagent 交接與續作
+
+開工前閱讀 [subagent 交接流程](subagent.md)，並在每次派工時要求 subagent 遵循其回報格式。每輪結果都須由主 agent 依該流程驗收並實際接續派工；切片完成不等於 ticket 或 spec 完成。
+
 ## 開工前確認阻擋
 
 - 開始實作前，先完整閱讀 spec 與所有 tickets，並檢查 repo、工具及目前可用的環境設定，確認整份 spec 是否有阻擋因素。
