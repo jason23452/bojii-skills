@@ -31,4 +31,4 @@ This repo uses a single-context domain docs layout. See `docs/agents/domain.md`.
 
 ### Worktree 隔離
 
-建立 worktree 與 Docker 隔離環境時，使用 `worktree` skill 並遵循其安全界線。
+每次建立 worktree（包含主 agent 與 subagent）都必須放在主 repo 的 `.worktree/<worktree-name>`。建立路徑的辨識與驗證遵循 `.opencode/skills/worktree/SKILL.md`；配置 Docker 隔離環境時亦遵循該 skill 的安全界線。
