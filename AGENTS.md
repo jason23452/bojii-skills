@@ -29,9 +29,9 @@ This repo uses a single-context domain docs layout. See `docs/agents/domain.md`.
 
 執行 `implement-spec` 的 subagent 派工、回報與續作時，主 agent 與 subagent 都必須遵循 `docs/agents/subagent.md`。其他流程使用各自的交接規則。
 
-### Spec 與 tickets 收尾
+### Spec 與 tickets 規劃及收尾
 
-建立 spec 或 tickets 後，遵循互動確認與 commit 流程。詳見 `docs/agents/spec-and-tickets.md`。
+建立／修改 spec、拆分 tickets 或修正 TODO／驗收責任與依賴時，遵循 `docs/agents/spec-and-tickets.md`；tickets 建立後須由未參與撰寫的獨立子代理盤查環境與完整實作的阻擋，提前確認待決事項，再收尾提交。
 
 ### Worktree 隔離
 
