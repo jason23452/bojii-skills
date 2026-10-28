@@ -22,6 +22,6 @@ When a skill mentions a role (e.g. "apply the AFK-ready triage label"), use the 
 - `ready-for-human`：交付工作確實需要人員執行；技術尚待查證本身不構成此標籤的理由。
 - `wontfix`：已決定不處理。
 
-已分流的下游票可標 `ready-for-agent` 並保留 `Blocked by`，由前置驗收解鎖；研究票以問題、實驗邊界及結果交付明確為準，可行性是研究輸出。外部服務暫不可用等執行阻擋另記原因，不自動退回 `needs-triage`。
+已分流的下游票可標 `ready-for-agent` 並保留 `Blocked by`，由前置驗收解鎖。獨立研究任務以問題、實驗邊界及結果交付明確為準，可行性是研究輸出；其標籤不表示相依產品方案已可實作。產品批次須先通過 [規劃期可行性門檻](grilling.md#規劃期可行性門檻)。外部服務暫不可用等執行阻擋另記原因，不自動退回 `needs-triage`。
 
 決策或授權確認後立即重新判定受影響標籤，與 spec、依賴及開工準備紀錄同步。Spec 使用相同標籤時表示可交給 Agent 協調推進，不表示所有下游票可同時執行。詳細收尾流程見 [spec-and-tickets.md](spec-and-tickets.md)。
