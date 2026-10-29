@@ -1,9 +1,15 @@
 ---
 name: worktree
-description: 建立 Git worktree 或 ticket/integration worktree 時，配置各自隔離的 Docker 執行環境與從本地 dev volume 複製的獨立資料。
+description: 建立 Git worktree 或 ticket/integration worktree，依已確認的開工契約配置隔離執行環境；Docker 模式從本地 dev volume 複製獨立資料。
 ---
 
-建立指定 worktree 與其隔離環境。每個 worktree 使用獨立的 ports、Docker containers、images、network 與 volume；唯一的資料初始化來源是本地 `dev` 環境的 volume 副本。此 skill 會建立本機資源，只能由使用者明確呼叫。
+建立指定 worktree 與其隔離環境。使用者直接要求建立 worktree，或啟動已確認開工契約的 `implement-spec`，即可在該授權範圍內執行；不要求再單獨呼叫此 skill。
+
+## 環境模式
+
+- 先讀開工契約，確認驗收需要的環境。已有明確的非 Docker 方案時，使用 worktree 專屬程序、ports 與隔離 fixtures；執行下方 Git 步驟 1～4、E2E 隔離步驟 8 及驗證步驟 10。
+- Docker 模式使用獨立 containers、images、network、ports 與 volumes，資料初始化來源為本地 `dev` volume 副本，執行完整流程。直接呼叫且未指定模式時沿用 Docker 模式；來源或操作授權缺口在建立資源前釐清。
+- 模式在規劃階段定案並核對本文件；執行時沿用。Git worktree 的建立本身不額外要求啟動 Docker。下方 Docker 設定、容器與 volume 的檢查僅適用 Docker 模式。
 
 ## 流程
 
@@ -16,7 +22,7 @@ description: 建立 Git worktree 或 ticket/integration worktree 時，配置各
 7. 為每個 worktree 配置唯一的 Compose project name、container 名稱、network、image tag 與 host ports。Image 必須從該 worktree 的程式碼建置並使用該 worktree 專屬 tag；不得直接使用另一 worktree 的 image。挑選尚未占用的 ports，並將實際 port 對應記錄在該 worktree 的本機環境設定中。
 8. 若 repo 有 E2E 測試，為 E2E server 分配此 worktree 專屬且未占用的 port，並將 app server 與測試 runner 的 `baseURL`/port 一起設定為該值。優先使用既有環境變數或 runner CLI；若設定寫死而無法隔離，在此 worktree 中調整為可配置並保留原預設值，執行 E2E 驗證。不得讓測試連到 `dev` 或其他 worktree 的 server。
 9. 優先使用 repo 既有可覆寫的環境變數或 Compose override 隔離設定；本機設定與 secrets 不得寫入 tracked 檔案或輸出到對話。若 Compose 設定無法安全地區分 project、image、volume 或 ports，先說明缺少的設定，使用互動式 `question` 工具確認後再調整，不要默默修改共享設定。
-10. 啟動隔離環境並驗證 containers、image tags、volume mounts、app/E2E host ports 與 E2E `baseURL` 都屬於此 worktree；執行健康檢查及可用的 E2E 測試。回報 worktree/branch、base、port 對應、Docker 資源名稱及驗證結果，不揭露 secrets。
+10. 啟動隔離環境，核對程序、app/E2E ports 與 `baseURL`；Docker 模式另核對 containers、image tags 與 volume mounts，確認都屬於此 worktree。執行健康檢查及指定驗收，記錄 worktree/branch、base、資源歸屬及結果，不揭露 secrets。完成後依開工契約清理本次資源，保留約定的 integration 與證據。
 
 ## 隔離與安全
 
