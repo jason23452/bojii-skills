@@ -1,75 +1,28 @@
 ---
 name: to-spec
-description: "Turn the current conversation into a spec and publish it to the project issue tracker: no interview, just synthesis of what you've already discussed."
+description: "將已討論的需求、決策與研究整理成可驗收 spec，供後續拆票。"
 disable-model-invocation: true
 ---
 
-This skill takes the current conversation context and codebase understanding and produces a spec. Do NOT interview the user; just synthesize what you already know.
+# To Spec
 
-The issue tracker and triage label vocabulary should have been provided to you. If not, tell the user to run `/setup-matt-pocock-skills`.
+將既有對話與 codebase 理解整理成規格。先讀專案 `AGENTS.md`、tracker 與 `docs/agents/spec-and-tickets.md`（存在時）；以該規劃契約為準。沿用 glossary、ADR 與已確認研究，不重開完整訪談。
 
-## Process
+## 流程
 
-1. Explore the repo to understand the current state of the codebase, if you haven't already. Use the project's domain glossary vocabulary throughout the spec, and respect any ADRs in the area you're touching.
+1. 核對使用者問題、已定案範圍、正常／失敗／例外及版本限制；只查缺少或已變動的事實。
+2. 為產品行為建立穩定 AC，指明可觀察結果、權限／資料政策與必要驗收環境。
+3. 沿用或確認測試邊界，依局部、元件、API／契約與真實 runtime／E2E 分層；選能證明行為的最小邊界，避免把全部案例推到最高層。
+4. 整理決策、操作授權、必要準備與研究證據。缺少產品決策或權限時，用 `question` 精準補齊；一般實作細節留給 owner。關鍵方案尚未證實者標明規劃缺口。
+5. 撰寫 spec、完成獨立審查與必要複查，依專案規則提交。若同時要求 tickets，形成兩者後統一審查與確認；只要求 spec 時，票級開工推演標待拆票。
 
-2. Sketch out the seams at which you're going to test the feature. Existing seams should be preferred to new ones. Use the highest seam possible. If new seams are needed, propose them at the highest point you can. The fewer seams across the codebase, the better - the ideal number is one.
+## Spec 內容
 
-Check with the user that these seams match their expectations.
+- **Problem Statement／Solution**：使用者問題與預期成果。
+- **User Stories／AC**：涵蓋全部已確認需求，正常與必要例外可驗證，避免為篇幅重複列舉。
+- **Implementation Decisions**：公開契約、重要取捨、相容性、已驗證版本及決策來源；引用權威文件，不寫逐函式實作指令。
+- **Testing Decisions**：情境、測試層級、先例、實際環境與通過條件。
+- **開工準備與授權**：操作範圍、必要資源、已知恢復方式、準備責任與未解項目。
+- **Out of Scope／Further Notes**：明確界線、研究與 ADR 連結、後續承接。
 
-3. Write the spec using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label - no need for additional triage.
-
-<spec-template>
-
-## Problem Statement
-
-The problem that the user is facing, from the user's perspective.
-
-## Solution
-
-The solution to the problem, from the user's perspective.
-
-## User Stories
-
-A LONG, numbered list of user stories. Each user story should be in the format of:
-
-1. As an <actor>, I want a <feature>, so that <benefit>
-
-<user-story-example>
-1. As a mobile bank customer, I want to see balance on my accounts, so that I can make better informed decisions about my spending
-</user-story-example>
-
-This list of user stories should be extremely extensive and cover all aspects of the feature.
-
-## Implementation Decisions
-
-A list of implementation decisions that were made. This can include:
-
-- The modules that will be built/modified
-- The interfaces of those modules that will be modified
-- Technical clarifications from the developer
-- Architectural decisions
-- Schema changes
-- API contracts
-- Specific interactions
-
-Do NOT include specific file paths or code snippets. They may end up being outdated very quickly.
-
-Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it within the relevant decision and note briefly that it came from a prototype. Trim to the decision-rich parts, not a working demo, just the important bits.
-
-## Testing Decisions
-
-A list of testing decisions that were made. Include:
-
-- A description of what makes a good test (only test external behavior, not implementation details)
-- Which modules will be tested
-- Prior art for the tests (i.e. similar types of tests in the codebase)
-
-## Out of Scope
-
-A description of the things that are out of scope for this spec.
-
-## Further Notes
-
-Any further notes about the feature.
-
-</spec-template>
+狀態依實際缺口與 tracker 分流規則判定，不一律標成可完整開工。原型片段只有在精準表達已確認契約時才保留，並註明來源及限制。

@@ -1,40 +1,25 @@
 ---
 name: implement-spec
-description: "Implement the result of /to-spec and /to-tickets in code."
+description: "依已確認的 spec 與 tickets 自主實作，持續完成全部 TODO、驗收、整合與收尾。"
 disable-model-invocation: true
 ---
 
-You have been provided a spec. This spec should have tickets associated with it, describing how to implement the spec.
+# Implement Spec
 
-The issue tracker should have been provided to you. If not, tell the user to run `/setup-matt-pocock-skills`.
+先讀專案 `AGENTS.md` 與其指向的執行規範。本套件的權威流程是 `docs/agents/implement-spec.md`，規劃契約見 `docs/agents/spec-and-tickets.md`，派工見 `docs/agents/subagent.md`；適用時先完整載入，不只依此摘要執行。
 
-The goal is the entire spec implemented on a single **integration branch**, with every ticket resolved the way the issue tracker closes work.
+## 核心流程
 
-The tickets are not a list of steps. They are a **task graph** with blocking relationships between them. This means there is always a **frontier** of tickets which are ready to be grabbed.
+1. 讀取整份 spec、全部 tickets、決策／研究／授權與準備紀錄。確認開工契約可直接執行；缺口在受影響產品實作前補齊，已定案內容沿用。
+2. 建立完整 TODO／AC 責任對照與依賴圖，準備 integration 及票級 worktrees。保留既有成果，核對 Git 基底，使用合併處理依賴。
+3. 對所有可獨立開工票指派單一 owner，能平行則背景執行。一次提供整票目標與驗收，透過 context pointers 傳遞資料。
+4. Owner 使用 `tdd`，自主完成測試、產品、fixtures、排錯、重構及必要驗證，直到本票完整交付；不逐測試切換 Test／Green 代理。
+5. 穩定交付由獨立 reviewer 檢查需求、實作及測試品質。問題交原 owner 修正，針對修正複查；證據符合版本與環境才通過。
+6. 逐票合入 integration，跑受影響回歸，通過後立即解鎖下游；持續重算可執行工作。
+7. 全票完成後驗證全部 spec AC 與跨票整合；缺口轉為未完成修正項繼續執行。完成所有必要驗收、提交與約定收尾才結束。
 
-Communication to and from subagents should be sparse. Communicate primarily through **context pointers**: to the spec, tickets, research notes, and previous commits. Don't duplicate information already available via pointers.
+## 連續執行
 
-**Implementer subagents** should be run in the background where possible for maximum concurrency.
-
-## Steps
-
-1. Read the spec and tickets to understand the task graph.
-
-2. (optional) Use an **exploration subagent** to conduct any exploration required by the tickets - relevant codebase files or external documentation. Ensure the exploration subagent can save files - it should save its markdown notes in a directory outside the repo, accessible by all future subagents. This lets **implementer subagents** focus on implementation rather than exploration.
-
-3. Create the integration branch. If the issue tracker closes work through PRs, or the user asks for one, open a draft PR after the first merge in step 5 (a branch with no commits ahead of main can't open one), marked as closing the spec and tickets.
-
-4. Use **implementer subagents** to implement each ticket, each in its own worktree on its own branch. Each implementer subagent:
-   - confirms its worktree is based on the integration branch before starting, and resets onto it if not;
-   - calls the Skill tool with `tdd` to build the ticket;
-   - merges the integration branch tip into its own branch before reporting done
-
-5. Once an **implementer subagent** completes, merge its work to the integration branch with a **merger subagent**.
-
-6. If this changes the **frontier** of available tickets, kick off more **implementer subagents** to work on the new tickets. This allows for maximum concurrency.
-
-7. Once all tickets are complete, call the Skill tool with `code-review` on the integration branch. Fix all issues raised by the code review in a single **implementer subagent**.
-
-8. If a draft PR exists, mark it ready for review. Otherwise, resolve each ticket the way the issue tracker closes work, and report the integration branch.
-
-9. Clean up all **implementer subagent** worktrees.
+- 子代理完成一次呼叫或一張票不是整份任務完成。仍有 TODO 就派工／執行，背景工作完成後接續，無需使用者再次輸入本命令。
+- 原範圍內的設計細節及排錯由 owner 決定。已知權限、產品決策與驗收在規劃完成；僅新的必要外部條件或契約矛盾升級，保持未完成狀態並推進其他工作。
+- 流程未提供獨立規範的專案仍遵循上述單一 owner、獨立審查、逐票整合及全量完成原則；遠端推送／發布需使用者明確授權。

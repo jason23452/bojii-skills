@@ -1,105 +1,70 @@
 ---
 name: to-tickets
-description: Break a plan, spec, or the current conversation into a set of tracer-bullet tickets, each declaring its blocking edges, published to the configured tracker (edges as text in one file per ticket locally, or native blocking links on a real tracker).
+description: 將已確認的 spec 或計畫拆成具備依賴、行為契約、授權及驗收方式的可執行 tickets。
 disable-model-invocation: true
 ---
 
 # To Tickets
 
-Break a plan, spec, or conversation into a set of **tickets**: tracer-bullet vertical slices, each declaring the tickets that **block** it.
+先讀專案 `AGENTS.md`、tracker 與 `docs/agents/spec-and-tickets.md`（存在時），以其規劃契約為準。沿用對話、spec、領域文件與研究證據；只探索缺口或變動。
 
-The issue tracker and triage label vocabulary should have been provided to you. If not, tell the user to run `/setup-matt-pocock-skills`.
+## 1. 建立交付與依賴圖
 
-## Process
+- 每票交付狹窄但完整的可驗收行為，涵蓋實際需要的層，不強迫每票都修改 schema、API 與 UI。
+- 每票由單一 owner 自主完成產品、測試、fixtures 與驗收。可有多輪內部 TDD，不按 Test／Green 或單個測試拆票。
+- 每條 `Blocked by` 寫明真正需要的前置成果。前置票混有無關工作時重新切分，不以整份 spec 完成作為單票前提。
+- 共用介面指定唯一交付票；獨立且修改不衝突的票才平行。已驗收成果逐票整合，供下游取得穩定基線。
+- 大範圍機械重構採 expand–contract：先新增相容形式，再分批遷移使用者，最後移除舊形式。每批具備驗證，不把明知不相容的中間狀態當成已驗收基線。
 
-### 1. Gather context
+## 2. 補齊開工契約
 
-Work from whatever is already in the conversation context. If the user passes a reference (a spec path, an issue number or URL) as an argument, fetch it and read its full body and comments.
+對每票明列：
 
-### 2. Explore the codebase (optional)
+1. 可觀察交付、範圍及 spec AC 責任。
+2. 輸入／輸出、錯誤／例外、權限／資料政策與相容性；引用已確認來源。
+3. 前置成果、環境與 fixtures、有效設定預檢及準備時點。
+4. 可建立／修改／停止／清理的資源、必要服務／模型／費用授權，以及失敗恢復方式。
+5. 實作 TODO 與分開列出的驗收情境、預期結果、測試層級／指令及指定環境。
+6. 跨票承接與外部阻擋的 owner、解除條件及下一步。
 
-If you have not already explored the codebase, do so to understand the current state of the code. Ticket titles and descriptions should use the project's domain glossary vocabulary, and respect ADRs in the area you're touching.
+需求與權限決策在此階段用 `question` 釐清，關鍵可行性先完成研究。方法明確且已授權的準備可作為實作 TODO；一般內部設計留給 owner，不能把產品決策寫成「實作時再問」。
 
-Look for opportunities to prefactor the code to make the implementation easier. "Make the change easy, then make the easy change."
+## 3. 確認與獨立推演
 
-### 3. Draft vertical slices
+向使用者呈現交付與依賴，確認範圍、粒度及必要決策；已確認內容直接沿用。由未參與撰寫的 reviewer 推演所有票能否在既有契約及授權內完成，找出環境、驗收、依賴與收尾缺口。修正後複查受影響部分，阻擋問題解決才交付可執行批次。
 
-Break the work into **tracer bullet** tickets.
+同時要求 spec／tickets 時可形成兩者後統一審查與提交確認。只建立 tickets 時，仍核對所引用 spec 的決策與研究。
 
-<vertical-slice-rules>
+## 4. 發布到 tracker
 
-- Each slice cuts a narrow but COMPLETE path through every layer (schema, API, UI, tests): vertical, NOT a horizontal slice of one layer
-- A completed slice is demoable or verifiable on its own
-- Each slice is sized to fit in a single fresh context window
-- Any prefactoring should be done first
+- **本地**：依依賴順序建立 `.scratch/<feature>/issues/<NN>-<slug>.md`，一票一檔；保留 tracker 規定的 Status、Blocked by 及 TODO／驗收格式。
+- **遠端 tracker**：每票一個 issue，以原生 blocking 關係或明確文字記錄依賴；若源自 parent issue，依 tracker 慣例建立關聯。
+- 狀態按實際決策、外部阻擋與準備狀況判定，不能一律宣稱可完整開工。建立票券不等於父 spec 已完成。
 
-</vertical-slice-rules>
+## 票券摘要
 
-Give each ticket its **blocking edges**: the other tickets that must complete before it can start. A ticket with no blockers can start immediately.
+```md
+# NN：可驗收交付
+Status: 依實際狀態判定
+Blocked by: 無；或前置票及需要的成果
 
-**Wide refactors are the exception to vertical slicing.** A **wide refactor** is one mechanical change (rename a column, retype a shared symbol) whose **blast radius** fans across the whole codebase, so a single edit breaks thousands of call sites at once and no vertical slice can land green. Don't force it into a tracer bullet; sequence it as **expand–contract**. First expand: add the new form beside the old so nothing breaks. Then migrate the call sites over in batches sized by blast radius (per package, per directory), each batch its own ticket blocked by the expand, keeping CI green batch to batch because the old form still exists. Finally contract: delete the old form once no caller remains, in a ticket blocked by every migrate batch. When even the batches can't stay green alone, keep the sequence but let them share an integration branch that all block a final integrate-and-verify ticket; green is promised only there.
+## 本票交付與 AC
+使用者結果、範圍、AC ID 與後續承接。
 
-### 4. Quiz the user
+## 行為契約
+輸入／輸出、正常／失敗／例外、權限及決策／研究來源。
 
-Present the proposed breakdown as a numbered list. For each ticket, show:
+## 環境與授權
+準備紀錄指標、fixtures、有效設定預檢、操作界線與恢復。
 
-- **Title**: short descriptive name
-- **Blocked by**: which other tickets (if any) must complete first
-- **What it delivers**: the end-to-end behaviour this ticket makes work
+## 實作 TODO
+- [ ] T1：可判定完成的工作。
 
-Ask the user:
+## 本票驗收
+- [ ] V1：情境、預期結果、測試邊界／指令與環境；證據待驗證。
 
-- Does the granularity feel right? (too coarse / too fine)
-- Are the blocking edges correct: does each ticket only depend on tickets that genuinely gate it?
-- Should any tickets be merged or split further?
+## 承接與阻擋
+無；或承接票／AC、剩餘責任、owner 與解除方式。
+```
 
-Iterate until the user approves the breakdown.
-
-### 5. Publish the tickets to the configured tracker
-
-Publish the approved tickets. **How** depends on the tracker `/setup-matt-pocock-skills` configured; the tickets are the same either way, only the shape of the blocking edges changes:
-
-- **Local files** → write one file per ticket under `.scratch/<feature-slug>/issues/<NN>-<slug>.md`, numbered from `01` in dependency order (blockers first). Each file's "Blocked by" lists the numbers/titles it depends on. Use the per-ticket file template below: one ticket per file, never a single combined file.
-- **A real issue tracker (GitHub, Linear, …)** → publish one issue per ticket in dependency order (blockers first) so each ticket's blocking edges can reference real identifiers. Use the platform's native blocking relationship where it has one; otherwise set each ticket's "Blocked by" to the blocking issues. If the source was an existing issue, make each ticket its sub-issue (tracker doc's operation). Apply the `ready-for-agent` triage label unless instructed otherwise; the tickets are agent-grabbable by construction.
-
-Work the **frontier**: any ticket whose blockers are all done. For a purely linear chain that means top to bottom.
-
-Do NOT close or modify any parent issue.
-
-<local-ticket-template>
-
-# <NN>: <Ticket title>
-
-**What to build:** the end-to-end behaviour this ticket makes work, from the user's perspective, not a layer-by-layer implementation list.
-
-**Blocked by:** the numbers/titles of the tickets that gate this one, or "None (can start immediately)".
-
-**Status:** ready-for-agent
-
-- [ ] Acceptance criterion 1
-- [ ] Acceptance criterion 2
-
-</local-ticket-template>
-
-<issue-template>
-
-## Parent
-
-A reference to the parent issue on the tracker (if the source was an existing issue, otherwise omit this section).
-
-## What to build
-
-The end-to-end behaviour this ticket makes work, from the user's perspective, not layer-by-layer implementation.
-
-## Acceptance criteria
-
-- [ ] Criterion 1
-- [ ] Criterion 2
-
-## Blocked by
-
-- A reference to each blocking ticket, or "None (can start immediately)". Omit this section when blockers were set as native edges.
-
-</issue-template>
-
-In either form, avoid specific file paths or code snippets: they go stale fast. Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it and note briefly that it came from a prototype. Trim to the decision-rich parts, not a working demo, just the important bits.
+具體檔案位置可作查證與交接指標，公開契約才是驗收權威；原型只保留能精準表達已確認決策的必要片段。

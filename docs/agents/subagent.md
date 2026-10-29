@@ -1,84 +1,64 @@
-# Implement-spec 的 subagent 交接與主 agent 續作
+# Implement-spec：整票派工與連續推進
 
-僅適用於 `implement-spec`；完成、阻擋、TDD 與合併條件見 [implement-spec.md](implement-spec.md)。`grilling`／`grill-me`／`grill-with-docs` 使用 [grilling.md](grilling.md)，其他 skills 依各自流程，不套用本文。
+僅適用於 `implement-spec`；開工、測試、審查、整合與全量完成條件以 [implement-spec.md](implement-spec.md) 為準。Grilling 調查使用 [grilling.md](grilling.md)。
 
-## 派工時建立交接契約
+## 一票一位 owner
 
-每次派工提供以下資訊；既有內容引用路徑／段落，不複製整份規格：
+主 agent 一次交付整票，不將每個測試拆成派工。提供：
 
-- 整體目標、spec／ticket 路徑、本輪切片範圍及對應驗收項目。
-- subagent 角色、允許修改的範圍、worktree 絕對路徑與 branch。
-- 前一輪證據、目前 Red／Green 狀態，以及本輪完成的可驗證條件。
-- 要求依下方格式回報；明確區分「本輪完成」「ticket 完成」與「整份 spec 完成」。
+- spec／ticket、TODO／AC、研究／決策／授權的 context pointers。
+- 完整交付結果、必要依賴的已驗證 integration SHA、環境／fixtures／驗收入口。
+- owner 修改範圍、worktree 絕對路徑、branch、完成條件及執行表位置。
 
-### 派工前核對範圍與依賴
+owner 自主完成產品、測試、fixtures、排錯與驗證；本票內部的 Red／Green、重構及普通檢查失敗不需交回主 agent 核准。需改跨票契約或範圍、發生實際外部阻擋、準備交付／中斷時才回報。已確認契約直接沿用，一般實作細節自行決定。
 
-主 agent 每次派工先讀取實際 ticket、AC 對照與最新已驗收交付，核對以下三項，子代理接手時再次核對：
+## 執行表與唯一寫入者
 
-1. **範圍對應**：本輪行為、測試入口與驗收都對應本票的 TODO／V。整份 spec 的測試邊界不等於每張票的工作；例如 Commands 票不因測試經過同一 Composer 就承接檔案引用政策。
-2. **依賴依據**：列出 `Blocked by`、所需具體交付及已驗收 SHA／規劃證據。沒有相關依賴的票繼續推進，不能因其他研究、環境或整合工作未完成而自行加等待條件。發現隱藏依賴時先附直接證據，依 implement-spec 正式調整責任與依賴圖，再派受影響工作。
-3. **契約權責**：已確認契約直接引用；本票需要的新實作細節由 Test 提案、主 agent 按 spec 確認，不把一般 API／測試設計再次交使用者決定。超出需求才依阻擋流程處理。
+- 主 agent 維護 `<project-root>/.scratch/<feature>/execution-state.md`，記錄 ticket、owner／reviewer session、worktree、branch、已驗證基線、狀態與證據；以主 repo 的絕對位置為即時來源，本機執行表不提交。
+- Ticket 文件記錄可版本控制的 TODO／驗收進度；執行表引用，不另維護第二套產品完成條件。
+- 不同票使用獨立 worktree；同一 worktree 同時一位寫入者。Reviewer 唯讀審查 owner 已停寫的穩定 commit；合併由唯一 merger／主 agent 操作。
+- 交接前確認原角色及背景測試／產生器停止，再核對實際 branch、HEAD、diff、未追蹤檔與歸屬。未知變更保留查明。
+- 固定 session 續作同票，保留既有上下文；切換角色、恢復中斷、基線變動時做必要核對。每個內部測試迴圈不重新建立 session 或登記修改權。
 
-派工文字與票券不一致時，主 agent 先更正派工或完成正式責任移轉；子代理回報具體衝突，不自行改範圍。修正後立即續派可執行切片，不能只回報「等待研究」便結束。
+## Session 綁定
 
-## 多 session 的目錄與修改權
+使用 worktree 前依工具當下 schema 與平台規則建立、驗證綁定；不假設 subagent 有 `directory` 參數。
 
-- **執行表**：主 agent 單獨維護 ticket、角色、session ID、worktree 絕對路徑、branch、基底／依賴 SHA、切片、狀態、唯一寫入者；subagent 透過回報更新，不取代 ticket 驗收條件。
-- **唯一位置**：主 repo 的 `<project-root>/.scratch/<feature>/execution-state.md`。根目錄依 worktree 規則解析，開工時記錄絕對路徑並隨每次派工提供，不隨 session 目錄改變。其他 worktree 的副本不作即時依據；此本機紀錄不提交到 ticket／integration。
-- **進度來源**：表內連結 ticket branch／commit 與證據絕對路徑，依實際 worktree、最新驗收成果更新，不沿用其他分支舊狀態。票券文件由負責角色在其 branch 更新提交，最終合併；既有權威紀錄先核對恢復，不另建或覆蓋未知內容。
-- **並行邊界**：不同 ticket 用獨立 worktree；同票 Test／Green 用不同 session 依序修改；每個 session 同時只接一個修改任務。探索唯讀，不能把變動中檔案的觀察當穩定驗收證據。
-- **Session 綁定**：新建／恢復子 session 均依下方 V2 流程核對；一張 ticket 固定 Test／Green session 配對，不跨票搬動重用。整合修正與 merger 使用各自對應 worktree 的 session。
-- **基準**：可接手前一角色未提交測試，但逐檔核對路徑、diff／hash、歸屬。未知變更先查明，不以 reset、clean 或覆寫消除差異。
-- **修改權**：原角色回報並停寫 → 確認背景 shell／測試／產生器結束 → 主 agent 驗收釋放 → 接手者核對基準 → 授權。Commit、合併、文件更新、清理亦適用；主 agent 不與 subagent 同時操作同一 worktree。
-- **退回／恢復**：測試修正前 Green 交回修改權，Test 修正並更新基準後再交還。取消／逾時須確認程序與工具已停止才改派；不明時保留 worktree、推進其他票。中斷恢復核對表格與實際 session／程序／Git，不憑舊「閒置」狀態重複派寫入任務。
+OpenCode V2 的綁定程序：
 
-## OpenCode V2：先綁定，再派實作
+1. 首次建立唯讀子 session，取得 ID 與預設目錄，確認沒有背景寫入。
+2. 主 agent 獨立呼叫 `session_move`，明確帶該子 `sessionID` 與 worktree 絕對路徑；移動與依賴新目錄的續派分開呼叫。
+3. 下一次呼叫先唯讀驗證預設目錄（不以 `workdir`／`cd` 覆蓋）、Git top-level、branch、HEAD、status、依賴基準及相對讀檔；讀取目標 `AGENTS.md` 與適用規則。符合預期後，依本次派工的條件授權直接開始整票實作，無須另回主 agent 等待第三次核准。
+4. 不符時停在唯讀狀態，回報預期／實際與錯誤，由主 agent 修正綁定。後續中斷恢復先核對；正確就續作，不重做初始化。
 
-依 [V2 Tools 的 Sessions／Subagent 說明](https://opencode.ai/v2/docs/tools/)：`session_move` 在安全邊界生效，依賴目的目錄的操作必須在後續呼叫。不得假設 `subagent` 支援 `directory` 參數；以目前工具 schema 為準。主 agent 保持主 repo 的協調位置，各子 session 分別處理：
+Worktree 建立位置與 session 綁定是不同檢查；前者依 worktree skill 與 Git 實值驗證，後者以預設工具上下文驗證。
 
-1. **建立唯讀 session**：首次 `subagent` 只要求回報預設目錄與環境，不實作、不執行會寫入的測試／安裝／產生器。取得工具回傳的 `sessionID`，記入執行表。多票可平行初始化，但每個 ID 都須對應自己的 ticket／角色／目標 worktree。
-2. **等待完成並移動**：收到初始化完成通知，確認該子 session 閒置且無背景寫入後，主 agent 用獨立 `execute` 呼叫 `tools.opencode.session_move({ sessionID: "<子 session ID>", directory: "<worktree 絕對路徑>" })`。必須帶子 ID；省略會移動主 session。不同子 session 可各自移動，但同一 session 的移動與續派不可平行，也不可放在同一 `execute` 批次。
-3. **後續呼叫驗證**：移動呼叫完成後，另呼叫 `subagent` 並帶同一 `sessionID`，僅做唯讀核對。先用不指定 `workdir`、不含 `cd`／`git -C` 的 shell 查看預設目錄（PowerShell 用 `Get-Location`）與 `git rev-parse --show-toplevel`，確認均為目標 worktree；再核對 branch、HEAD、`git status --short`、依賴 SHA 及必要測試檔。用相對路徑唯讀既有檔案並與目標內容對照，避免只證明 shell 的目錄覆寫可用。重新讀取目標 `AGENTS.md`、適用文件及所需 skills，不假設移動會清除舊對話脈絡。
-4. **授權實作**：主 agent 比對回報與執行表，位置、分支、依賴、檔案基準均符合後，才登記寫入者並在下一次呼叫派實作。綁定後仍明確使用目標絕對路徑／shell `workdir`，但它們不是 session 綁定成功的證據。
-5. **恢復與失敗**：後續切片恢復固定 session，先重做第 3 步核對；位置正確不必重移。位置錯誤則收回修改權，待閒置後重做移動與驗證。工具缺失、移動失敗或預設工具上下文仍不符時，保留錯誤、版本、子 ID、預期／實際位置，依阻擋流程處理並推進其他票；不能只在 prompt 寫路徑或靠 shell `workdir` 就放行修改。
+## 交付回報
 
-Worktree 是否建立正確與 session 是否綁定正確分開驗證：依 worktree 規則使用明確路徑建立，再用 `git worktree list --porcelain` 核對主 repo、實際路徑、branch／base；UI 顯示、`worktree_create` 回傳路徑或主 session 位置均不能取代子 session 驗證。
+以精簡摘要及證據路徑回報，不重貼完整規格與輸出：
 
-## Subagent 回報格式
+1. **狀態與交付**：本票 TODO／驗收完成情況、實際行為及未完成項目；工具 `completed` 只代表呼叫結束。
+2. **位置與版本**：session、worktree、branch、commit、修改檔案及未提交變更歸屬；是否停寫、背景程序狀態。
+3. **驗證**：AC 對應、命令／工作目錄、結果、環境與證據位置；區分通過、有效 Red、環境失敗及未執行。
+4. **阻擋與下一步**：未解問題、已試方案、必要外部條件與仍可推進工作。正常完成時交獨立 reviewer；內部修復仍由原 owner 接續。
 
-每次回報均須包含以下欄位。不適用者寫明原因；尚未驗證者保留為未完成。
+## 主 agent 的持續排程
 
-1. **本輪狀態**：已完成／需另一角色接手／受阻、實際完成範圍。工具的 `completed` 只代表呼叫結束，不代表 ticket 完成。
-2. **交付位置**：session ID、實際 worktree、branch、HEAD／commit（若有）、變更檔案，以及未提交變更與其歸屬；明列是否已停止所有寫入及仍在執行的背景程序。
-3. **驗證證據**：執行命令、工作目錄、結果及對應驗收項目；區分實際通過、預期 Red、環境失敗與未執行，較長輸出提供證據檔案路徑。Test agent 另提供 [implement-spec 的測試品質與有效 Red](implement-spec.md#測試品質與有效-red) 所要求的契約依據、覆蓋對照及 Red 證據；修改既有測試時附修改分類與重新驗證結果。
-4. **剩餘工作**：逐項列出本票 TODO／驗收的未驗證、未實作、受阻狀態及已知依賴；整份 spec 由主 agent 盤點。
-5. **下一次交接**：接手角色、具體動作、所需輸入、完成條件；不能只寫「後續處理」。
-6. **阻擋與解鎖**：失敗證據、已試方案／結果、所需外部條件、仍可推進工作；無阻擋明寫「無」。
+收到回報後核對實際成果、TODO／AC 與證據，依情況立即執行：
 
-Subagent 提出接手建議，主 agent 審查並依下方流程派工；Green 發現測試需調整時交回 Test。
+| 狀態 | 下一步 |
+| --- | --- |
+| owner 提前回報局部完成 | 沿用同一 session 繼續剩餘本票工作，不新增 Test／Green 配對 |
+| 本票完成 | 派獨立 reviewer 檢查穩定交付 |
+| 審查發現阻擋缺陷 | 一次交原 owner 修正，完成後針對變更複查 |
+| 審查通過 | 串行合入 integration、跑受影響回歸，通過後解鎖下游 |
+| 環境或產品失敗 | 原 owner 排錯；必要時派專項唯讀診斷，持續其他可執行工作 |
+| 全票完成 | 執行最終整合驗證及約定收尾；缺口轉為未完成修正項並繼續 |
 
-## 主 agent 接收後的必做流程
+每次更新後重算所有可執行票，依依賴、檔案所有權及環境容量平行派出。等待背景工作時保留 ID 並等通知，不重複派工或輪詢。
 
-每次收到 subagent 結果後，依序執行：
+## 結束門檻
 
-1. **驗收本輪**：核對 worktree、diff、角色修改邊界與驗證證據。缺少證據或回報不完整時，要求原 subagent 補齊或重新派工；不能直接接受其完成宣告。
-2. **核對剩餘工作**：對照 ticket 原始 TODO／驗收項目及 spec，更新實際進度。Subagent 的剩餘清單是交接輸入，不取代主 agent 自行核對。
-3. **立即接續行動**：
-   - 本輪未通過：派回相應角色修正或補證據。
-   - 有效 Red：派 Green agent 實作。
-   - 切片通過但 ticket 未完成：先依 implement-spec 的「Green 切片提交檢查點」保存完整交付，再派 Test agent 建立下一個尚未覆蓋行為的 Red；不適用 TDD 的工作依已記錄的替代驗證方式續作。
-   - Ticket 驗收完成：更新票券狀態，重新計算依賴並派出下一張可執行 ticket。
-   - 所有 tickets 完成：執行整合、整體驗證與收尾；發現缺口時重新派工。
-   - 存在阻擋：依 implement-spec 的阻擋判定處理，並繼續其他可推進工作。
-4. **確認已交接**：只要還有可執行工作，就必須實際發出下一個工具呼叫或 subagent 委派；「接下來會做」「尚未完成」等進度文字不能代替派工，也不能作為最終回覆結束任務。
+主 agent 逐項核對整份 spec／tickets 的 TODO、驗收、審查、整合修正及收尾。仍有可執行工作就實際呼叫工具／派工，仍有背景工作就等待並接續；「下一步會做」不能代替執行或作為結束理由。
 
-等待背景 subagent 時保留 session ID、角色、待回報工作，依工具約定等完成通知後續接驗收；不重複派工，也不要求使用者再次觸發 `implement-spec`。
-
-## 任務結束門檻
-
-- 摘要依最新回報、驗收 commit、ticket 對照與實際狀態，區分本輪完成／仍未完成／正在執行／下一步；來源不一致先核對，不沿用舊摘要。
-- 最終回覆前盤點整份 spec：有工作就實際派工，有背景工作就等待通知後續作；摘要不能取代工具執行。僅符合下列門檻才結束。
-
-核對剩餘驗收、執行中 subagent、整合／收尾狀態後，僅在整體完成，或依 implement-spec 證實外部阻擋且無其他可推進工作時結束。
-
-環境中斷後先讀 spec、tickets、交接證據與 Git 狀態，確認既有 subagent 是否仍執行，再續接；舊摘要不是完成證據。
+所有必要項目完成才回報完成。只有依 implement-spec 證實全部剩餘工作受外部條件阻擋且無可推進工作時，才明記未完成、等待必要輸入；取得輸入後按執行表、Git 與程序實況恢復，不要求使用者重新啟動 `implement-spec`。

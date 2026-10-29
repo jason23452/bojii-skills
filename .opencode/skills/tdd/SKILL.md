@@ -1,38 +1,31 @@
 ---
 name: tdd
-description: Test-driven development. Use when the user wants to build features or fix bugs test-first, mentions "red-green-refactor", or wants integration tests.
+description: 測試驅動開發。使用於要求 test-first、red-green-refactor、回歸修復或整合測試的工作。
 ---
 
 # Test-Driven Development
 
-TDD is the red → green loop. This skill is the reference that makes that loop produce tests worth keeping: what a good test is, where tests go, the anti-patterns, and the rules of the loop. Every section applies on every cycle: consult them before and during the loop, not after.
+TDD 是實作者內部的 Red → Green → Refactor 回饋迴圈；派工與整票完成依專案執行規範。先讀相關 glossary／ADR，測試名稱使用領域詞彙。
 
-When exploring the codebase, read `GLOSSARY.md` (if it exists) so test names and interface vocabulary match the project's domain language, and respect ADRs in the area you're touching.
+## 開始前
 
-## What a good test is
+1. 讀取已確認 spec／ticket，列出正常、必要失敗、邊界及回歸情境。
+2. 沿用規劃已確認的公開測試邊界與驗收方式。若尚未確認、且會改變產品契約或驗收範圍，在實作前釐清；一般 fixture、helper 與內部設計自行處理。
+3. 選擇能證明行為的最小測試層級。快速邏輯／元件測試、API／契約整合與真實 runtime／E2E 分工；保留規格指定的真實驗收。
 
-Tests verify behavior through public interfaces, not implementation details. Code can change entirely; tests shouldn't. A good test reads like a specification: "user can checkout with valid cart" tells you exactly what capability exists, and it survives refactors because it doesn't care about internal structure.
+## 內部迴圈
 
-See [tests.md](tests.md) for examples and [mocking.md](mocking.md) for mocking guidelines.
+1. **Red**：從情境清單挑下一個行為，寫可執行且具預期斷言的測試，實跑確認因該產品行為缺失而失敗。先修好環境或測試錯誤；既有案例已涵蓋者重用，不製造失敗。
+2. **Green**：完成足以讓該案例與既有受影響測試通過的產品修改。
+3. **Refactor**：在 Green 下整理產品與測試結構，保持對外契約及斷言強度，重跑受影響檢查。
+4. 更新情境清單並繼續，直到本次交付要求全數滿足，再完成指定的整合與驗收。
 
-## Seams: where tests go
+同一 owner 可連續修改產品、測試與 fixtures；無需逐個測試回報等待另一角色。跨代理交接與證據彙整放在功能交付或實際阻擋時。新發現的情境記入清單，依已確認範圍完成，不預先批量寫完所有想像的測試再實作。
 
-A **seam** is the public boundary you test at: the interface where you observe behavior without reaching inside. Tests live at seams, never against internals.
+## 品質界線
 
-**Test only at pre-agreed seams.** Before writing any test, write down the seams under test and confirm them with the user. No test is written at an unconfirmed seam. You can't test everything, so agreeing the seams up front is how testing effort lands on the critical paths and complex logic instead of every edge case.
-
-Ask: "What's the public interface, and which seams should we test?" Give each proposed seam a one-line note on what it catches and what it misses.
-
-When the shape of that interface is itself in question (how deep the module is, where the seam belongs, what the interface should expose), call the Skill tool with "codebase-design" for the vocabulary. It is the shared source of the module, interface, depth, seam, adapter, leverage and locality terms, and it is a reference to consult, not a session to run.
-
-## Anti-patterns
-
-- **Implementation-coupled**: mocks internal collaborators, tests private methods, or verifies through a side channel (querying the database instead of using the interface). The tell: the test breaks when you refactor but behavior hasn't changed.
-- **Tautological**: the assertion recomputes the expected value the way the code does (`expect(add(a, b)).toBe(a + b)`, a snapshot derived by hand the same way, a constant asserted equal to itself), so it passes by construction and can never disagree with the code. Expected values must come from an independent source of truth: a known-good literal, a worked example, the spec.
-- **Horizontal slicing**: writing all tests first, then all implementation. Bulk tests verify _imagined_ behavior: you test the _shape_ of things rather than user-facing behavior, the tests go insensitive to real changes, and you commit to test structure before understanding the implementation. Work in **vertical slices** instead: one test → one implementation → repeat, each test a **tracer bullet** that responds to what the last cycle taught you.
-
-## Rules of the loop
-
-- **Red before green.** Write the failing test first, then only enough code to pass it. Don't anticipate future tests or add speculative features.
-- **One slice at a time.** One seam, one test, one minimal implementation per cycle.
-- **Refactoring is not part of the loop.** It belongs to the review stage (see the `code-review` skill), not the red → green implementation cycle.
+- 透過公開介面驗證可觀察行為，避免綁私有方法或內部協作者呼叫細節。
+- 預期值取自規格、已確認案例或獨立算例；不複製實際輸出，不用受測邏輯重算期待值。
+- 測試修改依需求解釋；必要斷言、授權與失敗案例保持有效，不能以刪除、skip 或放寬判定取得 Green。
+- Mock 證明其邊界，不能冒充真實 runtime／UI 驗收。詳細測試與替身原則見 [tests.md](tests.md) 及 [mocking.md](mocking.md)。
+- 記錄命令、環境與實際結果。僅在變更、整合或新疑慮影響證據時重跑適當範圍；整票獨立審查仍核對測試是否真的能抓錯。
