@@ -28,6 +28,7 @@
 
 ## 2. 準備環境與任務圖
 
+- 主對話留在使用者的 `dev` 工作區協調；integration 與票級 worktrees 是執行位置，不是主對話的新位置。依 [Session 綁定](subagent.md#session-綁定) 指定工具工作目錄及子代理 session，續作時亦沿用此界線。
 - 主 agent 自動載入 [worktree skill](../../.opencode/skills/worktree/SKILL.md)，建立本地 `<spec_name>-merge` integration 分支／worktree，以及 `.worktree/<spec_name>-tickets-<NN>` 票級 worktrees，並依契約配置各自的隔離環境；無需使用者另行呼叫。依該 skill 核對主 repo、路徑與基底，保留未知及使用者變更。
 - 明確啟動 `implement-spec` 即授權執行開工契約中列明的 worktree、隔離 Docker、資料副本及必要準備；來源、歸屬、可停止服務、清理與恢復範圍以前置確認為準。
 - **環境就緒門檻**：Git worktree 建立完成後，依 worktree skill 實際完成適用的隔離設定、啟動與驗證。主 agent 在執行表記錄每個 worktree 的環境模式、程序／資源歸屬、ports／endpoint、資料位置與驗證證據，再放行依賴該環境的工作。需要 owner 建立 harness 的準備可先派工，產品驗收仍須等其就緒；純文件工作記錄無執行資源的依據。integration 在整合驗證前同樣通過此門檻。

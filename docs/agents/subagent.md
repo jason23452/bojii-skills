@@ -23,6 +23,10 @@ owner 自主完成產品、測試、fixtures、排錯與驗證；本票內部的
 
 ## Session 綁定
 
+主對話固定留在使用者的 `dev` 工作區，作為協調入口；建立 integration／票級 worktree 不移動主 session。啟動時記錄主 session 的原始目錄，若該目錄不是承載 `dev` 的 worktree，先釐清使用者指定的協調位置，不自行切換目錄或 checkout 分支。
+
+主 agent 的整合、測試與清理命令以工具的 `workdir` 指向目標 worktree，讀寫檔案使用明確路徑。只有子代理需綁定其工作目錄；呼叫 `session_move` 時必須明確指定已核對的子 `sessionID`，不得省略或填入主 session ID。使用者另行明確要求移動主對話時才依該要求處理。
+
 使用 worktree 前依工具當下 schema 與平台規則建立、驗證綁定；不假設 subagent 有 `directory` 參數。
 
 OpenCode V2 的綁定程序：
