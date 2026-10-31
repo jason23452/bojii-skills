@@ -1,15 +1,15 @@
 ---
 name: worktree
-description: 建立 Git worktree 或 ticket/integration worktree，依已確認的開工契約配置隔離執行環境；Docker 模式從本地 dev volume 複製獨立資料。
+description: implement-spec 準備或恢復環境時自動使用，亦可直接要求建立 Git worktree；依開工契約配置並驗證隔離執行環境，Docker 模式從本地 dev volume 複製獨立資料。
 ---
 
-建立指定 worktree 與其隔離環境。使用者直接要求建立 worktree，或啟動已確認開工契約的 `implement-spec`，即可在該授權範圍內執行；不要求再單獨呼叫此 skill。
+建立指定 worktree 與其隔離環境。使用者直接要求建立 worktree，或啟動已確認開工契約的 `implement-spec`，主 agent 即自動載入並執行本流程；不要求再單獨呼叫此 skill。沿用既有授權，只有必要操作超出範圍時才詢問該差額。
 
 ## 環境模式
 
-- 先讀開工契約，確認驗收需要的環境。已有明確的非 Docker 方案時，使用 worktree 專屬程序、ports 與隔離 fixtures；執行下方 Git 步驟 1～4、E2E 隔離步驟 8 及驗證步驟 10。
+- 先讀開工契約，確認驗收需要的環境。已有明確的非 Docker 方案時，使用 worktree 專屬程序、ports 與隔離 fixtures；執行下方 Git 步驟 1～4，以及設定與驗證步驟 8～10 的適用部分。
 - Docker 模式使用獨立 containers、images、network、ports 與 volumes，資料初始化來源為本地 `dev` volume 副本，執行完整流程。直接呼叫且未指定模式時沿用 Docker 模式；來源或操作授權缺口在建立資源前釐清。
-- 模式在規劃階段定案並核對本文件；執行時沿用。Git worktree 的建立本身不額外要求啟動 Docker。下方 Docker 設定、容器與 volume 的檢查僅適用 Docker 模式。
+- 模式在規劃階段定案並核對本文件；執行時沿用。非 Docker 模式仍須實作並驗證隔離；純文件工作無執行資源時記錄依據。下方 Docker 設定、容器與 volume 的檢查僅適用 Docker 模式。
 
 ## 流程
 
@@ -18,11 +18,11 @@ description: 建立 Git worktree 或 ticket/integration worktree，依已確認�
 3. integration worktree 從本地 `dev` 建立；ticket worktree 從對應 spec 的 `<spec_name>-merge` branch 建立。若來源 branch 不存在、狀態不乾淨，或名稱/來源有歧義，透過互動式 `question` 工具釐清，不要自行改用其他 base。
 4. 依根目錄 `AGENTS.md` 的位置規則，計算 `<project-root>/.worktree/<worktree-name>` 的絕對路徑；名稱必須是單一目錄名稱，且解析後的父目錄必須是主 repo 內的 `.worktree`（包含檢查 symlink/junction 的實際指向）。確認該目錄已列入 repo 的 ignore 設定，再使用可明確指定路徑的 `git worktree add` 建立對應 branch；若工具無法指定或保證此路徑，改用 Git 指令。建立後以 `git worktree list --porcelain` 核對實際登錄路徑與預定路徑一致、branch 正確，且檔案內容基於預期 base；全部符合才繼續初始化環境。委派 subagent 時提供已解析的絕對路徑及相同驗證要求。
 5. 從 `dev` worktree 的 Docker 設定辨識正在使用的 volume。使用 Docker labels、Compose project/service 名稱與 container mounts 交叉確認來源；若無法明確辨識 `dev` volume，停止 Docker 初始化並透過互動式 `question` 工具請使用者指出來源。
-6. 為新 worktree 建立獨立命名的 volume，將 `dev` volume 的資料複製到新 volume；不得讓新 worktree 與 `dev` 或其他 worktree 共用同一 volume。來源 volume 保持不變。若需停止 `dev` 容器才能取得一致資料，先透過互動式 `question` 工具詢問；不得未經同意停止或修改 `dev` 環境。
+6. 為新 worktree 建立獨立命名的 volume，將 `dev` volume 的資料複製到新 volume；不得讓新 worktree 與 `dev` 或其他 worktree 共用同一 volume。來源 volume 保持不變。若需停止 `dev` 容器才能取得一致資料，核對開工契約的停止／恢復授權；已涵蓋則執行並恢復，未涵蓋才透過 `question` 詢問該操作。
 7. 為每個 worktree 配置唯一的 Compose project name、container 名稱、network、image tag 與 host ports。Image 必須從該 worktree 的程式碼建置並使用該 worktree 專屬 tag；不得直接使用另一 worktree 的 image。挑選尚未占用的 ports，並將實際 port 對應記錄在該 worktree 的本機環境設定中。
 8. 若 repo 有 E2E 測試，為 E2E server 分配此 worktree 專屬且未占用的 port，並將 app server 與測試 runner 的 `baseURL`/port 一起設定為該值。優先使用既有環境變數或 runner CLI；若設定寫死而無法隔離，在此 worktree 中調整為可配置並保留原預設值，執行 E2E 驗證。不得讓測試連到 `dev` 或其他 worktree 的 server。
-9. 優先使用 repo 既有可覆寫的環境變數或 Compose override 隔離設定；本機設定與 secrets 不得寫入 tracked 檔案或輸出到對話。若 Compose 設定無法安全地區分 project、image、volume 或 ports，先說明缺少的設定，使用互動式 `question` 工具確認後再調整，不要默默修改共享設定。
-10. 啟動隔離環境，核對程序、app/E2E ports 與 `baseURL`；Docker 模式另核對 containers、image tags 與 volume mounts，確認都屬於此 worktree。執行健康檢查及指定驗收，記錄 worktree/branch、base、資源歸屬及結果，不揭露 secrets。完成後依開工契約清理本次資源，保留約定的 integration 與證據。
+9. 優先使用 repo 既有可覆寫的環境變數或 Compose override 隔離設定；本機設定與 secrets 不得寫入 tracked 檔案或輸出到對話。若設定無法區分環境資源，依已授權範圍補齊 worktree 本地設定並驗證；必須異動共享設定且契約未涵蓋時，才使用 `question` 確認該差額。
+10. 啟動隔離環境，核對程序的工作目錄、app/E2E ports、測試 runner 的 `baseURL`、上游 endpoint 及可變資料／fixtures 路徑；Docker 模式另核對 containers、image tags 與 volume mounts，確認實際使用此 worktree 的程式碼與專屬資源。執行健康檢查及指定驗收，記錄 worktree/branch、base、資源歸屬及結果，不揭露 secrets。全部適用檢查通過才標示環境就緒；僅建立 Git 目錄不算完成。完成後依開工契約清理本次資源，保留約定的 integration 與證據。
 
 ## 隔離與安全
 

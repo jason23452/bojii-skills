@@ -28,8 +28,10 @@
 
 ## 2. 準備環境與任務圖
 
-- 建立本地 `<spec_name>-merge` integration 分支／worktree，以及 `.worktree/<spec_name>-tickets-<NN>` 票級 worktrees。依 worktree skill 核對主 repo、路徑與基底，保留未知及使用者變更。
+- 主 agent 自動載入 [worktree skill](../../.opencode/skills/worktree/SKILL.md)，建立本地 `<spec_name>-merge` integration 分支／worktree，以及 `.worktree/<spec_name>-tickets-<NN>` 票級 worktrees，並依契約配置各自的隔離環境；無需使用者另行呼叫。依該 skill 核對主 repo、路徑與基底，保留未知及使用者變更。
 - 明確啟動 `implement-spec` 即授權執行開工契約中列明的 worktree、隔離 Docker、資料副本及必要準備；來源、歸屬、可停止服務、清理與恢復範圍以前置確認為準。
+- **環境就緒門檻**：Git worktree 建立完成後，依 worktree skill 實際完成適用的隔離設定、啟動與驗證。主 agent 在執行表記錄每個 worktree 的環境模式、程序／資源歸屬、ports／endpoint、資料位置與驗證證據，再放行依賴該環境的工作。需要 owner 建立 harness 的準備可先派工，產品驗收仍須等其就緒；純文件工作記錄無執行資源的依據。integration 在整合驗證前同樣通過此門檻。
+- 續作時核對既有 worktree 與資源的實況，沿用仍有效的隔離環境並補齊缺項；建立目錄、宣告已授權或測試使用 mock 均不等於環境隔離已驗證。缺口依例外處理解除，已確認操作直接執行。
 - 維護整份 TODO／AC 責任對照及執行表。每條依賴指向下游真正需要的已驗收成果；同一共用介面由唯一 owner 負責。
 - 同時派出所有依賴已滿足、修改範圍互不衝突且環境容量足夠的票。必要環境準備可與不依賴它的工作平行；上游完成立即重算可執行票，不等待同批全部回報。
 - 預檢採可重跑的指令／腳本：核對實際程序的部署環境、runtime 版本、endpoint、必要服務、fixtures 與 provider 設定。記錄預期／實值及結果，秘密值不入證據。目標環境驗收前再執行；檔名或 container healthy 不代表政策設定正確。

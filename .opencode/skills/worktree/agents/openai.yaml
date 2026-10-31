@@ -1,5 +1,5 @@
 interface:
   display_name: "Create Isolated Worktree"
-  short_description: "Create a worktree with an isolated Docker environment."
+  short_description: "由 implement-spec 自動建立並驗證 worktree 隔離環境。"
 policy:
   allow_implicit_invocation: true

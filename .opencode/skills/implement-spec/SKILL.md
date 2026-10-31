@@ -11,7 +11,7 @@ disable-model-invocation: true
 ## 核心流程
 
 1. 讀取整份 spec、全部 tickets、決策／研究／授權與準備紀錄。確認開工契約可直接執行；缺口在受影響產品實作前補齊，已定案內容沿用。
-2. 建立完整 TODO／AC 責任對照與依賴圖，準備 integration 及票級 worktrees。保留既有成果，核對 Git 基底，使用合併處理依賴。
+2. 建立完整 TODO／AC 責任對照與依賴圖，自動載入 `worktree` skill，依開工契約建立 integration 及票級 worktrees 與隔離環境；不需使用者另行呼叫。依權威流程的環境就緒門檻驗證後，才開始依賴該環境的工作。保留既有成果，核對 Git 基底，使用合併處理依賴。
 3. 對所有可獨立開工票指派單一 owner，能平行則背景執行。一次提供整票目標與驗收，透過 context pointers 傳遞資料。
 4. Owner 使用 `tdd`，自主完成測試、產品、fixtures、排錯、重構及必要驗證，直到本票完整交付；不逐測試切換 Test／Green 代理。
 5. 穩定交付由獨立 reviewer 檢查需求、實作及測試品質。問題交原 owner 修正，針對修正複查；證據符合版本與環境才通過。

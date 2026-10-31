@@ -23,7 +23,7 @@ This repo uses a single-context domain docs layout. See `docs/agents/domain.md`.
 
 ### Implement-spec 整票自主交付
 
-使用 `implement-spec` 時，依 `docs/agents/implement-spec.md` 核對已確認的開工契約，由單一 owner 自主完成每票 TDD、排錯與驗收，獨立票級審查後逐票整合；全部 TODO、驗收及收尾完成才結束。
+使用 `implement-spec` 時，依 `docs/agents/implement-spec.md` 核對開工契約，自動載入 `worktree` skill 建立並驗證隔離環境，再由單一 owner 自主完成每票 TDD、排錯與驗收，獨立票級審查後逐票整合；全部 TODO、驗收及收尾完成才結束。
 
 ### Subagent 交接
 
