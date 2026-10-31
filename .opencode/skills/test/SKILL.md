@@ -1,6 +1,6 @@
 ---
 name: test
-description: 規劃或執行驗證、撰寫或修改測試，以及執行 lint、typecheck、build 時使用。統一選擇 repo 既有工具，按需載入 Playwright、Node.js test runner 與 lint 指引，管理前置資源、結果及交付證據。
+description: 配置 .env.test 測試參數、規劃或執行驗證、撰寫或修改測試，以及執行 lint、typecheck、build 時使用。統一沿用 repo 工具，按需載入環境配置、Playwright、Node.js test runner 與 lint 指引。
 ---
 
 # 統一驗證入口
@@ -18,6 +18,7 @@ description: 規劃或執行驗證、撰寫或修改測試，以及執行 lint�
 
 | 工作 | 載入 |
 | --- | --- |
+| 配置 `.env.test`、測試缺參數，或 worktree 需傳遞測試設定 | [測試環境參數](references/test-env.md)；支援 Agent 配置與使用者填寫，確認實際程序載入 |
 | 首次建立專案驗證入口，或既有入口因環境／程式變動失效 | [專案專屬驗證入口](references/project-verification.md)；沿用既有位置，補齊 Launch／Doctor／Drive／Evidence／Cleanup |
 | Playwright UI／API、瀏覽器 fixtures、trace 診斷 | [Playwright](references/playwright.md) |
 | Node.js 內建 test runner | [Node.js test](references/node-test.md) |

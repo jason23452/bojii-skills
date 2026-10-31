@@ -31,7 +31,7 @@ This repo uses a single-context domain docs layout. See `docs/agents/domain.md`.
 
 ### 測試與靜態檢查
 
-規劃或執行測試、lint、typecheck、build 時，使用 `test` skill 作為統一入口；沿用 repo 工具與驗收邊界，按需載入工具指引。
+配置 `.env.test` 測試參數，或規劃／執行測試、lint、typecheck、build 時，使用 `test` skill 作為統一入口；沿用 repo 工具與驗收邊界，按需載入環境配置與工具指引。
 
 ### Subagent 交接
 
