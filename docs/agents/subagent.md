@@ -1,6 +1,6 @@
 # Implement-spec：整票派工與連續推進
 
-僅適用於 `implement-spec`；開工、測試、審查、整合與全量完成條件以 [implement-spec.md](implement-spec.md) 為準。Grilling 調查使用 [grilling.md](grilling.md)。
+僅適用於 `implement-spec`；開工、測試、審查、整合與全量完成條件以 [implement-spec.md](implement-spec.md) 為準。子代理新建、續作與換新依 [session 生命週期](session-lifecycle.md)。Grilling 調查使用 [grilling.md](grilling.md)。
 
 ## 一票一位 owner
 
@@ -22,7 +22,7 @@ owner 自主完成產品、測試、fixtures、排錯與驗證；本票內部的
 - 阻擋與依賴細化到成果及 TODO／驗收 ID，記錄已交付 commit、可用的 integration SHA、未完成責任與解除條件；票級摘要可為部分完成／部分受阻，不能代替逐項狀態。
 - 不同票使用獨立 worktree；同一 worktree 同時一位寫入者。Reviewer 唯讀審查 owner 已停寫的穩定 commit；合併由唯一 merger／主 agent 操作。
 - 交接前確認原角色及背景測試／產生器停止，再核對實際 branch、HEAD、diff、未追蹤檔與歸屬。未知變更保留查明。
-- 固定 session 續作同票，保留既有上下文；切換角色、恢復中斷、基線變動時做必要核對。每個內部測試迴圈不重新建立 session 或登記修改權。
+- 同票預設 resume，必要時依 session 生命週期交接換新；切換角色、恢復中斷、基線變動時做必要核對。每個內部測試迴圈不重新建立 session 或登記修改權。
 
 ## Session 綁定
 
@@ -61,7 +61,7 @@ Worktree 建立位置與 session 綁定是不同檢查；前者依 worktree skil
 
 | 狀態 | 下一步 |
 | --- | --- |
-| owner 回報局部完成，尚有可自主完成工作 | 沿用同一 session 繼續剩餘本票工作，不新增 Test／Green 配對 |
+| owner 回報局部完成，尚有可自主完成工作 | 預設 resume；符合換新條件時先交接，再由新 session 承接剩餘責任，不新增 Test／Green 配對 |
 | 局部外部受阻且有可分離成果 | 依 implement-spec 部分交付門檻審查、整合並解鎖下游；原 owner 保留剩餘責任 |
 | 新發現外部阻擋 | 記錄具體受影響項及待補條件，重算同票／跨票可執行工作；仍有工作時不發出阻塞式問題 |
 | 本票完成 | 派獨立 reviewer 檢查穩定交付 |

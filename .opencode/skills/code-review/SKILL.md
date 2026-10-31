@@ -10,6 +10,8 @@ Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
 
 Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings.
 
+本 repo 的 reviewer 生命週期依 `docs/agents/session-lifecycle.md`：首次及全新獨立審查使用未參與產出的新 session；同輪修正複查預設續用各軸原 reviewer，回報明列類型。保留兩軸分離，不把 resume 複查當成另一份全新獨立證據。
+
 The issue tracker should have been provided to you. If not, tell the user to run `/setup-matt-pocock-skills`.
 
 ## Process
@@ -58,6 +60,8 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 ### 4. Spawn both sub-agents in parallel
 
 Issue both sub-agent calls together, in the foreground, and aggregate the reports they return.
+
+首次／新視角審查為兩軸各建新 session；修正複查則在同一輪各軸原 session 傳入修正範圍、新版本與 finding 對照。原 session 不可恢復時依生命週期交接，仍標示修正複查。
 
 **Standards sub-agent prompt** should include:
 

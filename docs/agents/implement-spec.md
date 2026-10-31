@@ -73,7 +73,7 @@
 
 ## 4. 獨立票級審查與修正
 
-owner 停寫並交付可驗證 commit 後，由未參與本票實作的 reviewer 唯讀審查：
+owner 停寫並交付可驗證 commit 後，依 [session 生命週期](session-lifecycle.md) 新建未參與本票實作的 reviewer session 唯讀審查；後續區分修正複查與新視角審查：
 
 - 逐項對照 TODO／AC 與實際產品接線，找出漏實作及未驗證行為。
 - 檢查正確性、權限／資料邊界、相容性及必要失敗案例。
