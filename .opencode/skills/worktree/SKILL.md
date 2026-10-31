@@ -15,6 +15,8 @@ description: implement-spec 準備或恢復環境時自動使用，亦可直接�
 
 建立 worktree 後依 `docs/agents/subagent.md` 的 Session 綁定規則使用；`implement-spec` 的主對話留在 `dev` 工作區，只將子代理綁定至對應 worktree。
 
+初始化與續作先唯讀盤點 repo 的準備／預檢／清理入口，再依下方步驟建立 Git worktree 與適用的隔離設定。入口缺口在目標 worktree 內補齊；需以程式修改才能完成隔離時，可先派工補設定／harness，再啟動服務。依 `docs/agents/environment-contract.md` 在隔離目標實跑並確認就緒後，才放行依賴它的驗收。環境設定、啟動結果與驗證證據由主 agent 彙整至既有執行表。
+
 1. 閱讀根目錄 `AGENTS.md`、`docs/agents/implement-spec.md`，以及 repo 中 Docker/環境設定文件。依 worktree 類型套用命名：integration worktree 為 `<spec_name>-merge`；ticket worktree 為 `<spec_name>-tickets-<number>`。
 2. 以 `git worktree list --porcelain` 第一筆 worktree 記錄辨識主 repo 的絕對路徑，作為 `<project-root>`；即使目前位於 linked worktree，也使用同一個主 repo 根目錄，不以目前目錄的 `git rev-parse --show-toplevel` 取代。若主 repo 為 bare 或路徑無法確認，先釐清 repo 根目錄再建立。檢查 Git 狀態、現有 worktree/branch、Docker Compose 設定、`.env` 範本與執行中的容器。不得覆蓋既有路徑、分支、設定或使用者資料；任何 worktree/branch 都不得推送至遠端。
 3. integration worktree 從本地 `dev` 建立；ticket worktree 從對應 spec 的 `<spec_name>-merge` branch 建立。若來源 branch 不存在、狀態不乾淨，或名稱/來源有歧義，透過互動式 `question` 工具釐清，不要自行改用其他 base。

@@ -1,0 +1,5 @@
+interface:
+  display_name: "專案接手盤點"
+  short_description: "核對既有成果、遺留問題及環境前置條件，建立續作基線。"
+policy:
+  allow_implicit_invocation: true

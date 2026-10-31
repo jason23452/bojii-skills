@@ -7,9 +7,10 @@
 主 agent 一次交付整票，不將每個測試拆成派工。提供：
 
 - spec／ticket、TODO／AC、研究／決策／授權的 context pointers。
-- 完整交付結果、必要依賴的已驗證 integration SHA、環境／fixtures／驗收入口，以及 implement-spec 環境就緒門檻的證據；尚待 owner 完成的環境準備須列明責任與放行條件。
+- 完整交付結果、必要依賴的已驗證 integration SHA、環境的準備／預檢／fixtures／驗收／清理入口，以及 implement-spec 環境就緒門檻的證據；尚待 owner 完成的環境準備須列明責任與放行條件。
 - owner 修改範圍、worktree 絕對路徑、branch、完成條件及執行表位置。
 - [測試執行規則](test-execution.md)，以及已知耗時基線、測試輸出位置；續作時附前次逾時／中斷與程序清理證據，讓 owner 先診斷而非無限重跑。
+- 符合 `project-handoff` 觸發條件時附其基線紀錄，區分可沿用成果、已驗證環境與待準備資源；正常新票派工沿用已驗證 integration 基線與環境就緒證據，owner 僅補查變動及缺口。
 
 owner 自主完成產品、測試、fixtures、排錯與驗證；本票內部的 Red／Green、重構及普通檢查失敗不需交回主 agent 核准。需改跨票契約或範圍、發生實際外部阻擋、準備交付／中斷時才回報。已確認契約直接沿用，一般實作細節自行決定。
 

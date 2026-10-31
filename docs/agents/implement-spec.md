@@ -14,6 +14,8 @@
 
 讀取全部 spec／tickets、[規劃與開工契約](spec-and-tickets.md)、其決策／研究／readiness 紀錄及 [subagent 交接規則](subagent.md)。主 agent 一次建立完整任務圖，之後依變更更新。
 
+接手既有成果、恢復中斷或將既有工作移至另一環境時，自動載入 [project-handoff](../../.opencode/skills/project-handoff/SKILL.md)，依其觸發判定核對續作基線及受影響的前置條件。從零開發、首次建環境及正常新票派工直接執行本文件的開工與環境就緒檢查；發現未記錄的遺留依賴時才針對該依賴啟動盤點。盤點結果納入既有執行表，有效證據沿用，不取代產品驗收。
+
 開工前必須具備：
 
 1. **需求已定案**：正常／失敗／例外、相容性、權限與資料政策、範圍及產品 AC 明確。
@@ -31,6 +33,7 @@
 - 主對話留在使用者的 `dev` 工作區協調；integration 與票級 worktrees 是執行位置，不是主對話的新位置。依 [Session 綁定](subagent.md#session-綁定) 指定工具工作目錄及子代理 session，續作時亦沿用此界線。
 - 主 agent 自動載入 [worktree skill](../../.opencode/skills/worktree/SKILL.md)，建立本地 `<spec_name>-merge` integration 分支／worktree，以及 `.worktree/<spec_name>-tickets-<NN>` 票級 worktrees，並依契約配置各自的隔離環境；無需使用者另行呼叫。依該 skill 核對主 repo、路徑與基底，保留未知及使用者變更。
 - 明確啟動 `implement-spec` 即授權執行開工契約中列明的 worktree、隔離 Docker、資料副本及必要準備；來源、歸屬、可停止服務、清理與恢復範圍以前置確認為準。
+- 準備與恢復依 [可重現環境契約](environment-contract.md)，共用 repo 的可重跑入口。Owner 補齊當前任務需要的入口缺口；主 agent 交接入口與有效設定證據，不以每票臨時命令替代可重建環境。
 - **環境就緒門檻**：Git worktree 建立完成後，依 worktree skill 實際完成適用的隔離設定、啟動與驗證。主 agent 在執行表記錄每個 worktree 的環境模式、程序／資源歸屬、ports／endpoint、資料位置與驗證證據，再放行依賴該環境的工作。需要 owner 建立 harness 的準備可先派工，產品驗收仍須等其就緒；純文件工作記錄無執行資源的依據。integration 在整合驗證前同樣通過此門檻。
 - 續作時核對既有 worktree 與資源的實況，沿用仍有效的隔離環境並補齊缺項；建立目錄、宣告已授權或測試使用 mock 均不等於環境隔離已驗證。缺口依例外處理解除，已確認操作直接執行。
 - 維護整份 TODO／AC 責任對照及執行表。每條依賴指向下游真正需要的已驗收成果；同一共用介面由唯一 owner 負責。
@@ -52,12 +55,12 @@
 
 ### 分層驗證
 
-執行任何測試前載入 [測試執行規則](test-execution.md)，設定有限時限與證據輸出；逾時、停滯或工具中斷依該文件診斷及清理後續作。
+使用 [test skill](../../.opencode/skills/test/SKILL.md) 選擇 repo 既有驗證工具與按需指引；執行前載入 [測試執行規則](test-execution.md)，設定有限時限與證據輸出。逾時、停滯或工具中斷依該文件診斷及清理後續作。
 
 | 階段 | 必要證據 |
 | --- | --- |
 | 開發內迴圈 | 能抓住該問題的快速局部／元件／API 測試 |
-| 接線及功能交付 | 契約整合、必要真實 runtime／UI 正反案例、受影響 build／typecheck |
+| 接線及功能交付 | 契約整合、必要真實 runtime／UI 正反案例、受影響套件的既有 lint／typecheck／build |
 | 合入 integration | 合併後受影響回歸、共用契約相容性 |
 | 最終交付 | 全部 spec AC、跨票流程與指定環境驗收 |
 

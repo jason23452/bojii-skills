@@ -25,6 +25,14 @@ This repo uses a single-context domain docs layout. See `docs/agents/domain.md`.
 
 使用 `implement-spec` 時，依 `docs/agents/implement-spec.md` 核對開工契約，自動載入 `worktree` skill 建立並驗證隔離環境，再由單一 owner 自主完成每票 TDD、排錯與驗收，獨立票級審查後逐票整合；全部 TODO、驗收及收尾完成才結束。
 
+### 專案接手
+
+接手既有成果、恢復中斷任務或將既有工作移至另一環境時，使用 `project-handoff` skill；從零開發、首次建環境及正常新票派工沿用一般開工流程。觸發判定與遺留依賴盤點見該 skill。
+
+### 測試與靜態檢查
+
+規劃或執行測試、lint、typecheck、build 時，使用 `test` skill 作為統一入口；沿用 repo 工具與驗收邊界，按需載入工具指引。
+
 ### Subagent 交接
 
 執行 `implement-spec` 的 subagent 派工、回報與續作時，主 agent 與 subagent 都必須遵循 `docs/agents/subagent.md`。其他流程使用各自的交接規則。

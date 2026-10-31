@@ -1,0 +1,5 @@
+interface:
+  display_name: "統一驗證入口"
+  short_description: "沿用 repo 工具，統一管理行為測試、lint、型別及建置驗證。"
+policy:
+  allow_implicit_invocation: true
