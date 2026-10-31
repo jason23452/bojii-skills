@@ -32,7 +32,7 @@
 
 ## 預檢與環境身分
 
-測試參數配置與跨 worktree 傳遞使用 [test 的環境參數指引](../../.opencode/skills/test/references/test-env.md)。預設 `.env.test` 為本機值、`.env.test.example` 為無秘密模板；沿用 repo 既有 loader，分別確認檔案配置、程序載入與外部服務可用性。缺參數只阻擋依賴它的檢查。
+執行前盤點與執行中發現測試憑證缺項時，使用 [Agent 測試憑證指引](../../.opencode/skills/test/references/test-env.md)。`.env.test` 提供測試用 key，`.env.test.example` 為無秘密模板；先補空白欄位並繼續可做工作，集中回報取得及填值方式。測試依產品既有流程配置 key，不新增應用啟動／部署要求；缺值只阻擋相關真實測試，跨 worktree 傳遞與補值續作沿用該指引。
 
 - 使用實際程序設定核對 worktree／版本、lockfile、runtime／API 版本、資料根目錄、URL、ports 與資源歸屬；不要只靠 `.env` 檔名、健康狀態或端口可連線判定正確。
 - 啟動成功後記錄程序 ID 與啟動時間、實際 ports／URL、資料與 Compose 識別。Port 檢查有競爭窗口；以真正 bind／啟動結果為準，衝突時只重新分配本次資源，不停止未知占用者。
