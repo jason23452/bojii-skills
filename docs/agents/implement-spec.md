@@ -79,13 +79,15 @@
 
 選擇能證明行為的最小測試層級，但保留 spec 指定的真實 runtime／E2E 驗收。同一版本、同一環境且證據完整的結果可沿用；程式／測試或設定改動、merge、證據不足、flaky 疑慮時重跑受影響範圍。單純 staging／commit 不改內容免重跑。
 
+候選修正、同步或整合時，載入 test 的 [增量驗證指引](../../.opencode/skills/test/references/incremental-verification.md)，分開判定影響範圍、結果快取與審查沿用；跨版本重用須有輸入等價及影響分析證據，未知則擴大檢查。固定候選後的長驗證可與審查並行，依 [交付管線](delivery-pipeline.md) 匯合放行。
+
 ### 提交與回報
 
 在有意義且可還原的功能檢查點提交產品與測試，票完成或中斷交接時彙整 AC、命令、結果、環境及剩餘工作。每個小測試不另設主 agent 核准、分角色 commit 或 evidence commit 門檻。提交前核對 staged diff 與檔案歸屬。
 
 ## 4. 獨立票級審查與修正
 
-owner 停寫並交付可驗證 commit 後，依 [session 生命週期](session-lifecycle.md) 新建未參與本票實作的 reviewer session 唯讀審查；後續區分修正複查與新視角審查：
+owner 完成實作及必要快速檢查、停寫並固定候選 base／head 後，依 [交付管線](delivery-pipeline.md) 回報「程式就緒、驗證中」，可在剩餘必要驗證執行時開始審查。依 [session 生命週期](session-lifecycle.md) 新建未參與本票實作的 reviewer session 唯讀審查；最終 verdict 必須核對完整必要證據，後續區分修正複查與新視角審查：
 
 - 逐項對照 TODO／AC 與實際產品接線，找出漏實作及未驗證行為。
 - 檢查正確性、權限／資料邊界、相容性及必要失敗案例。
@@ -103,7 +105,7 @@ owner 停寫並交付可驗證 commit 後，依 [session 生命週期](session-l
 ## 5. 逐票整合與解鎖
 
 1. 每票本身驗收與獨立審查通過後，由唯一 merger／主 agent 將精確交付 commit 合入 `<spec_name>-merge`，執行受影響回歸。局部受阻票可依下方部分交付門檻整合已通過的成果，保留整票未完成狀態。
-2. 記錄 integration 通過的 SHA，才解鎖依賴該成果的下游。新票以此為基底；執行中的票在交付前同步最新已驗證基線，重驗受影響部分。
+2. 記錄 integration 通過的 SHA，才解鎖依賴該成果的下游。新票以所需的已驗證成果為基底；執行中的票依 [交付管線](delivery-pipeline.md) 評估基線漂移，有影響、衝突或無法證明相容時才同步並重驗。無影響證據支持時保留本輪候選，合入前仍核對當下 integration 並驗證實際合併結果。
    新增根因預防能力時，依 [共用預防規則](review-prevention.md) 協調唯一 owner、採用入口與跨票依賴，將已驗證成果交接後續票。
 3. 合併／回歸失敗時保留證據，交原 owner 或明確的整合修正 owner 處理；暫不解鎖受影響依賴。其他無相依工作持續推進。
 4. 合併操作串行，產品實作可平行。修正以包含問題的 integration 版本為基底，不回到缺少其他票成果的舊分支猜修。

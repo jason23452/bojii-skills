@@ -23,6 +23,7 @@ description: 配置 .env.test 測試參數、規劃或執行驗證、撰寫或�
 | Playwright UI／API、瀏覽器 fixtures、trace 診斷 | [Playwright](references/playwright.md) |
 | Node.js 內建 test runner | [Node.js test](references/node-test.md) |
 | lint／格式靜態檢查 | [Lint](references/lint.md) |
+| 候選修正、基線同步、整合或改善慢驗證 | [增量驗證與證據沿用](references/incremental-verification.md)；分開判定 affected、快取與 review 沿用 |
 | 新增行為、回歸修復的 Red → Green → Refactor | `tdd` skill；本入口選擇邊界，TDD 負責開發節奏 |
 | 失敗、停滯或未知原因 | `diagnosing-bugs` skill |
 
