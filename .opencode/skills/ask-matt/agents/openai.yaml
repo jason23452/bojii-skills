@@ -1,5 +1,5 @@
 interface:
-  display_name: "Ask Matt"
-  short_description: "Find the right skill or workflow"
+  display_name: "舊入口：請用 bojii-guide"
+  short_description: "相容舊指令，轉向新版使用導覽"
 policy:
   allow_implicit_invocation: false

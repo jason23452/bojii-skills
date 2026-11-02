@@ -22,7 +22,7 @@ The map is a single issue on this repo's issue tracker, labelled `wayfinder:map`
 
 The map is an **index**, not a store. It lists the decisions made and points at the tickets that hold their detail; a decision lives in exactly one place, its ticket, so the map never restates it, only gists it and links.
 
-**Where the map, its child tickets, blocking, and frontier queries physically live is tracker-specific.** The issue tracker should have been provided to you. If not, tell the user to run `/setup-matt-pocock-skills`. Consult the tracker doc's "Wayfinding operations" section for how _this_ repo expresses them. If no tracker has been provided, default to the local-markdown tracker.
+**決策地圖、子票、阻擋關係與 frontier 查詢的存放方式依 tracker 而定。** 沿用已提供的 tracker 設定，操作方式見該文件的「Wayfinding operations」；缺少時請使用者執行 `/setup-bojii-skills` 確認，不自行選擇另一套 tracker。
 
 ### The map body
 

@@ -1,5 +1,5 @@
 interface:
-  display_name: "Setup Matt Pocock Skills"
-  short_description: "Configure a repo for the skills"
+  display_name: "舊入口：請用 setup-bojii-skills"
+  short_description: "相容舊指令，轉向新版專案初始化"
 policy:
   allow_implicit_invocation: false

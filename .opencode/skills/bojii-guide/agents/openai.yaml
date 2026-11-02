@@ -1,0 +1,5 @@
+interface:
+  display_name: "bojii-skills 使用導覽"
+  short_description: "依專案狀態選擇起點與下一步"
+policy:
+  allow_implicit_invocation: false

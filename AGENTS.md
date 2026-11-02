@@ -5,6 +5,10 @@
 
 ## Agent skills
 
+### 如何開始
+
+使用 `/bojii-guide` 依目前專案與任務選擇流程；首次設定或補齊 tracker、領域文件及流程入口使用 `/setup-bojii-skills`。
+
 ### Grilling 互動提問
 
 使用 `grilling`、`grill-me` 或 `grill-with-docs` 時，先完成影響方案與拆票的可行性研究，再確認實作共識並更新領域文件。調查、必要實驗與未解事項門檻見 `docs/agents/grilling.md`。

@@ -31,6 +31,23 @@ npx --yes --package="github:jason23452/bojii-skills#${TAG}" -- bojii-skills upda
 
 安裝採逐檔合併，既有 `.opencode/skills/` 中的其他 skills 與同一 skill 內安裝包未包含的額外檔案都會保留；全域安裝也適用。
 
+## 如何開始
+
+安裝後，在 agent 對話中使用以下 skills（不是終端機命令）：
+
+| 情境 | 起點 |
+| --- | --- |
+| 不知道下一步 | `/bojii-guide`，附上目標與目前成果 |
+| 首次配置專案 | `/setup-bojii-skills`；已有配置只補缺項 |
+| 想法尚未釐清 | `/grill-with-docs` → `/to-spec` → `/to-tickets` |
+| 已有 spec 與 tickets | `/implement-spec .scratch/<feature>/spec.md` |
+| 接手未完成成果，尚無明確下一個任務 | `/project-handoff` |
+| 只要審查變更 | `/code-review <固定基準>`，附需求來源 |
+
+`implement-spec` 自動核對開工與環境條件；缺少可信開發基線時，選現有真實票作先導，隨功能交付補最小基礎。後續逐票實作、獨立審查、根因預防與整合；無相依工作可平行。完整雙軸 review 僅於明確要求時額外執行，修正停滯會轉為診斷／裁決。
+
+`ask-matt` 已改為 `bojii-guide`，`setup-matt-pocock-skills` 已改為 `setup-bojii-skills`。舊名稱保留轉向入口；更新時允許覆寫這些舊入口，避免繼續讀到舊流程。設定完成不代表產品環境已就緒，也不會先建立整套業務腳手架。
+
 ## 發布
 
 推送符合 `vX.Y.Z` 的 tag（例如 `v0.1.0`）會觸發 GitHub Actions：執行測試、建立 skills pack、產生 SHA-256 checksum，並發布 GitHub Release。Tag 版本必須與根目錄 `package.json` 的版本一致。CLI 本身由 npx 從該 GitHub tag 直接執行，不發佈到 npm registry。

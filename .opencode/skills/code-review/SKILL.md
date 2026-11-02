@@ -16,7 +16,7 @@ Both axes run as **parallel sub-agents** so they don't pollute each other's cont
 
 進入修正複查時，主 agent、owner 與兩軸 reviewer 都載入 `docs/agents/review-convergence.md`，以穩定 finding ID 對照版本、完成條件及證據，停滯或爭議依該規則收斂；保留兩軸分列，跨軸相同根因可引用同一修正項。
 
-The issue tracker should have been provided to you. If not, tell the user to run `/setup-matt-pocock-skills`.
+沿用已提供的 issue tracker 設定；缺少時請使用者執行 `/setup-bojii-skills`。
 
 ## Process
 

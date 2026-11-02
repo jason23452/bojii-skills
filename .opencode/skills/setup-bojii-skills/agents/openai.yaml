@@ -1,0 +1,5 @@
+interface:
+  display_name: "初始化 bojii-skills"
+  short_description: "配置專案 tracker、領域文件與流程入口"
+policy:
+  allow_implicit_invocation: false
