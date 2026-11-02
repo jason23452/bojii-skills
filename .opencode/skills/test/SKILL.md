@@ -1,11 +1,11 @@
 ---
 name: test
-description: 配置 .env.test 測試參數、規劃或執行驗證、撰寫或修改測試，以及執行 lint、typecheck、build 時使用。統一沿用 repo 工具，按需載入環境配置、Playwright、Node.js test runner 與 lint 指引。
+description: 配置專案測試方式與 .env.test、選擇本機／混合／容器環境、規劃或執行驗證、撰寫或修改測試，以及執行 lint、typecheck、build 時使用。沿用 repo 工具，按需載入配置與工具指引。
 ---
 
 # 統一驗證入口
 
-以單一入口管理驗證，不要求專案採用單一測試層級。先沿用 repo 工具與已確認驗收邊界，避免為同一行為另建第二套 runner。
+以單一入口管理驗證，優先使用能滿足本次驗收的最小必要測試環境。沿用 repo 工具，按選取測試準備依賴，必要時才擴充；環境縮小不減少完整交付所需的測試集合。模式與最小化規則以 `docs/agents/environment-contract.md` 為準。
 
 ## 1. 決定驗證範圍
 
@@ -18,6 +18,7 @@ description: 配置 .env.test 測試參數、規劃或執行驗證、撰寫或�
 
 | 工作 | 載入 |
 | --- | --- |
+| 配置測試方式、選擇執行模式或降低容器開銷 | [測試方式配置](references/test-setup.md)；分開選擇 runner 與服務位置，驗證後沿用 |
 | 執行前盤點測試憑證、執行中缺 key，或配置／傳遞 `.env.test` | [Agent 測試憑證](references/test-env.md)；先補空白欄位、繼續可做工作，再回報取得與填值方式；不作為部署必填設定 |
 | 首次建立專案驗證入口，或既有入口因環境／程式變動失效 | [專案專屬驗證入口](references/project-verification.md)；沿用既有位置，補齊 Launch／Doctor／Drive／Evidence／Cleanup |
 | Playwright UI／API、瀏覽器 fixtures、trace 診斷 | [Playwright](references/playwright.md) |
