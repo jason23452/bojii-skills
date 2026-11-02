@@ -1,6 +1,6 @@
 # 候選版本、並行驗證與整合
 
-適用於 `implement-spec` 的 owner 交付、票級審查與整合；主 agent、owner、reviewer 於交付派工時載入。沿用既有執行表，不新增角色審批或第二套完成清單。
+適用於 `implement-spec` 的 owner 交付、票級審查與整合；主 agent、owner、reviewer 於交付派工時載入。最終 integration review 沿用本文件的固定候選、並行驗證與證據匯合規則，以 PR 目標 base／integration head 為審查版本；放行門檻依 implement-spec 第 7 節。沿用既有執行表，不新增角色審批或第二套完成清單。
 
 ## 1. 固定候選交付
 

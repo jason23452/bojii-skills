@@ -1,6 +1,6 @@
 # 審查修正的停滯偵測與收斂
 
-適用於 `implement-spec` 票級審查，以及完整 `code-review` 已進入修正的迴圈。主 agent 負責收斂，owner 是唯一寫入者，reviewer 維持唯讀；單獨審查只回報 findings，不因此啟動實作。
+適用於 `implement-spec` 票級審查、最終 integration review，以及完整 `code-review` 已進入修正的迴圈。主 agent 負責收斂，owner 是唯一寫入者，reviewer 維持唯讀；單獨審查只回報 findings，不因此啟動實作。
 
 ## 每輪對照
 

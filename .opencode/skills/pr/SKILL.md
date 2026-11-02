@@ -11,6 +11,8 @@ metadata:
 
 Use this template for writing the PR body:
 
+`implement-spec` 交付時，先依 `docs/agents/implement-spec.md` 的「PR 前的整合審查門檻」完成最終 integration review 與跨票驗證；Evidence 引用通過的 base／head SHA、審查結論及驗證證據。撰寫 PR body 本身不代表已通過審查或取得發布授權，缺少證據時不得宣稱可合併。
+
 ```markdown
 ## Summary
 

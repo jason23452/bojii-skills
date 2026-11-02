@@ -27,7 +27,7 @@ This repo uses a single-context domain docs layout. See `docs/agents/domain.md`.
 
 ### Implement-spec 整票自主交付
 
-使用 `implement-spec` 時，依 `docs/agents/implement-spec.md` 核對開工契約，自動載入 `worktree` skill 建立並驗證隔離環境，再由單一 owner 自主完成每票 TDD、排錯與驗收，獨立票級審查後逐票整合；全部 TODO、驗收及收尾完成才結束。
+使用 `implement-spec` 時，依 `docs/agents/implement-spec.md` 從完成的 TODO／AC 盤點環境與操作授權，自動載入 `worktree` 建立隔離環境；每票新建獨立實作 subagent owner，可獨立開工票背景平行派出。同票 owner 自主完成 TDD、排錯與驗收，獨立票級審查後逐票整合；全部交付與收尾完成才結束。
 
 ### 專案接手
 
@@ -43,7 +43,7 @@ This repo uses a single-context domain docs layout. See `docs/agents/domain.md`.
 
 ### Spec 與 tickets 規劃及收尾
 
-建立／修改 spec、拆分 tickets 或修正 TODO／驗收責任與依賴時，遵循 `docs/agents/spec-and-tickets.md`；tickets 建立後須由未參與撰寫的獨立子代理盤查環境與完整實作的阻擋，提前確認待決事項，再收尾提交。
+建立／修改 spec、拆分 tickets 或修正 TODO／驗收責任與依賴時，遵循 `docs/agents/spec-and-tickets.md`。Spec 定義產品需求，ticket TODO 定義程式碼交付；環境準備與共用執行流程由實作入口處理。Tickets 建立後由未參與撰寫的獨立子代理核對交付、修改邊界、依賴與驗收責任，再收尾提交。
 
 ### Worktree 隔離
 

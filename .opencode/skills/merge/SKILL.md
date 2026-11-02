@@ -20,6 +20,6 @@ disable-model-invocation: true
 ## 安全界線
 
 - 不合併未標註可合併、未完成驗證、工作目錄不乾淨或狀態無法確認的來源。
-- 所有合併都只在本地 `dev` 分支進行；任何 worktree 或分支（包含 ticket、`<spec_name>-merge` 與 `dev`）都不得推送至遠端。不合併 `main`，也不替使用者將 `dev` 合併至 `main`。
+- 本 skill 的合併只在本地 `dev` 分支進行，不執行遠端推送或將 `dev` 合併至 `main`。使用者另行明確要求發布時，交由 implement-spec 的 PR 門檻與授權規則處理；本地 merge 結果是新候選，不能直接沿用來源 integration 的舊審查結論。
 - 不在來源 worktree 直接改寫或重置分支；所有整合作業都在目標 worktree 完成。
 - 不使用會覆蓋或丟棄未提交工作的操作。遇到未知狀態先停下並釐清。

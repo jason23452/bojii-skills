@@ -44,7 +44,7 @@ npx --yes --package="github:jason23452/bojii-skills#${TAG}" -- bojii-skills upda
 | 接手未完成成果，尚無明確下一個任務 | `/project-handoff` |
 | 只要審查變更 | `/code-review <固定基準>`，附需求來源 |
 
-`implement-spec` 自動核對開工與環境條件；缺少可信開發基線時，選現有真實票作先導，隨功能交付補最小基礎。後續逐票實作、獨立審查、根因預防與整合；無相依工作可平行。完整雙軸 review 僅於明確要求時額外執行，修正停滯會轉為診斷／裁決。
+Spec／tickets 僅記錄產品需求、程式碼 TODO、修改責任、依賴與驗收；環境準備及共用流程由 `implement-spec` 根據 TODO／AC 推導，記入本機執行表。每票建立獨立實作 subagent 與 worktree，可獨立開工票背景平行派出，再逐票審查與整合。缺少可信開發基線時選現有真實票作先導；完整雙軸 review 僅於明確要求時額外執行，修正停滯轉為診斷／裁決。
 
 `ask-matt` 已改為 `bojii-guide`，`setup-matt-pocock-skills` 已改為 `setup-bojii-skills`。舊名稱保留轉向入口；更新時允許覆寫這些舊入口，避免繼續讀到舊流程。設定完成不代表產品環境已就緒，也不會先建立整套業務腳手架。
 

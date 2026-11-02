@@ -1,15 +1,15 @@
 ---
 name: worktree
-description: implement-spec 準備或恢復環境時自動使用，亦可直接要求建立 Git worktree；依開工契約配置並驗證隔離執行環境，Docker 模式從本地 dev volume 複製獨立資料。
+description: implement-spec 準備或恢復環境時自動使用，亦可直接要求建立 Git worktree；依實作階段盤點結果配置並驗證隔離環境，Docker 模式從本地 dev volume 複製獨立資料。
 ---
 
-建立指定 worktree 與其隔離環境。使用者直接要求建立 worktree，或啟動已確認開工契約的 `implement-spec`，主 agent 即自動載入並執行本流程；不要求再單獨呼叫此 skill。沿用既有授權，只有必要操作超出範圍時才詢問該差額。
+建立指定 worktree 與其隔離環境。使用者直接要求建立 worktree，或啟動 `implement-spec`，主 agent 即自動載入本流程，依實作階段盤點結果執行；不要求 spec／tickets 預寫環境準備。沿用既有授權，只有必要操作超出範圍時才詢問該差額。
 
 ## 環境模式
 
-- 先讀開工契約，確認驗收需要的環境。已有明確的非 Docker 方案時，使用 worktree 專屬程序、ports 與隔離 fixtures；執行下方 Git 步驟 1～4，以及設定與驗證步驟 8～10 的適用部分。
+- 先讀實作階段的本機執行表，依 TODO／AC 與 repo 設定確認驗收需要的環境；直接呼叫時自行盤點。已有明確的非 Docker 方案時，使用 worktree 專屬程序、ports 與隔離 fixtures；執行下方 Git 步驟 1～4，以及設定與驗證步驟 8～10 的適用部分。
 - Docker 模式使用獨立 containers、images、network、ports 與 volumes，資料初始化來源為本地 `dev` volume 副本，執行完整流程。直接呼叫且未指定模式時沿用 Docker 模式；來源或操作授權缺口在建立資源前釐清。
-- 模式在規劃階段定案並核對本文件；執行時沿用。非 Docker 模式仍須實作並驗證隔離；純文件工作無執行資源時記錄依據。下方 Docker 設定、容器與 volume 的檢查僅適用 Docker 模式。
+- 模式在實作階段依實際依賴選定並記入執行表；已有適用決策則沿用。非 Docker 模式仍須實作並驗證隔離；純文件工作無執行資源時記錄依據。下方 Docker 設定、容器與 volume 的檢查僅適用 Docker 模式。
 
 ## 流程
 
@@ -20,7 +20,7 @@ description: implement-spec 準備或恢復環境時自動使用，亦可直接�
 需要 `.env.test` 或其他測試參數時，載入 test 的 [環境參數指引](../test/references/test-env.md)，按指定來源傳遞必要設定並產生本 worktree 專屬值；Git 建立 worktree 不會帶入未追蹤的憑證檔。
 
 1. 閱讀根目錄 `AGENTS.md`、`docs/agents/implement-spec.md`，以及 repo 中 Docker/環境設定文件。依 worktree 類型套用命名：integration worktree 為 `<spec_name>-merge`；ticket worktree 為 `<spec_name>-tickets-<number>`。
-2. 以 `git worktree list --porcelain` 第一筆 worktree 記錄辨識主 repo 的絕對路徑，作為 `<project-root>`；即使目前位於 linked worktree，也使用同一個主 repo 根目錄，不以目前目錄的 `git rev-parse --show-toplevel` 取代。若主 repo 為 bare 或路徑無法確認，先釐清 repo 根目錄再建立。檢查 Git 狀態、現有 worktree/branch、Docker Compose 設定、`.env` 範本與執行中的容器。不得覆蓋既有路徑、分支、設定或使用者資料；任何 worktree/branch 都不得推送至遠端。
+2. 以 `git worktree list --porcelain` 第一筆 worktree 記錄辨識主 repo 的絕對路徑，作為 `<project-root>`；即使目前位於 linked worktree，也使用同一個主 repo 根目錄，不以目前目錄的 `git rev-parse --show-toplevel` 取代。若主 repo 為 bare 或路徑無法確認，先釐清 repo 根目錄再建立。檢查 Git 狀態、現有 worktree/branch、Docker Compose 設定、`.env` 範本與執行中的容器。不得覆蓋既有路徑、分支、設定或使用者資料；本 skill 只處理本地環境，不執行推送。使用者明確要求的發布由 implement-spec 的 PR 門檻與授權規則處理。
 3. integration worktree 從本地 `dev` 建立；ticket worktree 從對應 spec 的 `<spec_name>-merge` branch 建立。若來源 branch 不存在、狀態不乾淨，或名稱/來源有歧義，透過互動式 `question` 工具釐清，不要自行改用其他 base。
 4. 依根目錄 `AGENTS.md` 的位置規則，計算 `<project-root>/.worktree/<worktree-name>` 的絕對路徑；名稱必須是單一目錄名稱，且解析後的父目錄必須是主 repo 內的 `.worktree`（包含檢查 symlink/junction 的實際指向）。確認該目錄已列入 repo 的 ignore 設定，再使用可明確指定路徑的 `git worktree add` 建立對應 branch；若工具無法指定或保證此路徑，改用 Git 指令。建立後以 `git worktree list --porcelain` 核對實際登錄路徑與預定路徑一致、branch 正確，且檔案內容基於預期 base；全部符合才繼續初始化環境。委派 subagent 時提供已解析的絕對路徑及相同驗證要求。
 5. 從 `dev` worktree 的 Docker 設定辨識正在使用的 volume。使用 Docker labels、Compose project/service 名稱與 container mounts 交叉確認來源；若無法明確辨識 `dev` volume，停止 Docker 初始化並透過互動式 `question` 工具請使用者指出來源。
@@ -31,6 +31,8 @@ description: implement-spec 準備或恢復環境時自動使用，亦可直接�
 10. 啟動隔離環境，核對程序的工作目錄、app/E2E ports、測試 runner 的 `baseURL`、上游 endpoint 及可變資料／fixtures 路徑；Docker 模式另核對 containers、image tags 與 volume mounts，確認實際使用此 worktree 的程式碼與專屬資源。執行健康檢查及指定驗收，記錄 worktree/branch、base、資源歸屬及結果，不揭露 secrets。全部適用檢查通過才標示環境就緒；僅建立 Git 目錄不算完成。完成後依開工契約清理本次資源，保留約定的 integration 與證據。
 
 ## 隔離與安全
+
+`implement-spec` 的票級資源依 `docs/agents/implement-spec.md`「票級即時清理」：每票完整交付、審查及 integration 回歸通過後立即保存證據，移除該票 worktree、containers、network、專屬 image tag／可安全移除的 image、volumes 與自有程序，確認 ports 釋放。Integration 保留至整份驗收；部分交付票保留續作必要資源。清理時點由該流程統一決定，不延至整批結束。
 
 - Worktree 之間不得共用可變執行資源：container、network、image tag、host port 與 volume 均須有 worktree 專屬識別。
 - Volume 是從 `dev` 複製資料後建立的獨立副本，不是 bind mount、共享 volume 或持續同步。後續 worktree 資料變更不回寫 `dev`。
