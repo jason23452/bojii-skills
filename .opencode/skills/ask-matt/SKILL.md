@@ -27,7 +27,7 @@ The route most work travels. You have an idea and want it built.
      - **`/implement-spec`** for the whole spec in one run. It reads the tickets as a **task graph**, runs implementer subagents across the ready **frontier** in parallel, and lands everything on one **integration branch**. Reach for it when you'd rather orchestrate the build than drive each ticket yourself.
    - **No** → **`/implement`** right here, in the same context window.
 
-   Either way, the code gets built by driving **`/tdd`** (one red-green slice at a time) and closes out with **`/code-review`**, a two-axis review (Standards + Spec) of the diff. `/implement` runs both per ticket; `/implement-spec`'s implementers each drive `/tdd`, and it runs one `/code-review` over the integration branch. Reach for **`/tdd`** on its own when you just want to build a concrete behaviour test-first without a full spec, and **`/code-review`** on its own whenever you want to review a branch or PR against a fixed point.
+   兩種流程皆使用 **`/tdd`** 逐行為完成 Red → Green → Refactor。`/implement` 每票執行 `/tdd` 與完整 **`/code-review`**；`/implement-spec` 依 `docs/agents/implement-spec.md` 執行逐票獨立審查與根因預防，完整兩軸 `code-review` 僅於使用者明確要求時執行。只需 test-first 實作單一行為時可單獨使用 **`/tdd`**；需依固定基準審查分支或 PR 時可單獨使用 **`/code-review`**。
 
    When the work goes up as a pull request, **`/pr`** shapes the body: the smallest visual that shows the change, before/after evidence that it works, and a one-way or two-way door call. It's model-invoked, so the agent reaches for it whenever it writes a PR.
 

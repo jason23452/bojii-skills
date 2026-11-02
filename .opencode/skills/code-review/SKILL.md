@@ -12,6 +12,10 @@ Both axes run as **parallel sub-agents** so they don't pollute each other's cont
 
 本 repo 的 reviewer 生命週期依 `docs/agents/session-lifecycle.md`：首次及全新獨立審查使用未參與產出的新 session；同輪修正複查預設續用各軸原 reviewer，回報明列類型。保留兩軸分離，不把 resume 複查當成另一份全新獨立證據。
 
+審查與修正銜接依 `docs/agents/review-prevention.md`：兩軸 reviewer 唯讀提供具體缺陷的根因與預防候選；有實作 owner 時交回其流程自主建立適用措施，單獨審查則只回報。
+
+進入修正複查時，主 agent、owner 與兩軸 reviewer 都載入 `docs/agents/review-convergence.md`，以穩定 finding ID 對照版本、完成條件及證據，停滯或爭議依該規則收斂；保留兩軸分列，跨軸相同根因可引用同一修正項。
+
 The issue tracker should have been provided to you. If not, tell the user to run `/setup-matt-pocock-skills`.
 
 ## Process
@@ -62,6 +66,8 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 Issue both sub-agent calls together, in the foreground, and aggregate the reports they return.
 
 首次／新視角審查為兩軸各建新 session；修正複查則在同一輪各軸原 session 傳入修正範圍、新版本與 finding 對照。原 session 不可恢復時依生命週期交接，仍標示修正複查。
+
+兩軸派工都附 `docs/agents/review-prevention.md` 路徑並要求載入：具體缺陷附根因、共通證據與預防候選，未確認的 smell 保留判斷性標記；修正複查核對 owner 的判定、實際接入與驗證證據。預防資訊隨原 finding 呈現，不另計為缺陷；下列 400 words 限制適用摘要，必要 finding 與預防證據可另附精簡清單。
 
 **Standards sub-agent prompt** should include:
 
