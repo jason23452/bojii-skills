@@ -1,30 +1,12 @@
 ---
 name: grilling
-description: Grill the user relentlessly about a plan, decision, or idea. Use when the user wants to stress-test their thinking, or uses any 'grill' trigger phrases.
+description: 釐清並檢驗使用者的計畫、決策或想法。用於 grilling 訪談；聚焦會影響範圍、方案與驗收的問題，按需查證。
 ---
 
-Interview the user relentlessly until you reach a shared understanding. Map this as a **design tree**: every decision branches into the decisions that hang off it.
+針對會影響需求、方案與驗收的決策建立共識；先讀專案 `docs/agents/grilling.md`（若存在）。按決策依賴分輪提問，研究採該文件的聚焦查證規則，不窮舉與本次目標無關的分支。
 
-Work the tree in **rounds**. The **frontier** is every decision whose prerequisites are already settled: the questions you can ask _now_ without guessing at answers you haven't heard yet. Ask the whole frontier in one round: number each question and give your recommended answer. Then wait for the user's answers before the next round.
+每輪集中提出前置條件已清楚、現在可回答的問題，收到答案後再推進相依決策。使用 `question`，推薦選項置首並標示理由；題目聚焦具體情境與選項後果，已確認答案直接沿用。
 
-Format a round like so:
+事實由 agent 查明，決策由使用者確認。簡單查證自行完成；需要獨立長篇閱讀才委派，不為每題開代理。只等待該題依賴的研究，其他已具備事實基礎的問題可先問。證據足以支持決策就停，未證實事項保持未知。
 
-```
-❓ **Q1** - **<question title>**: <question body, might be multiple paragraphs, including multiple choices>
-
-➡️ <your recommended answer>
-
----
-
-❓ **Q2** - **<question title>**: <question body, might be multiple paragraphs, including multiple choices>
-
-➡️ <your recommended answer>
-```
-
-Word each question so "yes" accepts your recommended answer.
-
-Each round the user answers reshapes the tree: settled decisions push the frontier outward and unblock questions that depended on them. Recompute the frontier and ask the next round. A question whose answer depends on another question still open in this round belongs to a _later_ round, not this one.
-
-Finding _facts_ is your job, never the user's. When a frontier question needs a fact from the environment (filesystem, tools, etc.), dispatch a sub-agent to find it; don't ask the user for anything you could look up yourself. Don't block on it: a running exploration is an unsettled prerequisite, so only the questions downstream of it wait for the sub-agent to report; ask the rest of the frontier now. The _decisions_ are the user's: put each to them and wait.
-
-The session is done when the frontier is empty: every branch of the design tree visited, nothing left silently assumed. Do not act on it until the user confirms you have reached a shared understanding.
+主要流程、必要例外、範圍與驗收已對齊，且影響方案的關鍵未知已解，就彙整並請使用者確認共識；一般實作細節留給 owner，不以「所有可能分支都問過」作為完成條件。

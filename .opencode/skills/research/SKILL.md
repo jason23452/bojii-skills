@@ -1,12 +1,14 @@
 ---
 name: research
-description: Investigate a question against high-trust primary sources and capture the findings as a Markdown file in the repo. Use when the user wants a topic researched, docs or API facts gathered, or reading legwork delegated to a background agent.
+description: 查證問題、蒐集文件或 API 事實，將必要結論與來源記錄於 repo。預設聚焦研究；需要獨立長篇閱讀或使用者要求時才委派背景代理。
 ---
 
-Spin up a **background agent** to do the research, so you keep working while it reads.
+## 聚焦查證
 
-Its job:
+1. 先界定要回答的問題、會影響的決策與停止條件。搜尋既有筆記／相關入口，沿用仍適用的證據，只補未知與變動。
+2. 預設自行做窄範圍查證。需要獨立且較長的閱讀，或使用者明確要求背景研究時，委派一個背景代理；只有互不重疊的關鍵問題才增加代理。同題續作只傳新缺口，不重貼整段歷史。
+3. 優先官方文件、原始碼、規格與一手 API。先搜尋定位，再讀必要段落；關鍵結論附直接來源及適用版本。已有足夠證據就停止，不為每個背景句子追溯來源或固定湊多份佐證。
+4. 只有證據矛盾、版本不相容或關鍵組合未知才擴查／做最小實驗。與當前決策無關的選型、一般實作細節及完整產品回歸留給後續工作；不確定事項如實標示。
+5. 將結論、關鍵來源與剩餘未知寫入 repo 慣用位置的一份 Markdown 筆記；已有同題筆記就增量更新。對話回報通常 5–8 個重點及筆記路徑，原文與長 log 留在來源，不在筆記、回報與交接重複貼出。
 
-1. Investigate the question against **primary sources** (official docs, source code, specs, first-party APIs), not a secondary write-up of them. Follow every claim back to the source that owns it.
-2. Write the findings to a single Markdown file, citing each claim's source.
-3. Save it where the repo already keeps such notes; match the existing convention, and if there is none, put it somewhere sensible and say where.
+完成條件是問題已有足以支持決策的答案與來源，或已定位具體缺口及解除方法；後者標示研究未完成，不用更多泛泛閱讀掩蓋缺口。使用者要求深入研究時擴充相關範圍，仍依問題收斂。

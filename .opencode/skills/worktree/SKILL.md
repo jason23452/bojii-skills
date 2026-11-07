@@ -3,7 +3,7 @@ name: worktree
 description: implement-spec 準備或恢復環境時自動使用，亦可直接要求建立 Git worktree；依實際依賴選擇本機、混合或容器模式，配置並驗證隔離環境。
 ---
 
-建立指定 worktree 與其隔離環境。使用者直接要求建立 worktree，或啟動 `implement-spec`，主 agent 即自動載入本流程，依實作階段盤點結果執行；不要求 spec／tickets 預寫環境準備。沿用既有授權，只有必要操作超出範圍時才詢問該差額。
+建立指定 worktree 與其隔離環境。使用者直接要求建立 worktree，或啟動 `implement-spec`，主 agent 即自動載入本流程；依 `docs/agents/environment-contract.md`「環境自主處理」完成必要配置、實作、排錯及真實驗證，不另詢問一般環境操作授權，也不要求 spec／tickets 預寫準備方法。
 
 ## 環境模式
 
@@ -38,4 +38,4 @@ description: implement-spec 準備或恢復環境時自動使用，亦可直接�
 - Worktree 之間不得共用可變執行資源：container、network、受測應用 image tag、host port 與 volume 均須有 worktree 專屬識別。
 - Volume 使用獨立初始化資料；採 `dev` 副本時是一次性複製，不是共享 volume 或持續同步，後續變更不回寫 `dev`。
 - Docker 的 image layer cache 可由 daemon 共用；受測應用使用 worktree 自建的專屬 image tag，第三方服務沿用步驟 7 的版本與資料隔離規則，不需另建 Docker daemon。
-- 不刪除、清空或重建既有 `dev` volume，也不清理無法明確歸屬此 worktree 的 Docker 資源。若 port 或資源所有權不明，先停下釐清。
+- 不刪除、清空或重建既有 `dev` volume，也不清理無法明確歸屬此 worktree 的 Docker 資源。Port 或資源所有權不明時，自行查證或另選專屬資源續作；只有驗收必須使用該既有資源且無法查明時才詢問。

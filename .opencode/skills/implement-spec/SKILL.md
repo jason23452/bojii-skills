@@ -11,7 +11,7 @@ disable-model-invocation: true
 ## 核心流程
 
 1. **核對任務**：讀完整 spec、tickets、決策與研究，建立 TODO／AC、責任與成果依賴圖。
-2. **準備環境**：從驗收推導資源與授權，記入本機執行表；載入 `worktree` 建立 integration／票級隔離環境，依就緒證據放行相依工作。
+2. **準備環境**：從驗收推導必要資源，依 `docs/agents/environment-contract.md`「環境自主處理」自行準備、修復與重驗，記入本機執行表；載入 `worktree` 建立 integration／票級隔離環境，依就緒證據放行相依工作。
 3. **整票派工**：主對話留在 dev；每票新建 owner，綁定票級 worktree，一次交付完整目標、邊界與驗收。所有可獨立開工票背景並行，同票續作 resume。
 4. **Owner 自主交付**：使用 `test`、`tdd` 完成實作、fixtures、排錯與驗證；普通失敗在 owner 內處理。主 agent 協調依賴與跨票問題，不逐測試派工。
 5. **審查與整合**：載入 `docs/agents/delivery-pipeline.md`，固定候選並行驗證與獨立審查；問題整批交原 owner 修正、原 reviewer 複查。證據匯合後整合、跑回歸、即時清理票級資源並解鎖下游。
