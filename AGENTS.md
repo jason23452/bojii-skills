@@ -37,6 +37,8 @@ This repo uses a single-context domain docs layout. See `docs/agents/domain.md`.
 
 配置測試方式、選擇本機／混合／容器模式、配置 `.env.test`，或規劃／執行測試、lint、typecheck、build 時，使用 `test` skill 作為統一入口；沿用 repo 工具與驗收邊界，按實際依賴配置並驗證。
 
+所有 command／測試（含安裝、建置、環境操作及背景命令）依 `docs/agents/test-execution.md` 的共同執行上限：每次有期限，同一操作最多 3 次含首次，時限依序為 T、2T、4T；失敗先診斷及清理，再決定重試。
+
 ### Subagent 交接
 
 執行 `implement-spec` 的 subagent 派工、回報與續作時，主 agent 與 subagent 都必須遵循 `docs/agents/subagent.md`。其他流程使用各自的交接規則。
