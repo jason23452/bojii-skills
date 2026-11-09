@@ -60,7 +60,7 @@ disable-model-invocation: true
 - 外部回報尚未整理：`/triage`；已由 `to-tickets` 完成的票不重做 triage。
 - 架構改善機會：`/improve-codebase-architecture`；設計模組介面用 `/codebase-design`。
 - 領域術語與 ADR：`/domain-modeling`；驗證入口用 `/test`。
-- 跨環境／對話交接說明：`/handoff`；實際成果與資源接手用 `/project-handoff`。
+- 本流程的跨環境／對話交接與成果接手統一使用 `/project-handoff`；票級文件在各自 worktree 維護並隨程式整合。
 - 只有人能完成的外部設定：`/wizard`；寫 agent 文件用 `/writing-for-agents`。
 
 回覆時給出「目前階段、下一個指令、必要輸入、完成後接哪一步」即可，依問題補充原因，不重貼整份技能清單。

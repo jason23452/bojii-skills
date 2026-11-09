@@ -110,6 +110,8 @@ Tickets 規劃核對後，主 agent 自動載入 [setup-testing](../../.opencode
 
 在有意義且可還原的功能檢查點提交產品與測試，票完成或中斷交接時彙整 AC、命令、結果、環境及剩餘工作。每個小測試不另設主 agent 核准、分角色 commit 或 evidence commit 門檻。提交前核對 staged diff 與檔案歸屬。
 
+每張 ticket 由 owner 在自己的 worktree 維護一份可追蹤的 `project-handoff` 文件，位置與內容依 [project-handoff](../../.opencode/skills/project-handoff/SKILL.md)。交付時與程式碼同入候選、同受審查、同進 integration，最後隨交付合入目標主分支；正常新票不因此額外執行接手盤點。此文件屬票級交付，與主 repo 唯一維護的 `test.md`、全局執行表分開。
+
 ## 4. 獨立票級審查與修正
 
 owner 完成實作及必要快速檢查、停寫並固定候選 base／head 後，依 [交付管線](delivery-pipeline.md) 回報「程式就緒、驗證中」，可在剩餘必要驗證執行時開始審查。依 [session 生命週期](session-lifecycle.md) 新建未參與本票實作的 reviewer session 唯讀審查；最終 verdict 必須核對完整必要證據，後續區分修正複查與新視角審查：
@@ -152,7 +154,7 @@ owner 完成實作及必要快速檢查、停寫並固定候選 base／head 後�
 
 每次修復或背景工作完成後立即重查上述條件，符合即清理；普通排錯不交回使用者決定。只有已確認的外部條件、授權或產品決策缺口才保留具體阻擋，其餘無相依工作繼續。
 
-1. 核對整票 TODO／AC、審查及合併回歸證據，將必要 logs、報告與交接資料移至票級 worktree／volume 以外的持久證據位置，驗證可讀；保留精確交付 commit 與 integration SHA。
+1. 核對整票 TODO／AC、審查及合併回歸證據，確認本票 `project-handoff` 文件已隨提交合入 integration 且可讀；保留精確交付 commit 與 integration SHA。未納入 Git 的必要 logs／附件另移至票級 worktree／volume 以外的持久證據位置並驗證可讀，不因文件已合併就忽略其附件。
 2. 確認 owner、reviewer 及本票背景測試／產生器已停止使用環境，沒有待提交或未知成果。下游只使用已驗證 integration 的程式碼與可重建 fixtures，不依賴本票存活的服務、ports 或資料卷；發現此依賴先修正交接，不能直接刪除仍被使用的資源。
 3. 依執行表的資源歸屬，停止並移除本票 containers、自有程序、network、專屬 image tag／可安全移除的 image 及 volumes，釋放 host／E2E ports。保留 dev、integration、其他票與共用 image layers／build cache；使用精確識別清理，不執行全域 prune。
 4. 核對工作樹乾淨、交付已整合及證據已移出後，移除本票 Git worktree。清理失敗時保留原因與剩餘資源 ID，立即排錯或記錄具體外部阻擋；不強制刪除未知成果，也不默默延至全票結束。

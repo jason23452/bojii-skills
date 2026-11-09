@@ -73,7 +73,11 @@ description: 接手既有成果、恢復中斷任務，或將既有工作移至�
 | 需要新授權、外部條件或產品決策 | 列證據、影響、解除條件及下一步；只阻擋受影響工作 |
 | 無關歷史債務 | 記錄影響與建議承接者，不擴張成當前任務的全面清理 |
 
-在 `implement-spec` 中，owner 將盤點結果與證據回報主 agent，由主 agent 作為唯一寫入者更新共享執行表；owner 需要落檔時使用票級 worktree 內的交接紀錄。獨立盤點則由本次 owner 寫入其負責的既有交接紀錄；無紀錄時使用本地 `.scratch/project-handoff/handoff.md`，先確認該檔無其他寫入者。不含 secrets，不另複製整份 spec 或 ticket TODO；若需建立正式 tickets，遵循專案規劃規則。
+在 `implement-spec` 中，每張 ticket 各有一份可版本控制的 `project-handoff` 文件，由該票 owner 在自己的 worktree 維護；主 agent 仍唯一維護共享執行表。沿用 repo 既有票級交接位置，無慣例時使用 `docs/handoffs/<feature>/<ticket-id>/project-handoff.md`，各票路徑互不重疊。確認路徑可被 Git 追蹤，不把唯一文件放在 ignored 目錄或系統暫存區。
+
+票級文件在有成果或需中斷交接時增量更新，交付前納入該票候選 commit，經審查後隨程式碼合入 integration，最終隨交付整合進目標主分支。主 agent 核對已整合版本中存在該文件及必要持久證據，才清理票級 worktree；不以主工作區另寫一份摘要取代票級文件。正常新票不因此多跑整套接手盤點，但仍須交付自己的交接文件。
+
+獨立盤點則由本次 owner 寫入其負責的既有交接紀錄；無紀錄時使用本地 `.scratch/project-handoff/handoff.md`，先確認該檔無其他寫入者。不含 secrets，不另複製整份 spec 或 ticket TODO；研究結果使用自足摘要，必要原始驗收證據須在清理前持久保存。若需建立正式 tickets，遵循專案規劃規則。
 
 最小紀錄格式：
 

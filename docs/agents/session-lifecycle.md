@@ -30,7 +30,7 @@
 
 1. Resume 傳新 HEAD／diff、finding 或待辦 ID、變動證據與下一動作；要求讀取變動處，不反覆貼整份歷史。
    接手文件須能獨立於 session 使用；必要事實落在 repo 紀錄與證據中，session ID 僅供選填追溯，不能以「回原 session 繼續」作為交接內容。
-2. New 提供 spec／票與授權、工作目錄、基準／目前 SHA、未提交與未追蹤成果歸屬、已驗證事實、未證實假設、已排除方案及證據、未完成驗收、程序／資源狀態與下一動作。長 log 留在證據檔，以路徑引用；不傳 secrets。
+2. New 提供 spec／票與授權、工作目錄、基準／目前 SHA、未提交與未追蹤成果歸屬、已驗證事實、未證實假設、已排除方案及證據、未完成驗收、程序／資源狀態與下一動作。研究交接遵循 [調查結果自足](../../.opencode/skills/research/SKILL.md#調查結果自足)，直接摘要發現、適用條件與限制，不依賴暫存 log／probe。每票的 `project-handoff` 文件由 owner 在本票 worktree 維護並提交，依 project-handoff 規則隨程式整合；清理前核對整合版本已保有文件及必要持久證據。全局交接與未納入 Git 的必要附件存於主 repo 持久位置，不放系統暫存；不傳 secrets，接手不依賴舊 session 或暫存檔存活。
 3. 全新 reviewer 從規格、程式 diff、設定與原始驗證證據取證，不 fork 實作者或前 reviewer 的整段對話，不將「前輪已通過」作為結論前提。前輪 finding 可在完成自身檢查後用於對照，避免遺漏已知問題；修正複查則一開始提供 finding 對照。
 4. 寫入者換 session 前，確認原 owner 與自有背景寫入程序已停止。保留 worktree、分支、有效環境與未提交成果，更新 owner/session 對照及交接理由。新 session 先唯讀核對，再取得寫入責任；無法確認原寫入者停止時，不啟動第二位寫入者。
 5. `implement-spec` 的新 session 依 [Session 綁定](subagent.md#session-綁定) 移至既有票級 worktree，使用 `project-handoff` 僅核對變動與證據缺口。同票同時仍只有一位 owner；主對話留在 dev，不因換 context 重建環境或重問已確認需求。
