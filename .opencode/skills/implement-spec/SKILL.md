@@ -11,11 +11,11 @@ disable-model-invocation: true
 ## 核心流程
 
 1. **核對任務**：讀完整 spec、tickets、決策與研究，建立 TODO／AC、責任與成果依賴圖。
-2. **準備環境**：從驗收推導必要資源，依 `docs/agents/environment-contract.md`「環境自主處理」自行準備、修復與重驗，記入本機執行表；載入 `worktree` 建立 integration／票級隔離環境，依就緒證據放行相依工作。
+2. **環境放行**：自動載入 `setup-testing`，將 spec／tickets 與基準交其確認環境、配置與前置實測並產生 `test.md`；主 agent 協調 worktree 位置及資源。取得就緒結果後才進入產品派工，不另自行確認一套環境；有缺項先留在該流程解除。
 3. **整票派工**：主對話留在 dev；每票新建 owner，綁定票級 worktree，一次交付完整目標、邊界與驗收。所有可獨立開工票背景並行，同票續作 resume。
 4. **Owner 自主交付**：使用 `test`、`tdd` 完成實作、fixtures、排錯與驗證；普通失敗在 owner 內處理。主 agent 協調依賴與跨票問題，不逐測試派工。
 5. **審查與整合**：載入 `docs/agents/delivery-pipeline.md`，固定候選並行驗證與獨立審查；問題整批交原 owner 修正、原 reviewer 複查。證據匯合後整合、跑回歸、即時清理票級資源並解鎖下游。
-6. **全量收尾**：全票整合後完成 spec／跨票驗證及獨立 integration review，再產生 PR 交付報告與約定收尾；精確版本與全部必要證據一致才回報完成。
+6. **全量收尾**：全票整合後同步 `test.md` 的實際版本及證據，完成 spec／跨票驗證、獨立 integration review、PR 報告與約定收尾。實作期間測試環境只依 `test.md` 執行，必要修訂先更新文件再執行；產品缺口交 owner 修復，精確版本與全部必要證據一致才回報完成。
 
 ## 分支入口
 

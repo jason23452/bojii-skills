@@ -40,11 +40,12 @@ npx --yes --package="github:jason23452/bojii-skills#${TAG}" -- bojii-skills upda
 | 不知道下一步 | `/bojii-guide`，附上目標與目前成果 |
 | 首次配置專案 | `/setup-bojii-skills`；已有配置只補缺項 |
 | 想法尚未釐清 | `/grill-with-docs` → `/to-spec` → `/to-tickets` |
-| 已有 spec 與 tickets | `/implement-spec .scratch/<feature>/spec.md` |
+| Spec／tickets 已完成規劃審查 | `/implement-spec .scratch/<feature>/spec.md`；先自動確認環境、生成 `test.md`，就緒後實作 |
 | 接手未完成成果，尚無明確下一個任務 | `/project-handoff` |
+| 單獨配置目前環境的測試方式 | `/test`，附測試範圍與環境限制 |
 | 只要審查變更 | `/code-review <固定基準>`，附需求來源 |
 
-Spec／tickets 僅記錄產品需求、程式碼 TODO、修改責任、依賴與驗收；環境準備及共用流程由 `implement-spec` 根據 TODO／AC 推導，記入本機執行表。每票建立獨立實作 subagent 與 worktree，可獨立開工票背景平行派出，再逐票審查與整合。缺少可信開發基線時選現有真實票作先導；完整雙軸 review 僅於明確要求時額外執行，修正停滯轉為診斷／裁決。
+Spec／tickets 僅記錄產品需求、程式碼 TODO、修改責任、依賴與驗收。啟動 `implement-spec` 後，自動由 `setup-testing` 追查測試需求與系統邊界、確認並實測必要環境，在 spec 目錄產生 `test.md`；缺少或不明的目標先補充／確認。環境就緒後才進行各票自動實作、測試、審查及整合，最終同步文件的實際版本與證據。使用者無需另行觸發 `setup-testing`，`implement-spec` 不重做另一套環境確認。完整雙軸 review 僅於明確要求時額外執行。
 
 `ask-matt` 已改為 `bojii-guide`，`setup-matt-pocock-skills` 已改為 `setup-bojii-skills`。舊名稱保留轉向入口；更新時允許覆寫這些舊入口，避免繼續讀到舊流程。設定完成不代表產品環境已就緒，也不會先建立整套業務腳手架。
 

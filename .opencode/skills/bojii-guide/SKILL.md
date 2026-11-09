@@ -16,11 +16,12 @@ disable-model-invocation: true
 | 不知道該從哪裡開始 | 說明目前 repo、目標與已完成成果，本導覽給出下一個可執行指令 |
 | 有想法，需求與方案尚未確認 | 有 repo 用 `/grill-with-docs`；無工作目錄用 `/grill-me` |
 | 接手未完成成果、恢復中斷或搬移既有工作環境 | `/project-handoff` 核對基線；已有 spec／tickets 可直接 `/implement-spec`，由其自動判斷接手盤點 |
-| 已有確認的 spec 與 tickets | `/implement-spec <spec 或 feature 路徑>`，直接自主交付 |
+| Spec／tickets 已完成規劃審查 | `/implement-spec <spec 或 feature 路徑>`，自動由 `setup-testing` 確認環境並生成 `test.md`，就緒後開始實作 |
 | 已有 spec，尚未拆票 | `/to-tickets <spec 路徑>` |
 | 已釐清需求，尚未形成 spec | `/to-spec`，接著 `/to-tickets` |
 | 單一已定義任務，不需整份 spec 協調 | `/implement <ticket 或需求>`；只要 test-first 行為實作則 `/tdd` |
 | 程式故障、測試失敗或效能退化 | `/diagnosing-bugs`，依證據建立最小重現與修正 |
+| 單獨配置目前環境如何測試 | `/test`，附測試範圍與環境限制 |
 | 只想審查變更 | `/code-review <固定基準>`，提供需求來源；這是差異審查，不是全庫接手盤點 |
 
 上述指令是在 agent 對話中使用的 skills，不是 PowerShell／bash 指令。初始化、規劃與實作是不同階段；導覽不因使用者詢問流程就自動執行整個專案。
@@ -29,7 +30,7 @@ disable-model-invocation: true
 
 1. **釐清與研究**：`/grill-with-docs` 先調查影響方案的未知，再確認需求與決策。需可執行答案時用 `/prototype`；需資料查證時用 `/research`。範圍大到無法直接規劃時才用 `/wayfinder` 逐項釐清，再轉 spec。
 2. **形成產品交付**：`/to-spec` → `/to-tickets`，依 `docs/agents/spec-and-tickets.md` 確認產品 AC、程式碼 TODO、修改邊界與依賴，完成獨立交付推演；環境準備留給實作入口。已完成的步驟沿用，不重做。
-3. **自主交付**：`/implement-spec` 按 `docs/agents/implement-spec.md` 從 TODO／AC 盤點環境與授權、準備隔離資源，每票建立獨立 subagent owner／worktree，執行 TDD、票級審查、逐票整合與全部驗收。可獨立開工票背景平行派出，真正外部受阻才集中取得必要輸入。
+3. **自主交付**：tickets 規劃審查完成後使用 `/implement-spec`，先自動載入 `setup-testing` 確認環境、完成前置實測與 `test.md`，就緒後才派出獨立 owner。實作期間僅依 `test.md` 執行測試環境操作，完成 TDD、審查、整合及驗收，最終同步文件證據。
 4. **必要時跑先導票**：只有本次路徑缺少可信開發基線，才選現有小型真實票，隨功能交付補最小基礎；不要求先全庫 review 或預建完整腳手架。
 5. **持續改善**：已確認的先導阻力／審查缺陷依 `docs/agents/review-prevention.md` 自動沉澱適用能力，後續票沿用。修正停滯依 `docs/agents/review-convergence.md` 診斷／裁決，不盲目重複 review。
 6. **交付與回顧**：必要驗收與約定收尾完成才結束。`implement-spec` 預設提交本地；推送、tag 或發布須有明確授權。寫 PR body 使用 `/pr`，回顧整段工作的環境改善可用 `/retro`。

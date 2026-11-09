@@ -7,10 +7,15 @@ description: implement-spec 準備或恢復環境時自動使用，亦可直接�
 
 ## 環境模式
 
+`implement-spec` 的 `setup-testing` 已產生 `test.md` 後，本 skill 僅執行該文件定義的隔離設定、專屬參數、預檢及清理，不重新選模式或補另一套配置。文件缺口依環境契約先更新再執行；下方模式選擇僅用於初始配置或獨立 worktree 任務。
+
+使用主 repo 權威 `test.md` 路徑與版本，票級／integration worktree 的副本均不得修改或作為替代權威。建立後核對文件定義的路徑解析：受測程式與可變資料指向本 worktree，主 repo 僅提供已指定的唯讀契約／設定來源；依文件執行預檢再放行。
+
 - 先讀實作階段的本機執行表，依 TODO／AC 與 repo 設定確認驗收需要的環境；直接呼叫時自行盤點。未指定模式時依 `docs/agents/environment-contract.md` 的測試執行模式選擇，載入 test 的 [測試方式配置](../test/references/test-setup.md)，分別決定 runner、應用與服務位置。
 - 本機模式使用 worktree 專屬程序、ports 與隔離 fixtures，執行 Git 步驟 1～4 及設定與驗證步驟 8～10 的適用部分。混合模式只為必要服務執行 Docker 步驟；容器模式對相關群組執行完整適用流程。
 - 使用容器的資源須有專屬 containers、network、ports 與 volumes。資料依 repo 可重現的 migration／seed／fixtures 初始化；驗收明確需要本地 `dev` volume 副本時才執行步驟 5～6 的複製，來源或操作授權缺口在建立資源前釐清。
 - 模式與理由記入執行表；已有適用決策則沿用。所有模式都須驗證隔離；純文件工作無執行資源時記錄依據。下方 Docker 設定與檢查僅適用實際使用容器的部分。
+- 沿用實作流程／既有驗證文件的 TODO 環境對照，外部帳號與服務依環境契約分配各 run 的遠端資源或串行使用；Git worktree 及專屬 Docker network 不會自動隔離遠端可變狀態。只補本 worktree 的差異，不重新選擇已確認目標。
 
 ## 流程
 

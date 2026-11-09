@@ -37,6 +37,8 @@ This repo uses a single-context domain docs layout. See `docs/agents/domain.md`.
 
 配置測試方式、選擇本機／混合／容器模式、配置 `.env.test`，或規劃／執行測試、lint、typecheck、build 時，使用 `test` skill 作為統一入口；沿用 repo 工具與驗收邊界，按實際依賴配置並驗證。
 
+`implement-spec` 啟動後、產品實作前自動載入 `setup-testing`，由其確認測試環境、完成前置實測並產生 `test.md`；環境就緒後才放行自動實作，使用者無需另行觸發。放行後主 agent 與 owner 以 `test.md` 為測試環境的單一執行依據，不另行配置；文件缺口先核實更新再執行。
+
 所有 command／測試（含安裝、建置、環境操作及背景命令）依 `docs/agents/test-execution.md` 的共同執行上限：每次有期限，同一操作最多 3 次含首次，時限依序為 T、2T、4T；失敗先診斷及清理，再決定重試。
 
 ### Subagent 交接

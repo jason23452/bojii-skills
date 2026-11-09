@@ -28,7 +28,7 @@ disable-model-invocation: true
 5. 分開列出的驗收情境、預期結果、測試層級與必要目標平台。
 6. 跨票承接的責任、AC 與完成條件。
 
-產品決策在此階段用 `question` 釐清，關鍵可行性先完成研究，一般內部設計留給 owner。依規劃契約的責任界線，環境盤點、準備與共用執行流程由實作入口推導，記入執行表；不列入 spec、ticket TODO 或產品驗收。
+產品決策在此階段用 `question` 釐清，關鍵可行性先完成研究，一般內部設計留給 owner。環境配置、各 worktree 準備及共用執行流程由實作入口承接；不列入 spec、ticket TODO 或產品驗收。
 
 ## 3. 確認與獨立推演
 
@@ -41,6 +41,7 @@ disable-model-invocation: true
 - **本地**：依依賴順序建立 `.scratch/<feature>/issues/<NN>-<slug>.md`，一票一檔；保留 tracker 規定的 Status、Blocked by 及 TODO／驗收格式。
 - **遠端 tracker**：每票一個 issue，以原生 blocking 關係或明確文字記錄依賴；若源自 parent issue，依 tracker 慣例建立關聯。
 - 狀態按產品決策與責任完整性判定；保留票級依賴。規劃完成不表示環境就緒，建立票券不等於父 spec 已完成。
+- 建票、獨立規劃審查與必要修正完成後，交接 spec／tickets 路徑並提示下一步 `/implement-spec <spec 或 feature 路徑>`；環境配置由實作流程處理，不作拆票完成門檻。
 
 ## 票券摘要
 
