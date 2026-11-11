@@ -14,7 +14,7 @@ When a skill mentions a role (e.g. "apply the AFK-ready triage label"), use the 
 
 ## 分流與執行狀態
 
-`Status` 表示工作應交由誰處理、資訊是否足夠；票級前置由 `Blocked by` 表示，環境狀態由實作階段主 repo 的執行表表示，重要節點同步提交到 integration branch，產品驗收證據對應票內驗收清單。
+`Status` 表示工作應交由誰處理、資訊是否足夠；spec-level 前置寫在 `spec.md` 的 `Blocked by`，會阻擋該 spec 的全部 tickets；同一 spec 內的票級前置寫在 ticket 的 `Blocked by`。環境狀態由實作階段主 repo 的執行表表示，重要節點同步提交到 integration branch，產品驗收證據對應票內驗收清單。
 
 - `needs-triage`：尚未完成範圍、責任或處理方式的分流。
 - `needs-info`：下一步確實需要使用者補充資訊或決策，記錄具體問題與受影響範圍。
@@ -22,6 +22,6 @@ When a skill mentions a role (e.g. "apply the AFK-ready triage label"), use the 
 - `ready-for-human`：交付工作確實需要人員執行；技術尚待查證本身不構成此標籤的理由。
 - `wontfix`：已決定不處理。
 
-已分流的下游票可標 `ready-for-agent` 並保留 `Blocked by`，由前置驗收解鎖。獨立研究任務以問題、實驗邊界及結果交付明確為準，可行性是研究輸出；其標籤不表示相依產品方案已可實作。產品批次須先通過 [規劃期可行性門檻](grilling.md#規劃期可行性門檻)。外部服務暫不可用等執行阻擋另記原因，不自動退回 `needs-triage`。
+新 spec 可在前置 spec 尚未完成時先規劃並標 `ready-for-agent`，但在 spec-level `Blocked by` 全部解除前，不實作該 spec 的任何 ticket。解除條件與引用格式見 [spec-and-tickets.md](spec-and-tickets.md#跨-spec-的-blocked-by)。獨立研究任務以問題、實驗邊界及結果交付明確為準，可行性是研究輸出；其標籤不表示相依產品方案已可實作。產品批次須先通過 [規劃期可行性門檻](grilling.md#規劃期可行性門檻)。外部服務暫不可用等執行阻擋另記原因，不自動退回 `needs-triage`。
 
 決策或授權確認後立即重新判定受影響標籤；產品責任同步 spec／依賴，執行條件同步主 repo 執行表及 integration branch 快照。Spec 使用相同標籤時表示可交給 Agent 協調推進，不表示所有下游票可同時執行。規劃交接見 [spec-and-tickets.md](spec-and-tickets.md)，執行收尾見 [implement-spec.md](implement-spec.md)。

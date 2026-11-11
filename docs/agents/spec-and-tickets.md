@@ -23,8 +23,29 @@ Spec 定義產品行為與驗收；ticket 定義程式碼交付責任。沿用 g
 2. TODO 描述可判定完成的程式碼交付，驗收描述可觀察結果與證明方式；每項有唯一責任，跨票剩餘責任在承接票明列。
 3. 每票明列負責模組／修改範圍、由別票負責的共用部分，以及需要的上游公開契約。檔案可作查證指標，不以路徑清單取代行為契約。
 4. 共用介面、schema、設定或腳手架由唯一票交付；依下方「跨票互斥與平行判定」核對責任及交接，不能只以不同 worktree 宣稱可平行。
-5. `Blocked by` 只列真正前置成果與驗收 ID。前置票含無關工作時切分到成果，必要時才拆票；不以整份 spec 完成作為單票前提。各票能獨立驗證自身交付，缺少上游時明列所需契約與驗收邊界，不把 mock 證據當整合通過。
+5. `Blocked by` 分 spec 與 ticket 兩層：同一 spec 內的票級依賴寫在 ticket，只列真正前置成果與驗收 ID；任何跨 spec 依賴寫在下游 `spec.md`，並阻擋該 spec 的全部 tickets。票級前置含無關工作時切分到成果，必要時才拆票；不以整份 spec 完成作為同一 spec 內單張票的前提。各票能獨立驗證自身交付，缺少上游時明列所需契約與驗收邊界，不把 mock 證據當整合通過。
 6. 提早安排最薄的真實產品路徑；整合驗收票只負責跨票證據，不承接前置票尚未做好的基本接線。一般實作細節由 owner 決定。
+
+### 跨 spec 的 `Blocked by`
+
+前一份 spec 尚在實作時，另一個 session 可以先規劃新 spec／tickets。跨 spec 的依賴記在下游 `.scratch/<feature-slug>/spec.md` 頂部的 `Blocked by`，不只掛在某一張 ticket 上。
+
+只要 spec-level `Blocked by` 列有尚未解除的前置 spec，**該 spec 的所有 tickets 都不得開始實作**，包括本身沒有直接依賴前置成果的票。多個前置 spec 必須全部完成才能解鎖；ticket 上的 `Blocked by: 無` 或 `ready-for-agent` 不會略過這個整批門檻。這是跨 spec 的串行規則；同一 spec 內仍依票級 `Blocked by` 安排依賴與平行。
+
+spec-level `Blocked by` 必須引用前置 spec 的 repo 相對路徑，並說明須等該 spec 完成全部實作與驗收。只寫 spec 名稱不足以唯一識別。格式如下：
+
+```md
+Status: ready-for-agent
+Blocked by: .scratch/<前置-feature>/spec.md — 前置 spec 完成 implement-spec 全部條件並合併至 dev
+```
+
+有多個前置 spec 時，以分號分隔並逐一列出；沒有跨 spec 依賴時寫 `Blocked by: 無`。因 `implement-spec` 的 integration worktree 從 `dev` 建立，前置 spec 不只要完成實作及最終驗收，也必須依 [merge 流程](../../.opencode/skills/merge/SKILL.md) 合併到 `dev`，讓下游以包含前置成果的基線開工。例如：
+
+```md
+Blocked by: .scratch/shared-api/spec.md — 前置 spec 完成 implement-spec 全部條件並合併至 dev
+```
+
+被阻擋不妨礙先完成規劃或標示 `ready-for-agent`；該標籤表示規劃可交由 Agent 承接，不代表可以派任一張 ticket 實作。前置 spec 全部完成並合併到 `dev` 後，解除 spec-level `Blocked by`；`implement-spec` 記錄前置交付 SHA 與新的 `dev` 基線 SHA，再開始整份 tickets。若前置契約尚未明確到足以定義新 spec 的範圍與驗收，先標待釐清，不把猜測當成已確認依賴。
 
 ### TODO 的獨立完成判定
 
@@ -50,7 +71,7 @@ Tickets 索引只記有交集的組合及可平行分組的判定依據，不輸
 | --- | --- | --- | --- |
 | A → B、C | A 提供共用安裝 API；B、C 各接不同消費入口 | API 由 A 交付；B、C 僅修改各自接線，可在交接後平行 | A 的 API 契約驗收 ID；執行時補已驗證 integration SHA |
 
-產品依賴與修改順序寫入 `Blocked by` 並標明原因；執行容量、ports 或臨時共用資料的排程限制只進執行表。沒有查明邊界的組合標待釐清，不能列為可平行。
+同一 spec 內的票級產品依賴與修改順序寫在 ticket 的 `Blocked by`；跨 spec 依賴一律寫在下游 `spec.md` 的 spec-level `Blocked by`，阻擋整份 spec。執行容量、ports 或臨時共用資料的排程限制只進執行表。沒有查明邊界的組合標待釐清，不能列為可平行。
 
 ## 3. 獨立交付推演
 
@@ -82,7 +103,7 @@ Reviewer 回報來源、問題、受影響交付與修正條件。主 agent 修�
 ```md
 # NN：交付名稱
 Status: ready-for-agent
-Blocked by: 無；或具體前置成果與驗收 ID
+Blocked by: 無；或同一 spec 內前置 ticket 的 repo 相對路徑 — 驗收 ID：需要的成果
 
 ## 本票交付
 使用者可觀察結果與範圍。
