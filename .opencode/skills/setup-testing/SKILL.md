@@ -16,13 +16,13 @@ description: implement-spec 啟動後、產品實作前自動執行；主動追�
 ## 2. 配置與真實確認
 
 - 使用 `test` 的 [測試方式配置](../test/references/test-setup.md) 準備最小必要環境，核對實際工具、設定載入、本機／外部目標、必要連線、權限、資料隔離及清理。秘密依 [憑證指引](../test/references/test-env.md) 處理，不寫入文件。
-- 需 worktree 時由主 agent 協調 Git 位置，本流程使用 `worktree` 的隔離步驟配置與驗證。共享設定由唯一配置者寫入；環境準備可先執行，產品實作 owner 尚不派出。
-- **先跑 smoke test 才放行**：先在 `test.md` 記錄最小測試路徑草稿，再依環境契約的 smoke 門檻，在實際隔離目標跑通準備、就緒、一個真實操作、結果斷言及清理。通過後才將該路徑標為可用；僅有設定、連線或 health check 不算通過。首次採用或變更 deadline／取消機制時另依共同規則實測；失敗先修復並重跑 smoke，遵守三次時限上限。
+- `<spec_name>-merge` integration worktree 由 `implement-spec` 在本 skill 啟動前建立，供 `test.md` 快照提交；其他 worktree 由主 agent 協調 Git 位置，本流程使用 `worktree` 的隔離步驟配置與驗證。共享設定由唯一配置者寫入；環境準備可先執行，產品實作 owner 尚不派出。
+- **先跑 smoke test 才放行**：先在主 repo 的 `test.md` 記錄最小測試路徑草稿，依文件快照規則同步提交後，再依環境契約的 smoke 門檻，在實際隔離目標跑通準備、就緒、一個真實操作、結果斷言及清理。結果寫回主 repo 並同步提交可放行版本；全部成功且證據可讀才標記可用。僅有設定、連線或 health check 不算通過。首次採用或變更 deadline／取消機制時另依共同規則實測；失敗先修復並重跑 smoke，遵守三次時限上限。
 - 尚待產品實作的功能、fixtures 或測試入口不要求提前通過；須先確認其環境目標與可獨立驗證的前置條件，並列明責任票、預期命令／入口的待實作狀態及後續驗證方式。配置者不搶做已有票券 owner 的產品交付。
 
 ## 3. 產生 test.md 與交接配置
 
-主 agent 在主 repo 產生唯一執行權威 `test.md`：預設為本次 spec 對應的主 repo 目錄，本地 tracker 即 `<project-root>/.scratch/<feature>/test.md`；遠端 spec 無本地目錄時使用 `<project-root>/docs/testing/<feature>/test.md`。指定位置優先；核對既有內容及歸屬，依環境契約記錄權威路徑與 hash／版本。實作期間所有 worktree 唯讀使用此檔。程式整合與證據定稿後，主 agent 依環境契約將最終版本同步至 `<spec_name>-merge` integration worktree 的相同 repo-relative 路徑並提交，作為交付快照；不可將檔案放進被忽略的 `.worktree/` 目錄。共用命令引用既有文件／scripts，當次資源及結果放執行表與證據檔。
+主 agent 在主 repo 產生唯一執行權威 `test.md`：預設為本次 spec 對應的主 repo 目錄，本地 tracker 使用 `<project-root>/.scratch/<feature>/test.md`；遠端 spec 無本地目錄時使用 `<project-root>/docs/testing/<feature>/test.md`。指定位置優先，但須核對路徑在 repo 內且可提交；若 tracker 路徑遭忽略或不受版本控制，將 `test.md` 與 `execution-state.md` 放在 `<project-root>/docs/testing/<feature>/` 或其他已追蹤 spec 目錄。核對既有內容及歸屬，依環境契約記錄權威路徑與 hash／版本。產生初稿後，先同步至 `<spec_name>-merge` integration worktree 的相同 repo-relative 路徑並提交，再依該版本執行 smoke test；smoke 結果寫回主 repo 權威檔後，再同步提交可放行版本。實作期間所有 worktree 唯讀使用主 repo 權威檔。後續測試方式或證據有實質更新時，依環境契約同步提交；最終版本須在最終 integration review 前更新。不可將檔案放進被忽略的 `.worktree/` 目錄。共用命令引用既有文件／scripts，當次資源及結果放執行表與證據檔。
 
 文件包含：
 
@@ -33,7 +33,7 @@ description: implement-spec 啟動後、產品實作前自動執行；主動追�
 4. `TODO／驗收 ID → 測試情境 → 必要環境 → 步驟／入口 → 預期結果 → 真實／替身邊界 → 證據／狀態`；待實作入口明確標示，不冒充可執行命令。
 5. 環境就緒結論、仍缺資訊、實作後驗證責任及下一動作。環境 probe 通過與產品驗收通過分開記錄。
 
-可重用腳本／配置須交接精確 commit 或可核對的 diff／歸屬與帶入方法，核對其在目標工作樹實際存在。`test.md` 在實作期間由主 agent 在主 repo 唯一維護，不交給 owner 修改；最終交付時由主 agent 將已同步實際版本與證據的檔案提交至 integration branch，owner／reviewer 唯讀核對該交付快照。若文件需修訂，先更新主 repo 權威檔、完成受影響驗證，再重新同步及提交。依環境契約在代表性隔離 worktree 驗證既有測試路徑，保存命令、解析後位置及結果；路徑存在不等於路徑已可用。提交沿主流程授權，未追蹤憑證依其專屬規則傳遞。
+可重用腳本／配置須交接精確 commit 或可核對的 diff／歸屬與帶入方法，核對其在目標工作樹實際存在。`test.md` 在實作期間由主 agent 在主 repo 唯一維護，不交給 owner 修改；主 agent 按初稿、smoke 結果、實質修訂與最終證據定稿等節點同步提交至 integration branch，owner／reviewer 唯讀核對該快照。若文件需修訂，先更新主 repo 權威檔、完成受影響驗證，再重新同步及提交。依環境契約在代表性隔離 worktree 驗證既有測試路徑，保存命令、解析後位置及結果；路徑存在不等於路徑已可用。提交沿主流程授權，未追蹤憑證依其專屬規則傳遞。
 
 ## 4. 放行與持續維護
 

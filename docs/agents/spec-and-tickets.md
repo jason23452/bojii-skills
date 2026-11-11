@@ -6,7 +6,7 @@ Spec 定義產品行為與驗收；ticket 定義程式碼交付責任。沿用 g
 
 實作 TODO 僅列交付所需的產品程式、測試、fixtures、migration 與可版本控制的設定／腳本變更。新增 migration 是交付；在本次環境執行 migration 是操作。產品要求的 runtime／資料庫版本、相容性與真實驗收邊界仍屬規格。
 
-規劃完成後由 [implement-spec](implement-spec.md) 自動呼叫 `setup-testing` 確認環境並產生 `test.md`；環境放行後才開始產品派工、審查、合併與清理，執行狀態記入本機執行表。這些共用流程及開工前準備不寫進 spec、ticket TODO 或產品 AC，也不另附準備表作為規劃交付。執行規則直接讀取 `AGENTS.md`／skills；已有授權沿用來源，不轉錄為產品需求。
+規劃完成後由 [implement-spec](implement-spec.md) 建立 merge worktree，再自動呼叫 `setup-testing` 確認環境並產生 `test.md`；環境放行後才開始產品派工、審查、合併與清理。執行狀態記入主 repo 唯一可寫的執行表，並依執行流程同步提交版本化快照。這些共用流程及開工前準備不寫進 spec、ticket TODO 或產品 AC，也不另附準備表作為規劃交付。執行規則直接讀取 `AGENTS.md`／skills；已有授權沿用來源，不轉錄為產品需求。
 
 ## 1. 定義 spec 與驗收
 
@@ -74,7 +74,7 @@ Reviewer 回報來源、問題、受影響交付與修正條件。主 agent 修�
 - 只要求 spec 時，完成範圍與 AC 審查，票級責任與依賴標待拆票；同時要求 spec／tickets 時，形成兩者後統一審查與確認。
 - 通過最終審查後，以 `question` 確認提交或修改；已明確授權提交時沿用。實質修改需複查受影響部分，再核對 staged 版本。
 - 依分流規則同步 Status、Blocked by。`ready-for-agent` 表示可交給實作流程承接，不代表環境已就緒或全部票能同時開工。
-- 交接產品決策、研究來源、AC 對照、修改責任與依賴圖。規劃審查完成後進入 `implement-spec` 配置各 worktree 環境並實作；執行狀態留在本機執行表，環境就緒不倒過來阻擋拆票完成。
+- 交接產品決策、研究來源、AC 對照、修改責任與依賴圖。規劃審查完成後進入 `implement-spec` 建立 integration worktree、配置各 worktree 環境並實作；執行狀態以主 repo 執行表為即時來源並提交快照，環境就緒不倒過來阻擋拆票完成。
 - Implement-spec 更新進度與維持原範圍的責任調整可直接提交，不再次啟動需求訪談。
 
 ## Ticket 內容格式

@@ -11,11 +11,11 @@ disable-model-invocation: true
 ## 核心流程
 
 1. **核對任務**：讀完整 spec、tickets、決策與研究，建立 TODO／AC、責任與成果依賴圖。
-2. **環境放行**：自動載入 `setup-testing`，將 spec／tickets 與基準交其確認環境、配置與前置實測並產生 `test.md`；主 agent 協調 worktree 位置及資源。取得就緒結果後才進入產品派工，不另自行確認一套環境；有缺項先留在該流程解除。
+2. **建立交付位置與環境放行**：先建立或核實 `<spec_name>-merge` integration worktree，初始化並提交 `execution-state.md`，再自動載入 `setup-testing` 產生 `test.md`；依權威文件同步提交初稿、smoke 結果及後續重要狀態。取得就緒結果後才進入產品派工，不另自行確認一套環境；有缺項先留在該流程解除。
 3. **整票派工**：主對話留在 dev；每票新建 owner，綁定票級 worktree，一次交付完整目標、邊界與驗收。所有可獨立開工票背景並行，同票續作 resume。
 4. **Owner 自主交付**：使用 `test`、`tdd` 完成實作、fixtures、排錯與驗證；普通失敗在 owner 內處理。主 agent 協調依賴與跨票問題，不逐測試派工。
 5. **審查與整合**：載入 `docs/agents/delivery-pipeline.md`，固定候選並行驗證與獨立審查；問題整批交原 owner 修正、原 reviewer 複查。證據匯合後整合、跑回歸、即時清理票級資源並解鎖下游。
-6. **全量收尾**：全票整合並完成最終驗證後，同步 `test.md` 的實際版本及證據，再將快照提交至 `<spec_name>-merge` integration branch；接著固定最終 head、完成獨立 integration review、PR 報告與約定收尾。實作期間測試環境只依主 repo 權威 `test.md` 執行，必要修訂先更新文件再執行；reviewer 核對 branch 內交付快照的 hash／版本，精確版本與全部必要證據一致才回報完成。
+6. **全量收尾**：全票整合並完成最終驗證後，將最終 `test.md` 與 `execution-state.md` 同步提交至 `<spec_name>-merge` integration branch；接著固定最終 head、完成獨立 integration review、PR 報告與約定收尾。實作期間測試環境只依主 repo 權威 `test.md` 執行，必要修訂先更新文件再執行；reviewer 核對 branch 內兩份交付快照的 hash／版本，精確版本與全部必要證據一致才回報完成。
 
 ## 分支入口
 

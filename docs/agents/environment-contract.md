@@ -18,9 +18,18 @@
 
 `setup-testing` 完成初始配置後，`test.md` 是本次 spec／tickets 測試環境的單一執行依據；其引用的 scripts 與共用文件屬同一入口。主 agent 與 owner 僅依其中定義的目標、設定來源、參數化規則、準備／預檢／測試／恢復／清理步驟執行，不重新選模式、替換服務或自行另建測試流程。新 worktree 的專屬 ports、資料與資源名稱依文件規則產生，不視為另選環境。
 
-實作期間的 `test.md` 執行權威位於主 repo，由主 agent 在主工作區唯一維護；票級與 integration worktree 唯讀使用，不修改副本或以合併結果覆蓋權威檔。派工提供權威檔絕對路徑及內容 hash／版本；Owner 只能回報缺口與證據，測試結果寫入各自證據檔，由主 agent 更新執行表。權威檔若需修訂，主 agent 先核實差異與受影響驗收、在主工作區修訂及驗證，再通知相關 owner 重新讀取新版本；有版本差異時暫停受影響測試，不能各自在 worktree 修文件來取得通過。
+### 產生文件的 merge branch 快照
 
-`test.md` 同時是可交付文件。所有程式整合完成、最終受測版本與證據已同步至主 repo 權威檔後，主 agent 必須在最終 integration review 前，將同一版本同步至 `<spec_name>-merge` integration worktree 的相同 repo-relative 路徑，核對內容 hash 後提交到該 integration branch。這份提交版本是交付快照，不是第二個執行權威；owner 與 reviewer 不得編輯。Reviewer 唯讀檢查 integration branch 中已提交的快照及其 hash／受測版本。後續若需改 `test.md`，先更新並驗證主 repo 權威檔，再重新同步、提交及複查。交付檔放在 repo 內原有路徑（例如 `.scratch/<feature>/test.md` 或 `docs/testing/<feature>/test.md`），不可放進被忽略的 `.worktree/` 目錄。
+`implement-spec` 的主 agent 在產生 `test.md` 或 `execution-state.md` 前，先建立或核實 `<spec_name>-merge` integration worktree 與 branch。兩份文件的唯一可寫權威都在主 repo；integration branch 中是由主 agent 同步、提交的版本化快照，不是第二個執行來源。Owner 與 reviewer 唯讀使用主 repo 的 `test.md`，並唯讀檢查 merge branch 已提交的快照；不得編輯 worktree 副本或以合併結果覆蓋主 repo 權威檔。
+
+| 文件 | 初次同步與提交 | 後續同步與提交 |
+| --- | --- | --- |
+| `test.md` | 產生初稿後、依該版本執行 smoke test 前；smoke 結果寫回權威檔後，再提交可放行版本，並在放行 owner 前完成 | 必要規則修訂須先更新主 repo 權威檔，再同步提交後才可執行受影響測試；測試方式或證據有實質更新時同步提交，最終受測版本與證據須在最終 integration review 前提交 |
+| `execution-state.md` | 主 agent 建立執行表後、首次派出 owner 前 | 在派工／交接、owner 或票級 reviewer 回報、阻擋解除、部分或完整整合、回歸結果及清理等會改變續作或交付判定的排程節點，同步提交更新；彙整同一節點的變更，不為讀取或輪詢建立提交 |
+
+同步時從主 repo 權威檔複製至相同 repo-relative 路徑，核對內容 hash，並只 stage 這兩份明確的文件；不混入產品變更或其他未知成果。文件須位於 repo 可追蹤路徑；若 tracker 路徑遭忽略或不受版本控制，改放 `docs/testing/<feature>/` 或其他已追蹤 spec 目錄；不可放進被忽略的 `.worktree/`。`execution-state.md` 使用 repo-relative 路徑，記錄續作及審查所需的非機密狀態；秘密、憑證值與個人資料留在既有安全入口，不提交。
+
+最終 integration review 前，主 agent 將兩份文件的最終權威版本同步並提交到 `<spec_name>-merge` branch，核對檔案路徑、版本與 hash；reviewer 唯讀檢查已提交快照及其對應的受測版本。任何 review 後的文件或程式變更都須先更新主 repo 權威檔、完成受影響驗證、重新同步提交，並交 reviewer 複查；若發現問題，執行表更新與修正照此辦理。通過後的最終 verdict 記入 PR 交付報告，不再改動已審查的執行表快照。這些提交是交付文件，不取代主 repo 的唯一執行權威。
 
 初始配置須對每條測試路徑核對「觸發入口 → 處理與依賴 → 最終結果／副作用 → 清理」，並明列命令工作目錄、程式根目錄、設定來源、資料／輸出位置、目標 endpoint、必要參數與預期結果。區分主 repo 的唯讀契約／設定來源與 worktree 的受測程式及可變資料；以明確根目錄解析相對路徑，不能因從主 repo 讀文件而測到主 repo 的程式。既有入口須在代表性隔離 worktree 實跑相關最薄路徑；尚未存在的產品入口明列責任票與契約，先實測可用前置條件，產品建立後再驗證完整路徑。首次派工及新 worktree 使用時按文件檢查解析結果，錯誤路徑不得放行。
 
@@ -69,7 +78,7 @@
 - **確認後自主執行**：一般安裝、fixtures、資源建立、修復及重測沿用決策，不逐次詢問。外部服務沒有 sandbox 時可使用已確認的專用測試資源；不能默認改用正式 repository、正式 Release 或真實使用者資料。只有 token 存在不等於目標與操作範圍已確認。
 - **外部資源也要隔離**：記錄實際遠端 ID、版本／URL、run 專屬名稱及清理責任；共享測試帳號的可變資源依 run 隔離或串行。從實際 runner 驗證網路、必要權限與可觀察副作用；非同步發布／回呼使用有期限的就緒判定，重試前查明是否已部分建立。限流與服務暫態錯誤依共同執行上限處理。
 
-在既有驗證文件維護精簡對照：「TODO／驗收 ID → 行為與測試層級 → 本機及外部目標／必要資料 → 替身與真實邊界 → 命令／證據 → 狀態、owner 與下一步」。共用環境合併列示 ID，不複製票內 TODO。可重用模式、設定名稱、操作範圍與命令留驗證文件；秘密留憑證入口，當次程序、ports、遠端資源 ID 與執行狀態留本機執行表。
+在既有驗證文件維護精簡對照：「TODO／驗收 ID → 行為與測試層級 → 本機及外部目標／必要資料 → 替身與真實邊界 → 命令／證據 → 狀態、owner 與下一步」。共用環境合併列示 ID，不複製票內 TODO。可重用模式、設定名稱、操作範圍與命令留驗證文件；秘密留憑證入口，當次程序、ports、遠端資源 ID 與執行狀態記入主 repo 的 `execution-state.md`，並依上方規則提交不含機密的版本化快照。
 
 ### 依檢查的實際依賴分流
 
@@ -112,7 +121,7 @@
 | 證據 | 捕捉操作、結果與必要副作用，綁定程式及環境；存放在清理排除的路徑 |
 | 清理 | 只停止／移除本次已確認歸屬的資源，重跑不誤刪其他工作 |
 
-配置階段在既有驗證文件維護入口索引：命令、工作目錄、必要設定名稱、適用平台、通過條件及 owner；實作階段的本機執行表引用索引並記錄當次資源與結果。腳本為操作權威，索引不複製實作；環境操作不寫入 spec／ticket TODO。可重用腳本與配置的新增／修改才屬程式碼交付，與本次資源值分開。
+配置階段在既有驗證文件維護入口索引：命令、工作目錄、必要設定名稱、適用平台、通過條件及 owner；實作階段由主 repo 的 `execution-state.md` 引用索引並記錄當次資源與結果，再按本文件的快照節點提交至 integration branch。腳本為操作權威，索引不複製實作；環境操作不寫入 spec／ticket TODO。可重用腳本與配置的新增／修改才屬程式碼交付，與本次資源值分開。
 
 需要產品環境而尚無可用入口時，使用 test skill 的專案專屬驗證指引建立 Launch／Doctor／Drive／Evidence／Cleanup 紀錄。在已確認工作目錄與隔離資源中補齊入口並實跑；實作票依 worktree 規則執行，外部服務沿用相同生命週期，不必為遠端服務另造本地 server。有準備腳本不等於可用；readiness 須涵蓋適用的 migration、seed、前置資料及 auth，服務存活不能替代業務可操作。
 
