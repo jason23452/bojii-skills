@@ -22,7 +22,7 @@ description: implement-spec 啟動後、產品實作前自動執行；主動追�
 
 ## 3. 產生 test.md 與交接配置
 
-主 agent 在主 repo 產生唯一權威 `test.md`：預設為本次 spec 對應的主 repo 目錄，本地 tracker 即 `<project-root>/.scratch/<feature>/test.md`；遠端 spec 無本地目錄時使用 `<project-root>/docs/testing/<feature>/test.md`。指定位置優先，但不能把 linked worktree 的可變副本當權威。核對既有內容及歸屬；依環境契約記錄權威路徑與 hash／版本，所有實作 worktree 唯讀使用。共用命令引用既有文件／scripts，當次資源及結果放執行表與證據檔。
+主 agent 在主 repo 產生唯一執行權威 `test.md`：預設為本次 spec 對應的主 repo 目錄，本地 tracker 即 `<project-root>/.scratch/<feature>/test.md`；遠端 spec 無本地目錄時使用 `<project-root>/docs/testing/<feature>/test.md`。指定位置優先；核對既有內容及歸屬，依環境契約記錄權威路徑與 hash／版本。實作期間所有 worktree 唯讀使用此檔。程式整合與證據定稿後，主 agent 依環境契約將最終版本同步至 `<spec_name>-merge` integration worktree 的相同 repo-relative 路徑並提交，作為交付快照；不可將檔案放進被忽略的 `.worktree/` 目錄。共用命令引用既有文件／scripts，當次資源及結果放執行表與證據檔。
 
 文件包含：
 
@@ -33,7 +33,7 @@ description: implement-spec 啟動後、產品實作前自動執行；主動追�
 4. `TODO／驗收 ID → 測試情境 → 必要環境 → 步驟／入口 → 預期結果 → 真實／替身邊界 → 證據／狀態`；待實作入口明確標示，不冒充可執行命令。
 5. 環境就緒結論、仍缺資訊、實作後驗證責任及下一動作。環境 probe 通過與產品驗收通過分開記錄。
 
-可重用腳本／配置須交接精確 commit 或可核對的 diff／歸屬與帶入方法，核對其在目標工作樹實際存在；`test.md` 本身維持主 repo 權威，不交給 owner 修改。依環境契約在代表性隔離 worktree 驗證既有測試路徑，保存命令、解析後位置及結果；路徑存在不等於路徑已可用。提交沿主流程授權，未追蹤憑證依其專屬規則傳遞。
+可重用腳本／配置須交接精確 commit 或可核對的 diff／歸屬與帶入方法，核對其在目標工作樹實際存在。`test.md` 在實作期間由主 agent 在主 repo 唯一維護，不交給 owner 修改；最終交付時由主 agent 將已同步實際版本與證據的檔案提交至 integration branch，owner／reviewer 唯讀核對該交付快照。若文件需修訂，先更新主 repo 權威檔、完成受影響驗證，再重新同步及提交。依環境契約在代表性隔離 worktree 驗證既有測試路徑，保存命令、解析後位置及結果；路徑存在不等於路徑已可用。提交沿主流程授權，未追蹤憑證依其專屬規則傳遞。
 
 ## 4. 放行與持續維護
 

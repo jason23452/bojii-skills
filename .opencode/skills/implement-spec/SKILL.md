@@ -15,7 +15,7 @@ disable-model-invocation: true
 3. **整票派工**：主對話留在 dev；每票新建 owner，綁定票級 worktree，一次交付完整目標、邊界與驗收。所有可獨立開工票背景並行，同票續作 resume。
 4. **Owner 自主交付**：使用 `test`、`tdd` 完成實作、fixtures、排錯與驗證；普通失敗在 owner 內處理。主 agent 協調依賴與跨票問題，不逐測試派工。
 5. **審查與整合**：載入 `docs/agents/delivery-pipeline.md`，固定候選並行驗證與獨立審查；問題整批交原 owner 修正、原 reviewer 複查。證據匯合後整合、跑回歸、即時清理票級資源並解鎖下游。
-6. **全量收尾**：全票整合後同步 `test.md` 的實際版本及證據，完成 spec／跨票驗證、獨立 integration review、PR 報告與約定收尾。實作期間測試環境只依 `test.md` 執行，必要修訂先更新文件再執行；產品缺口交 owner 修復，精確版本與全部必要證據一致才回報完成。
+6. **全量收尾**：全票整合並完成最終驗證後，同步 `test.md` 的實際版本及證據，再將快照提交至 `<spec_name>-merge` integration branch；接著固定最終 head、完成獨立 integration review、PR 報告與約定收尾。實作期間測試環境只依主 repo 權威 `test.md` 執行，必要修訂先更新文件再執行；reviewer 核對 branch 內交付快照的 hash／版本，精確版本與全部必要證據一致才回報完成。
 
 ## 分支入口
 

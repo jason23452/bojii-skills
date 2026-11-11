@@ -9,7 +9,7 @@
 - spec／ticket、TODO／AC、研究／決策／授權的 context pointers。
 - 完整交付結果、必要依賴的已驗證 integration SHA、環境的準備／預檢／fixtures／驗收／清理入口，以及 implement-spec 環境就緒門檻的證據；尚待 owner 完成的環境準備須列明責任與放行條件。
 - owner 修改範圍、worktree 絕對路徑、branch、完成條件及執行表位置。
-- 主 repo 權威 `test.md` 的絕對路徑與 hash／版本；owner 與 reviewer 唯讀使用，不能修改 worktree 副本或把其變更混入候選。回報測試證據與文件缺口，由主 agent 在主工作區維護權威檔。
+- 主 repo 執行權威 `test.md` 的絕對路徑與 hash／版本；實作期間 owner 與 reviewer 唯讀使用，不能修改 worktree 副本或把其變更混入候選。回報測試證據與文件缺口，由主 agent 在主工作區維護權威檔。最終證據定稿後，主 agent 將同版本同步並提交至 `<spec_name>-merge` integration branch；reviewer 唯讀檢查該交付快照。
 - 與其他票共用部分的唯一 owner 及變更協調邊界；owner 發現需跨界修改時先回報主 agent 調整責任與依賴，再取得寫入範圍，不能自行改入別票成果。
 - [測試執行規則](test-execution.md)、已知耗時與證據位置。其他資料按下表分支提供，續派只傳變動與未完成責任。
 
@@ -101,8 +101,8 @@ Worktree 建立位置與 session 綁定是不同檢查；前者依 worktree skil
 | 票級清理失敗 | 核對殘留資源歸屬並排錯／重試，記錄具體阻擋；該票保持已整合、待清理，其他無相依工作繼續 |
 | 清理條件未滿足 | 依 implement-spec 票級即時清理自主完成剩餘交付、整合修復、證據保存、程序停止或成果歸屬調查；條件解除立即清理，不以「還不能清」結束任務 |
 | 測試逾時／停滯或工具中斷 | 原 owner 依測試執行規則保留證據、核對並清理程序、縮小重現後續作；派工不得僅要求提高時限重跑 |
-| 全票整合完成 | 固定 PR base／integration head，執行最終整合驗證並派獨立 integration reviewer；缺口交明確 owner 修正、重驗與複查 |
-| 最終整合驗證與 integration review 皆通過 | 核對主 repo 權威 `test.md` 已同步最終證據並由 reviewer 核對其版本，產生 PR 報告及收尾；缺漏驗收交回修復。實際發布依既有授權，base／head 變更依影響範圍重驗與複查 |
+| 全票整合完成 | 執行最終整合驗證，將最終 `test.md` 快照同步並提交至 `<spec_name>-merge` branch，再固定 PR base／integration head 並派獨立 integration reviewer；缺口交明確 owner 修正、重驗與複查 |
+| 最終整合驗證與 integration review 皆通過 | 核對 `test.md` 最終快照已提交於 `<spec_name>-merge` integration branch，與主 repo 執行權威 hash／版本一致且由 reviewer 核對；再產生 PR 報告及收尾。缺漏驗收交回修復；實際發布依既有授權，base／head 變更依影響範圍重驗與複查 |
 
 每次更新後重算所有可執行成果及票內剩餘工作，依依賴、檔案所有權及環境容量平行派出；同一票仍維持單一 owner。等待背景工作時保留 ID 並等通知，不重複派工或輪詢。
 

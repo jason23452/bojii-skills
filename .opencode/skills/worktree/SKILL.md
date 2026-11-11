@@ -9,7 +9,7 @@ description: implement-spec 準備或恢復環境時自動使用，亦可直接�
 
 `implement-spec` 的 `setup-testing` 已產生 `test.md` 後，本 skill 僅執行該文件定義的隔離設定、專屬參數、預檢及清理，不重新選模式或補另一套配置。文件缺口依環境契約先更新再執行；下方模式選擇僅用於初始配置或獨立 worktree 任務。
 
-使用主 repo 權威 `test.md` 路徑與版本，票級／integration worktree 的副本均不得修改或作為替代權威。建立後核對文件定義的路徑解析：受測程式與可變資料指向本 worktree，主 repo 僅提供已指定的唯讀契約／設定來源；依文件執行預檢再放行。
+實作期間使用主 repo 執行權威 `test.md` 的路徑與版本，票級／integration worktree 唯讀使用，不自行修改副本或以副本取代權威。最終證據定稿後，僅主 agent 可依環境契約將同版本同步至 `<spec_name>-merge` integration worktree 的相同 repo-relative 路徑並提交為交付快照；不得把檔案放進被忽略的 `.worktree/` 目錄。建立後核對文件定義的路徑解析：受測程式與可變資料指向本 worktree，主 repo 僅提供已指定的唯讀契約／設定來源；依文件執行預檢再放行。
 
 - 先讀實作階段的本機執行表，依 TODO／AC 與 repo 設定確認驗收需要的環境；直接呼叫時自行盤點。未指定模式時依 `docs/agents/environment-contract.md` 的測試執行模式選擇，載入 test 的 [測試方式配置](../test/references/test-setup.md)，分別決定 runner、應用與服務位置。
 - 本機模式使用 worktree 專屬程序、ports 與隔離 fixtures，執行 Git 步驟 1～4 及設定與驗證步驟 8～10 的適用部分。混合模式只為必要服務執行 Docker 步驟；容器模式對相關群組執行完整適用流程。

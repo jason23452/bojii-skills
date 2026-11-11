@@ -18,7 +18,9 @@
 
 `setup-testing` 完成初始配置後，`test.md` 是本次 spec／tickets 測試環境的單一執行依據；其引用的 scripts 與共用文件屬同一入口。主 agent 與 owner 僅依其中定義的目標、設定來源、參數化規則、準備／預檢／測試／恢復／清理步驟執行，不重新選模式、替換服務或自行另建測試流程。新 worktree 的專屬 ports、資料與資源名稱依文件規則產生，不視為另選環境。
 
-`test.md` 的權威檔位於主 repo，由主 agent 在主工作區唯一維護；票級與 integration worktree 均唯讀使用，不修改其副本或以合併結果覆蓋權威檔。派工提供權威檔絕對路徑及內容 hash／版本；本地副本不是另一個權威來源。Owner 只能回報缺口與證據，測試結果寫入各自證據檔，由主 agent 更新執行表。權威檔若需修訂，主 agent 先核實差異與受影響驗收、在主工作區修訂及驗證，再通知相關 owner 重新讀取新版本；有版本差異時暫停受影響測試，不能各自在 worktree 修文件來取得通過。
+實作期間的 `test.md` 執行權威位於主 repo，由主 agent 在主工作區唯一維護；票級與 integration worktree 唯讀使用，不修改副本或以合併結果覆蓋權威檔。派工提供權威檔絕對路徑及內容 hash／版本；Owner 只能回報缺口與證據，測試結果寫入各自證據檔，由主 agent 更新執行表。權威檔若需修訂，主 agent 先核實差異與受影響驗收、在主工作區修訂及驗證，再通知相關 owner 重新讀取新版本；有版本差異時暫停受影響測試，不能各自在 worktree 修文件來取得通過。
+
+`test.md` 同時是可交付文件。所有程式整合完成、最終受測版本與證據已同步至主 repo 權威檔後，主 agent 必須在最終 integration review 前，將同一版本同步至 `<spec_name>-merge` integration worktree 的相同 repo-relative 路徑，核對內容 hash 後提交到該 integration branch。這份提交版本是交付快照，不是第二個執行權威；owner 與 reviewer 不得編輯。Reviewer 唯讀檢查 integration branch 中已提交的快照及其 hash／受測版本。後續若需改 `test.md`，先更新並驗證主 repo 權威檔，再重新同步、提交及複查。交付檔放在 repo 內原有路徑（例如 `.scratch/<feature>/test.md` 或 `docs/testing/<feature>/test.md`），不可放進被忽略的 `.worktree/` 目錄。
 
 初始配置須對每條測試路徑核對「觸發入口 → 處理與依賴 → 最終結果／副作用 → 清理」，並明列命令工作目錄、程式根目錄、設定來源、資料／輸出位置、目標 endpoint、必要參數與預期結果。區分主 repo 的唯讀契約／設定來源與 worktree 的受測程式及可變資料；以明確根目錄解析相對路徑，不能因從主 repo 讀文件而測到主 repo 的程式。既有入口須在代表性隔離 worktree 實跑相關最薄路徑；尚未存在的產品入口明列責任票與契約，先實測可用前置條件，產品建立後再驗證完整路徑。首次派工及新 worktree 使用時按文件檢查解析結果，錯誤路徑不得放行。
 
