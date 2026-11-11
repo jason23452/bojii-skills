@@ -145,7 +145,7 @@ owner 完成實作及必要快速檢查、停寫並固定候選 base／head 後�
 
 ### 票級即時清理
 
-主 agent 在每張票整合回歸通過後立即負責清理；執行表區分「已整合、待清理」與「已清理」。清理完成才結束該票的執行生命週期，不把清理另寫成產品 TODO。
+主 agent 在每張票整合回歸通過後立即負責清理；執行表區分「已整合、待清理」與「已清理」。票級清理包含移除該票 worktree、其專屬本地 branch 與隔離資源；全部完成才結束該票的執行生命週期，不把清理另寫成產品 TODO。
 
 清理條件未滿足時，主 agent 自主排查並推進至可清理，不把「還不能清」當作停止點：
 
@@ -159,10 +159,11 @@ owner 完成實作及必要快速檢查、停寫並固定候選 base／head 後�
 1. 核對整票 TODO／AC、審查及合併回歸證據，確認本票 `project-handoff` 文件已隨提交合入 integration 且可讀；保留精確交付 commit 與 integration SHA。未納入 Git 的必要 logs／附件另移至票級 worktree／volume 以外的持久證據位置並驗證可讀，不因文件已合併就忽略其附件。
 2. 確認 owner、reviewer 及本票背景測試／產生器已停止使用環境，沒有待提交或未知成果。下游只使用已驗證 integration 的程式碼與可重建 fixtures，不依賴本票存活的服務、ports 或資料卷；發現此依賴先修正交接，不能直接刪除仍被使用的資源。
 3. 依執行表的資源歸屬，停止並移除本票 containers、自有程序、network、專屬 image tag／可安全移除的 image 及 volumes，釋放 host／E2E ports。保留 dev、integration、其他票與共用 image layers／build cache；使用精確識別清理，不執行全域 prune。
-4. 核對工作樹乾淨、交付已整合及證據已移出後，移除本票 Git worktree。清理失敗時保留原因與剩餘資源 ID，立即排錯或記錄具體外部阻擋；不強制刪除未知成果，也不默默延至全票結束。
-5. 重查 Git worktree 登錄、容器／network／image tag／volume 及本票程序已移除，ports 不再由本票占用；若 port 已由其他程序取得，不停止該程序。記錄清理結果與釋放容量，再重算可派工票。
+4. 移除前以 `git worktree list --porcelain` 記錄本票 worktree 對應的本地 branch；核對工作樹乾淨、交付已整合及證據已移出後，移除精確的本票 Git worktree。若 worktree 移除失敗，不刪 branch，先排錯並保留原因與資源 ID。
+5. worktree 移除後，確認該 branch 已不被任何 worktree 使用，且票級交付已合入 `<spec_name>-merge`。在該 integration worktree 中對記錄的本票 branch 執行 `git branch -d -- <branch>`，讓 Git 以目前 integration HEAD 做安全檢查；不使用 `-D`，不刪遠端 branch。若 branch 歸屬不明、仍被使用、尚未合入或安全刪除遭拒，保留 branch 並視為清理未完成，查明原因後再處理，不強制刪除。
+6. 重查本票 worktree 與本地 branch 均已移除，並確認容器／network／image tag／volume 及本票程序已清理、ports 不再由本票占用；若 port 已由其他程序取得，不停止該程序。將 branch 名稱及刪除結果、其他清理結果與釋放容量記入執行表，再重算可派工票。
 
-Integration worktree 保留供後續合併與最終驗收，按整份收尾規則處理；票級清理不移除 integration。
+Integration worktree 及其 branch 保留供後續合併與最終驗收，按整份收尾規則處理；票級清理不移除 integration。
 
 已有執行中的舊版 Test／Green 配對或 ticket-to-ticket 分支時，先核對現況、已提交／未提交變更與執行程序，待原角色停寫後指定單一 owner 接手；保留既有成果與依賴歷史，不 reset 或重做已完成工作。
 
@@ -217,8 +218,8 @@ Integration worktree 保留供後續合併與最終驗收，按整份收尾規�
 
 最終審查前，主 agent 先在主工作區將 `test.md` 更新至實際受測程式版本與最終驗收證據，並將最新 `execution-state.md` 定稿；再將兩份權威檔同步至 `<spec_name>-merge` integration worktree 的相同 repo-relative 路徑並提交。核對路徑、版本及兩份檔案的 hash；reviewer 以 integration branch 中已提交的檔案唯讀審查，不在 worktree 自行修改。兩份文件須位於 repo 可追蹤路徑；若 tracker 不受版本控制，使用 `docs/testing/<feature>/` 或其他已追蹤 spec 目錄，不把文件放進被忽略的 `.worktree/`。測試方式必要修訂須在執行前完成；同步後若程式或文件再變更，先更新主 repo 權威檔、重驗受影響範圍，再重新同步及提交，並由 reviewer 複查。產品或驗收缺口回 owner 修復／重驗。
 
-主 agent 核對所有 TODO、各票驗收、跨票 AC、審查問題及整合修正均有通過證據，實際交付與 integration HEAD 一致，且最終 `test.md` 與 `execution-state.md` 快照均已提交在 `<spec_name>-merge` branch、與主 repo 權威檔 hash／版本一致並由 reviewer 核對。各票 worktree 與專屬資源應已依票級即時清理移除；此處只核對清理紀錄與處理有明確原因的殘留，不首次集中清理全部票。確認沒有仍在執行的子代理／寫入程序或遺漏未提交成果，清理不再需要的 integration 執行資源；只處理已確認歸屬與授權的資源。
+主 agent 核對所有 TODO、各票驗收、跨票 AC、審查問題及整合修正均有通過證據，實際交付與 integration HEAD 一致，且最終 `test.md` 與 `execution-state.md` 快照均已提交在 `<spec_name>-merge` branch、與主 repo 權威檔 hash／版本一致並由 reviewer 核對。各票 worktree、對應本地 branch 與專屬資源應已依票級即時清理移除；此處只核對清理紀錄與處理有明確原因的殘留，不首次集中清理全部票。確認沒有仍在執行的子代理／寫入程序或遺漏未提交成果；保留來源 integration 的專屬資源供後續 merge 流程在合併、解除下游 blocker、提交 PR 報告後統一清理。
 
-保留 integration 與證據，依 `pr` skill 架構產生 `pr/<識別碼>.html`（無 PR 編號用 spec／ticket 識別碼），包含 Summary、Evidence、Merge Danger；Evidence 引用最終 integration review 的 base／head、verdict 與跨票驗證結果。完成約定收尾後回報交付 SHA、驗收與狀態；不能以摘要代替剩餘實作。
+保留 integration worktree、branch 與證據供後續合併。依 `pr` skill 架構在主 `dev` 工作區產生 `pr/<識別碼>.html`（無 PR 編號用 spec／ticket 識別碼），包含 Summary、Evidence、Merge Danger；Evidence 引用最終 integration review 的 base／head、verdict 與跨票驗證結果。此為 PR 交付報告，不是平台 PR；由 [merge skill](../../.opencode/skills/merge/SKILL.md) 在本次所有來源合併及驗證通過後，將本次報告與因這些 spec 完成而解除的下游 `Blocked by` 更新明確加入並提交至 `dev`，再清理來源 integration 的專屬環境、ports、worktree 與本地 branch。完成約定收尾後回報交付 SHA、驗收與狀態；不能以摘要代替剩餘實作。
 
 本流程預設只提交本地，不自動推送遠端或建立 draft PR。使用者另行明確要求推送／發布時，依其授權核對目標分支、tag 與發布慣例後執行。PR 建立後核對平台必要檢查及衝突狀態，通過才標示可合併。

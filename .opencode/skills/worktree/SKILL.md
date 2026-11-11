@@ -38,7 +38,7 @@ description: implement-spec 準備或恢復環境時自動使用，亦可直接�
 
 ## 隔離與安全
 
-`implement-spec` 的票級資源依 `docs/agents/implement-spec.md`「票級即時清理」：每票完整交付、審查及 integration 回歸通過後立即保存證據，移除該票 worktree、containers、network、專屬 image tag／可安全移除的 image、volumes 與自有程序，確認 ports 釋放。Integration 保留至整份驗收；部分交付票保留續作必要資源。清理時點由該流程統一決定，不延至整批結束。
+`implement-spec` 的票級資源依 `docs/agents/implement-spec.md`「票級即時清理」：每票完整交付、審查及 integration 回歸通過後立即保存證據，移除該票 worktree、對應本地 branch、containers、network、專屬 image tag／可安全移除的 image、volumes 與自有程序，確認 ports 釋放。branch 須在 worktree 移除後安全刪除；確切檢查及保留條件依 implement-spec。Integration worktree、branch 與專屬資源保留至最終 merge；全部來源合併至 `dev` 並驗證通過後，依 [merge skill](../merge/SKILL.md) 清理。部分交付票保留續作必要資源。清理時點由上述流程統一決定，不延至整批結束。
 
 - Worktree 之間不得共用可變執行資源：container、network、受測應用 image tag、host port 與 volume 均須有 worktree 專屬識別。
 - Network 隔離與外連限制依環境契約分開判定；專屬 network 本身不要求另建 proxy 或禁止外連。

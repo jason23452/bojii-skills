@@ -45,7 +45,7 @@ Blocked by: .scratch/<前置-feature>/spec.md — 前置 spec 完成 implement-s
 Blocked by: .scratch/shared-api/spec.md — 前置 spec 完成 implement-spec 全部條件並合併至 dev
 ```
 
-被阻擋不妨礙先完成規劃或標示 `ready-for-agent`；該標籤表示規劃可交由 Agent 承接，不代表可以派任一張 ticket 實作。前置 spec 全部完成並合併到 `dev` 後，解除 spec-level `Blocked by`；`implement-spec` 記錄前置交付 SHA 與新的 `dev` 基線 SHA，再開始整份 tickets。若前置契約尚未明確到足以定義新 spec 的範圍與驗收，先標待釐清，不把猜測當成已確認依賴。
+被阻擋不妨礙先完成規劃或標示 `ready-for-agent`；該標籤表示規劃可交由 Agent 承接，不代表可以派任一張 ticket 實作。前置 spec 完成最終驗收並合併到 `dev` 後，[merge 流程](../../.opencode/skills/merge/SKILL.md) 會從所有 spec 的 `Blocked by` 移除已完成的前置 spec，保留其他未完成 blocker，並把變更與 PR 報告一起提交。只有 `Blocked by` 已無未完成項的 spec 才解除整批實作門檻；之後 `implement-spec` 記錄前置交付 SHA 與新的 `dev` 基線 SHA，再開始整份 tickets。若前置契約尚未明確到足以定義新 spec 的範圍與驗收，先標待釐清，不把猜測當成已確認依賴。
 
 ### TODO 的獨立完成判定
 
