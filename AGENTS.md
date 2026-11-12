@@ -39,7 +39,7 @@ This repo uses a single-context domain docs layout. See `docs/agents/domain.md`.
 
 `implement-spec` 啟動後，先建立或核實 `<spec_name>-merge` integration worktree，再由主 agent 產生並維護主 repo 唯一可寫的 `execution-state.md` 與 `test.md`。`setup-testing` 確認測試環境、完成前置實測並產生 `test.md`；環境就緒後才放行自動實作，使用者無需另行觸發。放行後主 agent 與 owner 以主 repo 的 `test.md` 為測試環境單一執行依據，不另行配置；文件缺口先核實更新再執行。兩份文件的建立、更新與提交時點依 `docs/agents/environment-contract.md`「產生文件的 merge branch 快照」及 `docs/agents/subagent.md`「執行表與唯一寫入者」；最終版本供 integration review 核對。
 
-所有 command／測試（含安裝、建置、環境操作及背景命令）依 `docs/agents/test-execution.md` 的共同執行上限：每次有期限，同一操作最多 3 次含首次，時限依序為 T、2T、4T；失敗先診斷及清理，再決定重試。
+所有 command／測試（含安裝、建置、環境操作及背景命令）依 `docs/agents/test-execution.md` 的共同執行上限：每次有期限，同一操作每輪最多 3 次含首次，時限依序為 T、2T、4T；成功即結束該輪，失敗先診斷及清理。新變更的必要驗證與失敗重試分開計算，輪次依該文件判定。
 
 ### Subagent 交接
 

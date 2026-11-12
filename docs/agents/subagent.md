@@ -42,6 +42,7 @@ Owner 以本票 TODO／AC 為實作與進度更新範圍。可唯讀其他票理
 
 - 主 agent 維護 `<project-root>/<execution-doc-dir>/<feature>/execution-state.md`，預設 `<execution-doc-dir>` 為 `.scratch`；若該路徑遭忽略或不受版本控制，改用 `docs/testing` 或其他已追蹤 spec 目錄，並與 `test.md` 同置。執行表記錄 ticket、owner／reviewer session、worktree、branch、已驗證基線、狀態與證據，以及從 TODO／AC 推導的環境準備、操作授權與恢復入口；主 repo 檔案是唯一即時來源，owner 回報證據，由主 agent 唯一寫入。首次派工前及會改變續作／交付判定的排程節點，將同一 repo-relative 路徑的版本同步並提交至 `<spec_name>-merge` branch；路徑使用 repo-relative 表示，內容不得包含秘密、憑證值或個人資料。各次更新節點依 [環境契約](environment-contract.md#產生文件的-merge-branch-快照) 判定，不為讀取或輪詢提交。
 - Ticket 文件記錄可版本控制的程式碼 TODO／驗收進度；執行表引用，不另維護第二套產品完成條件，也不把環境操作反向寫成產品 TODO。
+- 文件更新依 [即時狀態與固定證據的分工](environment-contract.md#即時狀態與固定證據的分工)：派工使用當次核實的 Git 基線；handoff／evidence 引用固定受測與交付版本，不為純文件 commit 造成的 HEAD 前進反覆派修 chronology。
 - 每個未完成項目另記 `next_action`（下一個具體工具動作）及 `blocker`（無、背景 session／程序、或待使用者決策）；恢復時依 Git／程序實況核對後續作。
 - 背景工作另記最近一次派工的工具結果、session／job ID 與狀態（執行中、已回報、失敗／中斷、未知）。Session ID 只表示對話存在；執行表中的「修正中」須有已接受且尚未結束的背景呼叫支持。
 - 阻擋與依賴細化到成果及 TODO／驗收 ID，記錄已交付 commit、可用的 integration SHA、未完成責任與解除條件；票級摘要可為部分完成／部分受阻，不能代替逐項狀態。

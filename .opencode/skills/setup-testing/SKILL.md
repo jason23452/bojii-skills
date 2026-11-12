@@ -33,6 +33,7 @@ description: implement-spec 啟動後、產品實作前自動執行；主動追�
 4. `TODO／驗收 ID → 測試情境 → 必要環境 → 步驟／入口 → 預期結果 → 真實／替身邊界 → 證據／狀態`；待實作入口明確標示，不冒充可執行命令。
 5. 環境就緒結論、仍缺資訊、實作後驗證責任及下一動作。環境 probe 通過與產品驗收通過分開記錄。
 6. **診斷與修訂**：依 [環境契約](../../../docs/agents/environment-contract.md#診斷與修訂) 明列 owner 可自主執行的離線重現、界線內 probe、runner／fixture 修復，以及主 agent 更新入口的路徑；引用 [可診斷的驗證入口](../../../docs/agents/test-execution.md#可診斷的驗證入口) 的失敗證據要求。使用者限制附原始來源，重試預算與授權分開，不生成逐次批准門檻。
+7. 執行基線：適用平台的已驗證 runner／wrapper 入口與版本、耗時量測及 T 的依據、每次 invocation 的獨立證據位置與編碼。依 [測試執行規則](../../../docs/agents/test-execution.md) 驗證退出碼／取消／輸出保存，後續量測回饋由主 agent 更新，避免新 owner 重用失效 wrapper 或過短時限。
 
 可重用腳本／配置須交接精確 commit 或可核對的 diff／歸屬與帶入方法，核對其在目標工作樹實際存在。`test.md` 在實作期間由主 agent 在主 repo 唯一維護，不交給 owner 修改；主 agent 按初稿、smoke 結果、實質修訂與最終證據定稿等節點同步提交至 integration branch，owner／reviewer 唯讀核對該快照。若文件需修訂，先更新主 repo 權威檔、完成受影響驗證，再重新同步及提交。依環境契約在代表性隔離 worktree 驗證既有測試路徑，保存命令、解析後位置及結果；路徑存在不等於路徑已可用。提交沿主流程授權，未追蹤憑證依其專屬規則傳遞。
 
