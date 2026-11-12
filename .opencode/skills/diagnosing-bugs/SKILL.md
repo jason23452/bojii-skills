@@ -13,11 +13,11 @@ When exploring the codebase, read `GLOSSARY.md` (if it exists) to get a clear me
 
 This skill has you show commands, outputs and captured artifacts. **Redact every secret first**: write `<REDACTED>` in its place. Build loops against env vars, so the credential stays in the environment rather than in what you show. Captured artifacts carry auth headers: quote only the lines that carry the signal.
 
-If the redacted output is not enough to diagnose the bug, say so and ask the user.
+脫敏輸出不足時，先核對錯誤捕捉邊界與實際呼叫鏈，補足安全的階段／斷言 ID、錯誤分類、欄位及預期／實際型別；秘密與私人 payload 仍遮蔽。能由程式、固定版本 API／SDK 或本機重現取得的資訊自行查證；只有確實無法取得的外部證據或權限才詢問使用者。執行時沿專案 `docs/agents/test-execution.md` 的「可診斷的驗證入口」，區分產品失敗、cleanup 與 evidence 轉換失敗。
 
 ## Phase 1: Build a feedback loop
 
-**This is the skill.** Everything else is mechanical. If you have a **tight** pass/fail signal for the bug (one that goes red on _this_ bug), you will find the cause; bisection, hypothesis-testing, and instrumentation all just consume it. If you don't have one, no amount of staring at code will save you.
+以能抓住該問題的快速 pass/fail 訊號作為排錯核心。先讀實際呼叫鏈、型別、版本契約及既有失敗證據，據此選擇最小重現；讀碼與提出待驗證假設是建立迴圈的方法，不能取代修復後的實測。
 
 Spend disproportionate effort here. **Be aggressive. Be creative. Refuse to give up.**
 
@@ -29,7 +29,7 @@ Spend disproportionate effort here. **Be aggressive. Be creative. Refuse to give
 4. **Headless browser script** (Playwright / Puppeteer) that drives the UI and asserts on DOM/console/network.
 5. **Replay a captured trace.** Save a real network request / payload / event log to disk; replay it through the code path in isolation.
 6. **Throwaway harness.** Spin up a minimal subset of the system (one service, mocked deps) that exercises the bug code path with a single function call.
-7. **Property / fuzz loop.** If the bug is "sometimes wrong output", run 1000 random inputs and look for the failure mode.
+7. **Property / fuzz loop.** 使用固定 seed、有限案例數與總期限提高失敗重現率，保存首次失敗與最小輸入。
 8. **Bisection harness.** If the bug appeared between two known states (commit, dataset, version), automate "boot at state X, check, repeat" so you can `git bisect run` it.
 9. **Differential loop.** Run the same input through old-version vs new-version (or two configs) and diff outputs.
 10. **HITL bash script.** Last resort. If a human must click, drive _them_ with `scripts/hitl-loop.template.sh` so the loop is still structured. Captured output feeds back to you.
@@ -48,11 +48,17 @@ A 30-second flaky loop is barely better than no loop; a 2-second deterministic o
 
 ### Non-deterministic bugs
 
-The goal is not a clean repro but a **higher reproduction rate**. Loop the trigger 100×, parallelise, add stress, narrow timing windows, inject sleeps. A 50%-flake bug is debuggable; 1% is not, so keep raising the rate until it's debuggable.
+對非確定性問題，使用固定 seed、受控併發或時間條件提高重現率，保存量測及最小失敗輸入。依專案時限與操作預算執行；離線 fuzz 的案例集合與有副作用的 runtime 操作分開計算，不能以批次迴圈繞過操作限次。
 
 ### When you genuinely cannot build a loop
 
-Stop and say so explicitly. List what you tried. Ask the user for: (a) access to whatever environment reproduces it, (b) a redacted captured artifact (HAR file, log dump, core dump, screen recording with timestamps), or (c) permission to add temporary production instrumentation. Do **not** proceed to hypothesise without a loop.
+Runtime 不可執行、授權已限次或歷史輸出不足時，先走離線路徑：
+
+1. 從失敗邊界反查實際 producer、adapter、consumer 及例外處理，核對固定版本 schema、API／SDK 與型別；區分已觀察事實、程式必然違約及尚待驗證推論。
+2. 使用脫敏既有輸入或版本契約 fixture，呼叫實際產品／runner 函式建立最小重現。對 evidence 問題測到 producer → projector → serializer，不只測人工整理好的最終物件。
+3. 若仍缺關鍵訊號，在既有修改範圍內補最小診斷與離線回歸；需要修訂測試入口或跨票責任時交主 agent 依既有流程處理，繼續其他可執行調查。
+
+只有上述路徑仍受具體外部條件阻擋，才列已試方法、所缺證據及最小必要輸入詢問使用者。離線證實的缺陷可修復並驗證，但原 runtime／端到端驗收保留未完成；使用者明確限制不因找到新缺陷而失效。
 
 ### Completion criterion: a tight loop that goes red
 
@@ -63,7 +69,7 @@ Phase 1 is done when the loop is **tight** and **red-capable**: you can name **o
 - [ ] **Fast**: seconds, not minutes.
 - [ ] **Agent-runnable**: you can run it unattended; a human in the loop only via `scripts/hitl-loop.template.sh`.
 
-If you catch yourself reading code to build a theory before this command exists, **stop: jumping straight to a hypothesis is the exact failure this skill prevents.** No red-capable command, no Phase 2.
+完成判準適用於可執行的重現；離線路徑須明記涵蓋的缺陷與未涵蓋的原始症狀。尚無 red-capable 命令時繼續讀碼、查契約與設計 probe，推論保持待驗證，不宣稱已重現或修復原問題。
 
 ## Phase 2: Reproduce + minimise
 
@@ -83,11 +89,11 @@ Why bother: a minimal repro shrinks the hypothesis space in Phase 3 (fewer movin
 
 Done when **every remaining element is load-bearing**: removing any one of them makes the loop go green.
 
-Do not proceed until you have reproduced **and** minimised.
+可執行時先重現並縮小；因具體外部條件無法執行時沿離線路徑繼續，保留驗證缺口。
 
 ## Phase 3: Hypothesise
 
-Generate **3–5 ranked hypotheses** before testing any of them. Single-hypothesis generation anchors on the first plausible idea.
+原因未明時列出少量有證據支持且可區分的假設，按可能性排序；已有明確型別／契約違約時直接建立其最小回歸，不為湊數杜撰其他原因。局部缺陷已證實不代表它是整次失敗的唯一原因。
 
 Each hypothesis must be **falsifiable**: state the prediction it makes.
 

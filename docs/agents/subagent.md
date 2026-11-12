@@ -26,6 +26,8 @@ Owner 自主完成產品、測試、fixtures、排錯與驗證，直到可交付
 
 主 agent 派工描述「要恢復的行為、修改邊界、有效證據與完成條件」，讓 owner 選擇內部修復順序。具體命令可作已驗證入口或最小重現，不變成每一步需回報核准的腳本。一次交回同輪有效 findings，包含修正、必要回歸與交付；只有跨票資源協調、操作界線、證據矛盾或停滯裁決才介入執行細節。
 
+修復派工包含「定位 → 最小重現 → 修復 → 受影響回歸 → 原驗收重驗」的完整責任，以及可調整的 runner／fixture 與文件差異回報入口。Owner 核對實際 scripts 的工作目錄與參數，與派工命令不符時先查明並依環境契約校正。普通失敗由同一 owner 連續處理；需暫停時列具體條件及其來源，依 [授權沿用](implement-spec.md#授權沿用) 區分使用者限制、重試預算與內部交接。
+
 ## 跨票 TODO 邊界
 
 Owner 以本票 TODO／AC 為實作與進度更新範圍。可唯讀其他票理解契約；不得自行實作、改寫、刪除或勾選其他票的 TODO／驗收，也不能因其檔案存在於自己的 worktree 就視為已取得修改權。
@@ -77,7 +79,7 @@ Worktree 建立位置與 session 綁定是不同檢查；前者依 worktree skil
 
 ## 主 agent 的持續排程
 
-產品派工前須已建立 `<spec_name>-merge` integration worktree、取得 `setup-testing` 的初始環境放行與 `test.md`，並提交 `execution-state.md` 初始快照；尚未放行時下列排程僅推進環境準備、查證與必要補問，不派產品 owner。放行後只依 `test.md` 執行；文件有缺口先交主 agent 更新並同步提交再執行，不另設環境失敗轉交配置的分支。
+產品派工前須已建立 `<spec_name>-merge` integration worktree、取得 `setup-testing` 的初始環境放行與 `test.md`，並提交 `execution-state.md` 初始快照；尚未放行時下列排程僅推進環境準備、查證與必要補問，不派產品 owner。放行後依 `test.md` 執行；文件缺口依 [診斷與修訂](environment-contract.md#診斷與修訂) 由主 agent 更新並同步提交後續派受影響驗證，owner 同時繼續界線內可執行的診斷。
 
 每次收到 owner／reviewer 回報、背景完成通知或整合驗證結果，跑完以下迴圈才決定是否等待：
 
@@ -101,6 +103,7 @@ Worktree 建立位置與 session 綁定是不同檢查；前者依 worktree skil
 | 票級清理失敗 | 核對殘留 worktree、branch 或資源的歸屬並排錯／重試，記錄具體阻擋；該票保持已整合、待清理，其他無相依工作繼續 |
 | 清理條件未滿足 | 依 implement-spec 票級即時清理自主完成剩餘交付、整合修復、證據保存、程序停止或成果歸屬調查；條件解除立即清理，不以「還不能清」結束任務 |
 | 測試逾時／停滯或工具中斷 | 原 owner 依測試執行規則保留證據、核對並清理程序、縮小重現後續作；派工不得僅要求提高時限重跑 |
+| 聲稱次數／授權耗盡、文件缺口或共享修復越界 | 先核對原始限制；主 agent 校正自加門檻、更新 test.md 或協調責任後立即續派完整修復。真實使用者限制仍有效，不受限的離線診斷繼續 |
 | 全票整合完成 | 執行最終整合驗證，將最終 `test.md` 與 `execution-state.md` 快照同步並提交至 `<spec_name>-merge` branch，再固定 PR base／integration head 並派獨立 integration reviewer；缺口交明確 owner 修正、重驗與複查 |
 | 最終整合驗證與 integration review 皆通過 | 核對兩份最終快照已提交於 `<spec_name>-merge` integration branch，與主 repo 權威版本及 hash 一致且由 reviewer 核對；再產生 PR 報告及收尾。缺漏驗收交回修復；實際發布依既有授權，base／head 變更依影響範圍重驗與複查 |
 

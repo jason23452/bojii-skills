@@ -27,7 +27,7 @@
 | Evidence | 命令、SHA／未提交差異識別、環境、開始／完成時間、結果與證據位置；保存動作及結果，不只有最後畫面 |
 | Cleanup | 正常及失敗後的清理命令、所有權判斷、共享實例的保留條件；證據目錄與可刪暫存資料分離 |
 
-實際準備、隔離、快取重用與授權依 `docs/agents/environment-contract.md`；timeout／取消依 `docs/agents/test-execution.md`，首次採用或機制變更時將其實測證據記入 Evidence，不能只列 timeout 設定。此紀錄只填專案實值，不另定相衝突政策。
+實際準備、隔離、快取重用與授權依 `docs/agents/environment-contract.md`；timeout／取消與失敗證據依 `docs/agents/test-execution.md`，首次採用或機制變更時將其實測證據記入 Evidence，不能只列 timeout 設定。新增／修正 harness 的錯誤捕捉、清理或 evidence 時，載入該文件「可診斷的驗證入口」，核對真實資料鏈及失敗路徑。此紀錄只填專案實值，不另定相衝突政策。
 
 維護最小使用者路徑表：「行為／驗收項 → 實際入口 → 前置資料 → 測試或操作命令 → 預期可觀察結果 → 已驗證範圍／證據」。多入口功能分列，例如 Workspace 與 Workflow 聊天；一個入口通過不能代替另一個。資料缺失要修正準備方式，不能弱化 journey。
 

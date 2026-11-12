@@ -7,7 +7,7 @@ description: implement-spec 準備或恢復環境時自動使用，亦可直接�
 
 ## 環境模式
 
-`implement-spec` 先在 `setup-testing` 前建立或核實 `<spec_name>-merge` integration worktree，讓生成的執行文件可提交到目標 branch。這次初始呼叫只完成 worktree 的 Git 建立與路徑／基底核對，不配置測試環境；`test.md` 產生後，再按本文件配置隔離設定、專屬參數、預檢及清理，不重新選模式或補另一套配置。文件缺口依環境契約先更新再執行；下方模式選擇僅用於初始配置或獨立 worktree 任務。
+`implement-spec` 先在 `setup-testing` 前建立或核實 `<spec_name>-merge` integration worktree，讓生成的執行文件可提交到目標 branch。這次初始呼叫只完成 worktree 的 Git 建立與路徑／基底核對，不配置測試環境；`test.md` 產生後，再按本文件配置隔離設定、專屬參數、預檢及清理。文件缺口或模式調整依環境契約「診斷與修訂」更新同一權威入口後執行，界線內診斷持續進行；下方模式選擇用於初始配置、經核實的方案修訂或獨立 worktree 任務。
 
 實作期間以主 repo 執行權威 `test.md` 的路徑與版本操作，票級／integration worktree 唯讀使用，不自行修改副本或以副本取代權威。主 agent 依環境契約在初稿、smoke 結果、規則／證據實質更新及最終定稿時，將同一版本同步至 `<spec_name>-merge` integration worktree 的相同 repo-relative 路徑並提交；`execution-state.md` 亦按其排程節點同步提交。這些 branch 文件是交付快照，不是第二個執行權威；不得把檔案放進被忽略的 `.worktree/` 目錄。建立後核對文件定義的路徑解析：受測程式與可變資料指向本 worktree，主 repo 僅提供已指定的唯讀契約／設定來源；依文件執行預檢再放行。
 

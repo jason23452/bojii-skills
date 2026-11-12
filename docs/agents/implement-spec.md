@@ -44,7 +44,7 @@ Tickets 規劃核對且 integration worktree 已就緒後，主 agent 自動載�
 
 - 環境查證、憑證、外部操作範圍與就緒判定以 `setup-testing` 的結果為準；既有授權按下節沿用。主 agent 負責協調資源與唯一寫入者，不新增第二份批准表。
 - 新增程式／設定／harness 先核對票券責任；環境配置可在產品實作前執行，屬產品 TODO 的入口則交對應 owner 在放行後完成。尚無產品功能不要求提前通過產品驗收，環境前置實測仍須完成。
-- 放行後依 [實作階段以 test.md 為準](environment-contract.md#實作階段以-testmd-為準) 執行，主 agent 與 owner 不另行配置測試環境。文件缺口先核實並更新再執行；產品契約缺口回需求釐清，產品缺陷由原 owner 修復。
+- 放行後依 [實作階段以 test.md 為準](environment-contract.md#實作階段以-testmd-為準) 執行；入口缺陷與方案調整依 [診斷與修訂](environment-contract.md#診斷與修訂) 處理，主 agent 核實並更新文件後執行受影響驗證，其餘合法診斷繼續。產品契約缺口回需求釐清，產品缺陷由原 owner 修復。
 
 ### 授權沿用
 
@@ -52,11 +52,13 @@ Tickets 規劃核對且 integration worktree 已就緒後，主 agent 自動載�
 - 任務已包含「環境自主處理」的準備、診斷、實作、重驗及自有資源清理，新建任務專屬資源不另申請授權。普通測試失敗、候選 SHA 改變、review finding 或 session 恢復只觸發受影響條件重驗；只有超出該自主範圍的必要操作才確認差額。
 - 一般開發驗證以完成任務所需的操作範圍確認；只有使用者明確限次、限時或另有限制時才按該限制執行。明確單次授權須記錄受限操作及實際執行證據：受限操作尚未開始，不因靜態審查或無副作用預檢失敗而宣告耗盡；若限制的是整個 runner，runner 已開始即按此界線計算。已達明確限制時保留剩餘工作，依集中詢問規則取得必要輸入。
 - 從舊執行表恢復時，將「未授權／授權耗盡」回查使用者原始指示。Agent 或 reviewer 自加的限制由主 agent 校正；使用者已明確同意的限制仍有效，不能為續跑自行解除。
+- **授權與重試分開**：三次上限依 [測試執行規則](test-execution.md) 管理同一操作；實質修復或新驗證方法符合新輪條件時，沿用原操作授權。主 agent 的單次派工、review gate 或停寫交接不是使用者限次。記錄限制時附原始來源、受限操作及解除條件；自行加上的門檻由主 agent 核實後解除並續派。
+- 需要確認差額時，問題描述真正新增的目標、權限、費用或產品決策；一般隔離環境修復與必要重驗沿用任務授權，不把選項收窄為「暫不授權／只准一次」。使用者若已明確選擇單次限制，仍依該限制停止受限操作，繼續不受限的診斷與修復。
 
 ### 隔離與派工
 
 - 主對話留在使用者的 `dev` 工作區協調；integration 與票級 worktrees 是執行位置，不是主對話的新位置。依 [Session 綁定](subagent.md#session-綁定) 指定工具工作目錄及子代理 session，續作時亦沿用此界線。
-- 前述 `<spec_name>-merge` integration worktree 已在文件生成前建立／核實；此階段主 agent 使用 [worktree skill](../../.opencode/skills/worktree/SKILL.md) 建立票級 `.worktree/<spec_name>-tickets-<NN>` worktree，並核對主 repo、integration branch 與票級 worktree 的路徑及基底關係。實際測試環境只套用 `test.md` 的配置及專屬參數規則，不由主 agent 另選方案。
+- 前述 `<spec_name>-merge` integration worktree 已在文件生成前建立／核實；此階段主 agent 使用 [worktree skill](../../.opencode/skills/worktree/SKILL.md) 建立票級 `.worktree/<spec_name>-tickets-<NN>` worktree，並核對主 repo、integration branch 與票級 worktree 的路徑及基底關係。實際測試環境套用 `test.md` 的配置及專屬參數規則；需要調整方案時依環境契約修訂同一權威入口，再交 owner 採用。
 - 明確啟動 `implement-spec` 即包含本地 integration／票級 worktrees 與任務必要的隔離執行環境。先核對來源、歸屬與恢復方式，再依「環境自主處理」建立、啟動、診斷及修復，不逐項詢問 Docker／runtime／E2E 授權。
 - 準備與恢復執行 `test.md` 引用的可重跑入口。Owner 遇到文件缺口先回報主 agent 更新，不以每票臨時命令替代既定測試方式。
 - 派工一併提供主 repo 執行權威 `test.md` 的絕對路徑與 hash／版本，以及執行表路徑；實作期間票級及 integration worktree 唯讀使用，owner 只回報證據與建議修訂。主 agent 依環境契約在初版、必要規則變更與執行生命週期重要節點，將 `test.md`／`execution-state.md` 同步提交到 `<spec_name>-merge` branch；reviewer 唯讀核對最終快照及 hash。交付檔不得放在被忽略的 `.worktree/` 目錄。
@@ -173,6 +175,8 @@ Integration worktree 及其 branch 保留供後續合併與最終驗收，按整
 
 保留最小重現、命令、預期／實際與環境；提出可驗證假設，修正後重跑原失敗及受影響測試。無新資訊的重試改採診斷、既有證據核對或專項協助，不在同一失敗上盲目重跑。工具或程式難題不等於外部阻擋。
 
+Runtime 暫不能執行或輸出不足時，原 owner 依 `diagnosing-bugs` 追查實際呼叫鏈、固定版本 API／SDK、資料型別與失敗邊界，建立離線重現或補足診斷入口。主 agent 在標記外部受阻前核對授權來源、可做的離線工作與內部責任調整；只有具體無法自行取得的條件才交使用者。證據／文件更新是排錯的紀錄，不取代仍可進行的診斷、修復或重驗。
+
 ### 新發現的規劃缺口或外部變化
 
 先查既有決策、授權及可行替代；已授權範圍內自行解除。Owner 在首次使用必要外部資源前做最小有效設定／連線／權限預檢；已提供 key 但注入錯誤由 owner 修復，缺少或無效的 key、權限或額度則保留遮蔽後證據。前置條件缺少標「前置受阻」，不當成產品斷言失敗或通過。
@@ -202,6 +206,8 @@ Integration worktree 及其 branch 保留供後續合併與最終驗收，按整
 ### 責任移轉
 
 維持原範圍的拆票或責任調整由主 agent 記錄「原 TODO／AC、未完成內容、原因、承接票／owner、依賴、證據及完成條件」，同步兩側與總表。原票標示移交而非假勾完成；整份清單仍追蹤承接結果。需求／驗收變更需先確認。
+
+為完成原 AC 必須修復共享 parser、service、fixture 或清理入口時，先核對既有契約與影響範圍；屬恢復既定行為且仍在原授權內，由主 agent 自主選擇擴入原票或另指派修正票，協調停寫、唯一 owner 與回歸責任後續作。檔案超出原票清單本身是內部責任協調，不是使用者決策；只有改變產品契約、驗收或操作界線才確認差額。新增／修改 tickets 仍依既有獨立核對規則處理。
 
 ## 7. 最終 integration review 與收尾
 
