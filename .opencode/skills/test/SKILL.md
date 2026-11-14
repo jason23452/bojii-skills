@@ -19,7 +19,7 @@ description: 配置專案測試方式與 .env.test、選擇本機／混合／容
 | 工作 | 載入 |
 | --- | --- |
 | 配置測試方式、本機／外部整合、執行模式或降低容器開銷 | [測試方式配置](references/test-setup.md)；分開決定 runner 位置與測試目標，驗證後沿用 |
-| 執行前盤點測試憑證、執行中缺 key，或配置／傳遞 `.env.test` | [Agent 測試憑證](references/test-env.md)；先補空白欄位、繼續可做工作，再回報取得與填值方式；不作為部署必填設定 |
+| 執行前盤點測試憑證、執行中缺 key，或配置／傳遞 `.env.test` | [Agent 測試憑證](references/test-env.md)；已有授權來源先完成同步閉環，來源確實缺值才補空白欄位並回報填值方式；不作為部署必填設定 |
 | 首次建立專案驗證入口，或既有入口因環境／程式變動失效 | [專案專屬驗證入口](references/project-verification.md)；沿用既有位置，補齊 Launch／Doctor／Drive／Evidence／Cleanup |
 | Playwright UI／API、瀏覽器 fixtures、trace 診斷 | [Playwright](references/playwright.md) |
 | Node.js 內建 test runner | [Node.js test](references/node-test.md) |
