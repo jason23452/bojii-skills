@@ -17,26 +17,26 @@ description: implement-spec 啟動後、產品實作前自動執行；主動追�
 
 - 使用 `test` 的 [測試方式配置](../test/references/test-setup.md) 準備最小必要環境，核對實際工具、設定載入、本機／外部目標、必要連線、權限、資料隔離及清理。秘密依 [憑證指引](../test/references/test-env.md) 處理，不寫入文件。
 - 已指定 `.env` 等憑證來源時，執行憑證指引的「已授權來源的同步閉環」，將檔案配置、程序載入與真實驗證結果寫入既有證據。遇到缺值或環境失敗，依 [環境故障的執行閉環](../../../docs/agents/environment-contract.md#環境故障的執行閉環) 分類並實際修復；準備計畫與口頭承諾不作為放行證據。
-- `<spec_name>-merge` integration worktree 由 `implement-spec` 在本 skill 啟動前建立，供 `test.md` 快照提交；其他 worktree 由主 agent 協調 Git 位置，本流程使用 `worktree` 的隔離步驟配置與驗證。共享設定由唯一配置者寫入；環境準備可先執行，產品實作 owner 尚不派出。
-- **先跑 smoke test 才放行**：先在主 repo 的 `test.md` 記錄最小測試路徑草稿，依文件快照規則同步提交後，再依環境契約的 smoke 門檻，在實際隔離目標跑通準備、就緒、一個真實操作、結果斷言及清理。結果寫回主 repo 並同步提交可放行版本；全部成功且證據可讀才標記可用。僅有設定、連線或 health check 不算通過。首次採用或變更 deadline／取消機制時另依共同規則實測；失敗先修復並重跑 smoke，遵守三次時限上限。
+- `<spec_name>-merge` integration worktree 由 `implement-spec` 在本 skill 啟動前建立，是 `test.md` 與 `execution-state.md` 的唯一寫入位置；主 session 保持在 dev，使用明確路徑操作。其他 worktree 由主 agent 協調 Git 位置，本流程使用 `worktree` 的隔離步驟配置與驗證。共享設定由唯一配置者寫入；環境準備可先執行，產品實作 owner 尚不派出。
+- **先跑 smoke test 才放行**：先在 integration 的 `test.md` 記錄最小測試路徑草稿並提交，再依環境契約的 smoke 門檻，在實際隔離目標跑通準備、就緒、一個真實操作、結果斷言及清理。結果寫回同一檔並提交可放行版本；全部成功且證據可讀才標記可用。僅有設定、連線或 health check 不算通過。首次採用或變更 deadline／取消機制時另依共同規則實測；失敗先修復並重跑 smoke，遵守三次時限上限。
 - 尚待產品實作的功能、fixtures 或測試入口不要求提前通過；須先確認其環境目標與可獨立驗證的前置條件，並列明責任票、預期命令／入口的待實作狀態及後續驗證方式。配置者不搶做已有票券 owner 的產品交付。
 
 ## 3. 產生 test.md 與交接配置
 
-主 agent 在主 repo 產生唯一執行權威 `test.md`：預設為本次 spec 對應的主 repo 目錄，本地 tracker 使用 `<project-root>/.scratch/<feature>/test.md`；遠端 spec 無本地目錄時使用 `<project-root>/docs/testing/<feature>/test.md`。指定位置優先，但須核對路徑在 repo 內且可提交；若 tracker 路徑遭忽略或不受版本控制，將 `test.md` 與 `execution-state.md` 放在 `<project-root>/docs/testing/<feature>/` 或其他已追蹤 spec 目錄。核對既有內容及歸屬，依環境契約記錄權威路徑與 hash／版本。產生初稿後，先同步至 `<spec_name>-merge` integration worktree 的相同 repo-relative 路徑並提交，再依該版本執行 smoke test；smoke 結果寫回主 repo 權威檔後，再同步提交可放行版本。實作期間所有 worktree 唯讀使用主 repo 權威檔。後續測試方式或證據有實質更新時，依環境契約同步提交；最終版本須在最終 integration review 前更新。不可將檔案放進被忽略的 `.worktree/` 目錄。共用命令引用既有文件／scripts，當次資源及結果放執行表與證據檔。
+主 agent 直接在 `<integration-root>` 產生唯一執行權威 `test.md`，與 `execution-state.md` 同置；根目錄、可追蹤路徑、提交節點及舊流程遷移均依 [merge branch 文件規則](../../../docs/agents/environment-contract.md#產生文件的-merge-branch-快照)。核對既有內容與歸屬，記錄權威絕對路徑及 hash／版本。初稿先提交才執行 smoke，結果寫回同一檔並提交可放行版本。Owner／reviewer 唯讀使用 integration 權威檔，不使用 dev 或票級副本代替。共用命令引用既有文件／scripts，當次資源及結果放執行表與證據檔。
 
 文件包含：
 
 1. Spec／tickets、基準版本與本次測試範圍。
 2. 必要環境、系統邊界、目標、版本、設定來源及允許操作。
-3. 每條準備／預檢／執行／恢復／清理路徑的工作目錄、受測程式根目錄、命令或入口、設定來源、資料／輸出與 endpoint、就緒及結果判準；新 worktree／run 的專屬參數產生與傳遞規則。明確區分主 repo 來源與 worktree 執行目標。依環境契約「暫停或關機後的恢復」記錄服務及必要引擎的檢查／啟動順序、資料保留與恢復步驟，並驗證自有資源停止後可重新啟動及通過 smoke。
+3. 每條準備／預檢／執行／恢復／清理路徑的工作目錄、受測程式根目錄、命令或入口、設定來源、資料／輸出與 endpoint、就緒及結果判準；新 worktree／run 的專屬參數產生與傳遞規則。明確區分 integration 文件來源、主 repo 憑證來源與當次 worktree 執行目標。依環境契約「暫停或關機後的恢復」記錄服務及必要引擎的檢查／啟動順序、資料保留與恢復步驟，並驗證自有資源停止後可重新啟動及通過 smoke。
    先列獨立的 **Smoke test** 區段：最小操作、命令／工作目錄、必要資料、明確通過條件、清理、受測版本與證據。完整測試群組引用此入口，不能以「稍後再跑」放行。
 4. `TODO／驗收 ID → 測試情境 → 必要環境 → 步驟／入口 → 預期結果 → 真實／替身邊界 → 證據／狀態`；待實作入口明確標示，不冒充可執行命令。
 5. 環境就緒結論、仍缺資訊、實作後驗證責任及下一動作。環境 probe 通過與產品驗收通過分開記錄。
 6. **診斷與修訂**：依 [環境契約](../../../docs/agents/environment-contract.md#診斷與修訂) 明列 owner 可自主執行的離線重現、界線內 probe、runner／fixture 修復，以及主 agent 更新入口的路徑；引用 [可診斷的驗證入口](../../../docs/agents/test-execution.md#可診斷的驗證入口) 的失敗證據要求。使用者限制附原始來源，重試預算與授權分開，不生成逐次批准門檻。
 7. 執行基線：適用平台的已驗證 runner／wrapper 入口與版本、耗時量測及 T 的依據、每次 invocation 的獨立證據位置與編碼。依 [測試執行規則](../../../docs/agents/test-execution.md) 驗證退出碼／取消／輸出保存，後續量測回饋由主 agent 更新，避免新 owner 重用失效 wrapper 或過短時限。
 
-可重用腳本／配置須交接精確 commit 或可核對的 diff／歸屬與帶入方法，核對其在目標工作樹實際存在。`test.md` 在實作期間由主 agent 在主 repo 唯一維護，不交給 owner 修改；主 agent 按初稿、smoke 結果、實質修訂與最終證據定稿等節點同步提交至 integration branch，owner／reviewer 唯讀核對該快照。若文件需修訂，先更新主 repo 權威檔、完成受影響驗證，再重新同步及提交。依環境契約在代表性隔離 worktree 驗證既有測試路徑，保存命令、解析後位置及結果；路徑存在不等於路徑已可用。提交沿主流程授權，未追蹤憑證依其專屬規則傳遞。
+可重用腳本／配置須交接精確 commit 或可核對的 diff／歸屬與帶入方法，核對其在目標工作樹實際存在。`test.md` 由主 agent 在 integration 唯一維護，不交給 owner 修改；按環境契約的節點直接提交，owner／reviewer 唯讀核對快照。必要規則修訂先更新並提交，再完成受影響驗證及提交結果。依環境契約在代表性隔離 worktree 驗證既有測試路徑，保存命令、解析後位置及結果；路徑存在不等於路徑已可用。提交沿主流程授權，未追蹤憑證依其專屬規則傳遞。
 
 ## 4. 放行與持續維護
 

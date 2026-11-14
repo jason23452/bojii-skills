@@ -30,7 +30,7 @@ disable-model-invocation: true
 
 1. **釐清與研究**：`/grill-with-docs` 先調查影響方案的未知，再確認需求與決策。需可執行答案時用 `/prototype`；需資料查證時用 `/research`。範圍大到無法直接規劃時才用 `/wayfinder` 逐項釐清，再轉 spec。
 2. **形成產品交付**：`/to-spec` → `/to-tickets`，依 `docs/agents/spec-and-tickets.md` 確認產品 AC、程式碼 TODO、修改邊界與依賴，完成獨立交付推演；環境準備留給實作入口。已完成的步驟沿用，不重做。
-3. **自主交付**：tickets 規劃審查完成後使用 `/implement-spec`，先建立 merge worktree 並產生、提交 `execution-state.md`，再自動載入 `setup-testing` 確認環境、完成前置實測與 `test.md` 初版及 smoke 快照；就緒後才派出獨立 owner。實作期間僅依主 repo 權威 `test.md` 執行測試環境操作，重要文件更新同步提交到 merge branch，最後完成 TDD、審查、整合及驗收。
+3. **自主交付**：tickets 規劃審查完成後使用 `/implement-spec`，啟動時完成最小核對即建立 merge worktree，在其中直接產生、維護及提交 `execution-state.md`，再自動載入 `setup-testing` 完成環境確認與 `test.md` 初版及 smoke 快照；就緒後才派出獨立 owner。主 session 留在 dev，實作期間僅依 integration 權威 `test.md` 執行測試環境操作，最後完成 TDD、審查、整合及驗收。
 4. **必要時跑先導票**：只有本次路徑缺少可信開發基線，才選現有小型真實票，隨功能交付補最小基礎；不要求先全庫 review 或預建完整腳手架。
 5. **持續改善**：已確認的先導阻力／審查缺陷依 `docs/agents/review-prevention.md` 自動沉澱適用能力，後續票沿用。修正停滯依 `docs/agents/review-convergence.md` 診斷／裁決，不盲目重複 review。
 6. **交付與回顧**：必要驗收與約定收尾完成才結束。`implement-spec` 預設提交本地；推送、tag 或發布須有明確授權。寫 PR body 使用 `/pr`，回顧整段工作的環境改善可用 `/retro`。

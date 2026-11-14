@@ -45,7 +45,7 @@ npx --yes --package="github:jason23452/bojii-skills#${TAG}" -- bojii-skills upda
 | 單獨配置目前環境的測試方式 | `/test`，附測試範圍與環境限制 |
 | 只要審查變更 | `/code-review <固定基準>`，附需求來源 |
 
-Spec／tickets 僅記錄產品需求、程式碼 TODO、修改責任、依賴與驗收。啟動 `implement-spec` 後，先建立 `<spec_name>-merge` integration worktree，再由主 agent 建立主 repo 唯一可寫的 `execution-state.md`。`setup-testing` 追查測試需求與系統邊界、確認目標及操作範圍，產生並提交主 repo 執行權威 `test.md` 初稿後，才依稿執行 smoke；smoke 通過後更新並提交可放行版本。兩份文件的初版及後續重要更新都同步提交至 merge branch。環境就緒後才進行各票自動實作、測試、審查及整合。最終文件快照與驗收證據供最終審查及交付。使用者無需另行觸發 `setup-testing`，`implement-spec` 不重做另一套環境確認。完整雙軸 review 僅於明確要求時額外執行。
+Spec／tickets 僅記錄產品需求、程式碼 TODO、修改責任、依賴與驗收。`implement-spec` 啟動時完成最小核對即建立 `<spec_name>-merge`，主 agent 直接在其中產生、維護及提交 `execution-state.md` 與 `test.md`；主 session 仍留在 `dev`。自動執行 `setup-testing` 並通過環境驗證後，才進行各票實作、審查及整合。文件路徑、提交節點與舊流程遷移以 [環境契約](docs/agents/environment-contract.md#產生文件的-merge-branch-快照) 為準；完整流程見 [implement-spec](docs/agents/implement-spec.md)。完整雙軸 review 僅於明確要求時額外執行。
 
 `ask-matt` 已改為 `bojii-guide`，`setup-matt-pocock-skills` 已改為 `setup-bojii-skills`。舊名稱保留轉向入口；更新時允許覆寫這些舊入口，避免繼續讀到舊流程。設定完成不代表產品環境已就緒，也不會先建立整套業務腳手架。
 

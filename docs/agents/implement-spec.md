@@ -12,7 +12,11 @@
 
 ## 1. 開工契約核對
 
-讀取全部 spec／tickets、[產品交付規劃](spec-and-tickets.md)、決策／研究及 [subagent 交接規則](subagent.md)。主 agent 一次建立完整任務圖，之後依變更更新；從實作 TODO／AC 推導環境需求，不要求規劃文件預先提供準備表。先檢查 spec.md 的 spec-level `Blocked by`：只要仍有未解除的跨 spec 阻擋，就暫停整份 `implement-spec`，不建立 integration／ticket worktree、不啟動環境準備、不派任何 ticket owner，也不開始任何 ticket 的產品實作。不可只跳過受阻票、先做同 spec 的其他票。所有前置 spec 完成並依 merge 流程納入 `dev` 後，更新 `Blocked by`，記錄前置交付 SHA 與 `dev` 基線 SHA，再依 [worktree skill](../../.opencode/skills/worktree/SKILL.md) 建立或核實 `<spec_name>-merge` integration worktree，建立 `execution-state.md` 並提交初始快照，之後啟動 `setup-testing`；`test.md` 初稿亦須先提交才開始 smoke test。
+啟動後先確認 spec 名稱、spec.md 的 spec-level `Blocked by`、承載 `dev` 的工作區與 Git 基線。仍有未解除的跨 spec 阻擋時暫停整份 `implement-spec`，不建立 integration／ticket worktree、不啟動環境準備或產品實作；不可只跳過受阻票。前置 spec 完成並依 merge 流程納入 `dev` 後，更新 `Blocked by` 並記錄前置交付 SHA。
+
+最小核對通過即依 [worktree skill](../../.opencode/skills/worktree/SKILL.md) 從已確認的 `dev` SHA 建立或核實 `<project-root>/.worktree/<spec_name>-merge`，不等待完整任務圖或環境調查。主 session 保持在 `dev`；主 agent 直接在 integration 建立 `execution-state.md` 並提交初始快照，記錄基線、權威文件位置與待盤點項。既有任務先核對歸屬及現況，沿用有效成果，不覆寫重建。
+
+之後讀取全部 spec／tickets、[產品交付規劃](spec-and-tickets.md)、決策／研究及 [subagent 交接規則](subagent.md)，建立完整任務圖並更新同一執行表；從 TODO／AC 推導環境需求，不要求規劃文件預先提供準備表。核對完成後啟動 `setup-testing`，直接在 integration 產生 `test.md`，初稿須先提交才開始 smoke test。兩份文件的路徑及提交時點依 [merge branch 文件規則](environment-contract.md#產生文件的-merge-branch-快照)。
 
 接手既有成果、恢復中斷或將既有工作移至另一環境時，自動載入 [project-handoff](../../.opencode/skills/project-handoff/SKILL.md)，依其觸發判定核對續作基線及受影響的前置條件。從零開發、首次建環境及正常新票派工直接執行本文件的開工與環境就緒檢查；發現未記錄的遺留依賴時才針對該依賴啟動盤點。盤點結果納入既有執行表，有效證據沿用，不取代產品驗收。
 
@@ -34,9 +38,9 @@
 
 ### 依 TODO／AC 盤點與授權
 
-Tickets 規劃核對且 integration worktree 已就緒後，主 agent 自動載入 [setup-testing](../../.opencode/skills/setup-testing/SKILL.md)，交付 spec／tickets、基準與既有決策，由其統一完成環境追查、目標確認、配置、前置實測與 `test.md`。`test.md` 初稿及 smoke 結果依 [merge branch 文件快照規則](environment-contract.md#產生文件的-merge-branch-快照) 同步提交；本流程不自行重做環境判定，取得「環境已確認，可開始實作」後才派產品 owner。待補資訊或故障時留在環境流程處理，解除後自動續作，不要求使用者再次啟動。
+Tickets 規劃核對且 integration worktree 已就緒後，主 agent 自動載入 [setup-testing](../../.opencode/skills/setup-testing/SKILL.md)，交付 spec／tickets、基準與既有決策，由其統一完成環境追查、目標確認、配置、前置實測與 `test.md`。`test.md` 初稿及 smoke 結果依 [merge branch 文件快照規則](environment-contract.md#產生文件的-merge-branch-快照) 直接在 integration 提交；本流程不自行重做環境判定，取得「環境已確認，可開始實作」後才派產品 owner。待補資訊或故障時留在環境流程處理，解除後自動續作，不要求使用者再次啟動。
 
-`setup-testing` 的可重用測試對照與結論寫入 `test.md`，共用命令引用既有驗證文件；主 agent 在主 repo 維護唯一可寫的 `execution-state.md`，記錄當次資源、授權來源與執行狀態，並依 [執行表與唯一寫入者](subagent.md#執行表與唯一寫入者) 提交 integration branch 快照，不回填產品 TODO／AC：
+`setup-testing` 的可重用測試對照與結論寫入 `test.md`，共用命令引用既有驗證文件；主 agent 在 integration 維護唯一可寫的 `execution-state.md`，記錄當次資源、授權來源與執行狀態，並依 [執行表與唯一寫入者](subagent.md#執行表與唯一寫入者) 提交 integration branch 快照，不回填產品 TODO／AC：
 
 | 必要條件／操作 | 影響票與 TODO／AC | 方法與授權來源／界線 | owner 與使用時點 | 狀態、證據與下一動作 |
 | --- | --- | --- | --- | --- |
@@ -61,7 +65,7 @@ Tickets 規劃核對且 integration worktree 已就緒後，主 agent 自動載�
 - 前述 `<spec_name>-merge` integration worktree 已在文件生成前建立／核實；此階段主 agent 使用 [worktree skill](../../.opencode/skills/worktree/SKILL.md) 建立票級 `.worktree/<spec_name>-tickets-<NN>` worktree，並核對主 repo、integration branch 與票級 worktree 的路徑及基底關係。實際測試環境套用 `test.md` 的配置及專屬參數規則；需要調整方案時依環境契約修訂同一權威入口，再交 owner 採用。
 - 明確啟動 `implement-spec` 即包含本地 integration／票級 worktrees 與任務必要的隔離執行環境。先核對來源、歸屬與恢復方式，再依「環境自主處理」建立、啟動、診斷及修復，不逐項詢問 Docker／runtime／E2E 授權。
 - 準備與恢復執行 `test.md` 引用的可重跑入口。Owner 遇到文件缺口先回報主 agent 更新，不以每票臨時命令替代既定測試方式。
-- 派工一併提供主 repo 執行權威 `test.md` 的絕對路徑與 hash／版本，以及執行表路徑；實作期間票級及 integration worktree 唯讀使用，owner 只回報證據與建議修訂。主 agent 依環境契約在初版、必要規則變更與執行生命週期重要節點，將 `test.md`／`execution-state.md` 同步提交到 `<spec_name>-merge` branch；reviewer 唯讀核對最終快照及 hash。交付檔不得放在被忽略的 `.worktree/` 目錄。
+- 派工一併提供 integration 執行權威 `test.md` 的絕對路徑與 hash／版本，以及執行表路徑；owner／reviewer 唯讀使用，owner 只回報證據與建議修訂。主 agent 依環境契約在初版、必要規則變更與執行生命週期重要節點，直接在 `<spec_name>-merge` 維護並提交兩份文件；reviewer 核對最終提交與工作檔 hash。文件須在 integration 自身的 Git 工作樹中可追蹤。
 - **環境就緒門檻**：初始配置以 `setup-testing` 的放行為準；後續 worktree 與 integration 依 `test.md` 套用專屬值並執行預檢，結果記入執行表。不重新選擇環境；屬產品交付的 harness 依文件記錄的責任在放行後建立並驗收。
 - 暫停、關機或服務中斷後續作，依環境契約的「暫停或關機後的恢復」執行權威 `test.md`：自行啟動缺少的自有服務、核對就緒並重跑受影響 smoke，通過後接續剩餘工作。沿用有效成果與資料，不重新選環境；歷史通過不等於現在仍就緒。
 - 維護整份 TODO／AC 責任對照及執行表。每條依賴指向下游真正需要的已驗收成果；同一共用介面由唯一 owner 負責。
@@ -114,7 +118,7 @@ Tickets 規劃核對且 integration worktree 已就緒後，主 agent 自動載�
 
 在有意義且可還原的功能檢查點提交產品與測試，票完成或中斷交接時彙整 AC、命令、結果、環境及剩餘工作。每個小測試不另設主 agent 核准、分角色 commit 或 evidence commit 門檻。提交前核對 staged diff 與檔案歸屬。
 
-每張 ticket 由 owner 在自己的 worktree 維護一份可追蹤的 `project-handoff` 文件，位置與內容依 [project-handoff](../../.opencode/skills/project-handoff/SKILL.md)。交付時與程式碼同入候選、同受審查、同進 integration，最後隨交付合入目標主分支；正常新票不因此額外執行接手盤點。此文件屬票級交付，與主 repo 的 `test.md` 執行權威及 `execution-state.md` 執行表／integration branch 快照分開。
+每張 ticket 由 owner 在自己的 worktree 維護一份可追蹤的 `project-handoff` 文件，位置與內容依 [project-handoff](../../.opencode/skills/project-handoff/SKILL.md)。交付時與程式碼同入候選、同受審查、同進 integration，最後隨交付合入目標主分支；正常新票不因此額外執行接手盤點。此文件屬票級交付，與 integration 的 `test.md` 執行權威及 `execution-state.md` 執行表分開。
 
 ## 4. 獨立票級審查與修正
 
@@ -199,7 +203,7 @@ Runtime 暫不能執行或輸出不足時，原 owner 依 `diagnosing-bugs` 追�
 
 問題清單依共用根因合併，列出必要 key／權限／配置或決策、遮蔽後證據、受影響 TODO／驗收、使用者最小操作、驗證方法及恢復動作；秘密值透過專案既有憑證入口配置，不要求貼入報告。取得部分或全部輸入後，先重驗已解除條件，立即恢復對應 owner 與下游，不等待其他無相依阻擋一併解除。
 
-授權依本文件的「依 TODO／AC 盤點與授權」判定，包含使用者後續明確要求的操作；新增授權同步至主 repo 的 `execution-state.md`，並在解除阻擋的排程節點提交快照後續作。預檢若發現額外操作，將該差額列入集中問題，不重新確認整個已授權動作。
+授權依本文件的「依 TODO／AC 盤點與授權」判定，包含使用者後續明確要求的操作；新增授權記入 integration 的 `execution-state.md`，並在解除阻擋的排程節點提交快照後續作。預檢若發現額外操作，將該差額列入集中問題，不重新確認整個已授權動作。
 
 全部剩餘工作確實受上述外部條件阻擋、且沒有可推進工作時，回報「受阻、未完成」等待必要輸入；不得標完成或要求使用者重新啟動流程。取得輸入後沿現有狀態續作。規劃負責產品決策與方案可行性；執行授權、環境準備與待補測試憑證由本流程處理，不要求在其他無相依工作前先完成。
 
@@ -213,7 +217,7 @@ Runtime 暫不能執行或輸出不足時，原 owner 依 `diagnosing-bugs` 追�
 
 ### PR 前的整合審查門檻
 
-全部票整合後，主 agent 固定程式候選並執行整份 spec AC／跨票整合驗證；依下方規則同步並提交最終 `test.md` 與 `execution-state.md` 交付快照後，再固定預定 PR 目標分支的 base SHA 與 integration head SHA，並新建未參與本批實作或合併修正的獨立 reviewer session，審查包含兩份文件快照的最終整合版本及其相對目標分支的完整變更。這是必跑的最終 integration review，不能由票級審查或測試成功取代；不需使用者另行呼叫 `code-review`。
+全部票整合後，主 agent 固定程式候選並執行整份 spec AC／跨票整合驗證；依下方規則在 integration 提交最終 `test.md` 與 `execution-state.md` 交付快照後，再固定預定 PR 目標分支的 base SHA 與 integration head SHA，並新建未參與本批實作或合併修正的獨立 reviewer session，審查包含兩份文件快照的最終整合版本及其相對目標分支的完整變更。這是必跑的最終 integration review，不能由票級審查或測試成功取代；不需使用者另行呼叫 `code-review`。
 
 - Reviewer 直接核對 spec、各票責任、最終 diff 與驗證證據，重點檢查跨票介面、schema／migration、共用設定、初始化／接線、錯誤處理與相容性，以及合併解衝突是否遺失、覆蓋或重複交付。
 - 審查期間固定候選、停止相關寫入；必要長驗證可依交付管線並行，reviewer 收齊同一版本的必要證據後才給最終結論。Integration worktree 與審查／驗證所需資源保留至本門檻通過，已清理的票級 worktree 無需為審查重建。
@@ -222,9 +226,9 @@ Runtime 暫不能執行或輸出不足時，原 owner 依 `diagnosing-bugs` 追�
 - 記錄 base／head SHA、reviewer session、findings 處置、驗證證據與 verdict。全部必要驗收成功且無未解阻擋，才產生可發布的 PR 交付報告或標示可合併。
 - 發布 PR 前重核實際目標 base 與 head；任一改變都重新判定合併影響、驗證受影響範圍並交 reviewer 複查，不能沿用舊版本 verdict 宣告新版本通過。PR 更新提交也適用此門檻。
 
-最終審查前，主 agent 先在主工作區將 `test.md` 更新至實際受測程式版本與最終驗收證據，並將最新 `execution-state.md` 定稿；再將兩份權威檔同步至 `<spec_name>-merge` integration worktree 的相同 repo-relative 路徑並提交。核對路徑、版本及兩份檔案的 hash；reviewer 以 integration branch 中已提交的檔案唯讀審查，不在 worktree 自行修改。兩份文件須位於 repo 可追蹤路徑；若 tracker 不受版本控制，使用 `docs/testing/<feature>/` 或其他已追蹤 spec 目錄，不把文件放進被忽略的 `.worktree/`。測試方式必要修訂須在執行前完成；同步後若程式或文件再變更，先更新主 repo 權威檔、重驗受影響範圍，再重新同步及提交，並由 reviewer 複查。產品或驗收缺口回 owner 修復／重驗。
+最終審查前，主 agent 直接在 `<spec_name>-merge` 將 `test.md` 更新至實際受測程式版本與最終驗收證據，定稿 `execution-state.md` 並提交。依環境契約核對兩份工作檔與提交版本的路徑、版本及 hash；reviewer 唯讀審查已提交的檔案。測試方式必要修訂須在執行前完成並提交；之後若程式或文件再變更，更新同一權威檔、重驗受影響範圍並提交結果，再由 reviewer 複查。產品或驗收缺口回 owner 修復／重驗。
 
-主 agent 核對所有 TODO、各票驗收、跨票 AC、審查問題及整合修正均有通過證據，實際交付與 integration HEAD 一致，且最終 `test.md` 與 `execution-state.md` 快照均已提交在 `<spec_name>-merge` branch、與主 repo 權威檔 hash／版本一致並由 reviewer 核對。各票 worktree、對應本地 branch 與專屬資源應已依票級即時清理移除；此處只核對清理紀錄與處理有明確原因的殘留，不首次集中清理全部票。確認沒有仍在執行的子代理／寫入程序或遺漏未提交成果；保留來源 integration 的專屬資源供後續 merge 流程在合併、解除下游 blocker、提交 PR 報告後統一清理。
+主 agent 核對所有 TODO、各票驗收、跨票 AC、審查問題及整合修正均有通過證據，實際交付與 integration HEAD 一致，且最終 `test.md` 與 `execution-state.md` 快照均已提交在 `<spec_name>-merge` branch、與 integration 工作檔 hash／版本一致並由 reviewer 核對。各票 worktree、對應本地 branch 與專屬資源應已依票級即時清理移除；此處只核對清理紀錄與處理有明確原因的殘留，不首次集中清理全部票。確認沒有仍在執行的子代理／寫入程序或遺漏未提交成果；保留來源 integration 的專屬資源供後續 merge 流程在合併、解除下游 blocker、提交 PR 報告後統一清理。
 
 保留 integration worktree、branch 與證據供後續合併。依 `pr` skill 架構在主 `dev` 工作區產生 `pr/<識別碼>.html`（無 PR 編號用 spec／ticket 識別碼），包含 Summary、Evidence、Merge Danger；Evidence 引用最終 integration review 的 base／head、verdict 與跨票驗證結果。此為 PR 交付報告，不是平台 PR；由 [merge skill](../../.opencode/skills/merge/SKILL.md) 在本次所有來源合併及驗證通過後，將本次報告與因這些 spec 完成而解除的下游 `Blocked by` 更新明確加入並提交至 `dev`，再清理來源 integration 的專屬環境、ports、worktree 與本地 branch。完成約定收尾後回報交付 SHA、驗收與狀態；不能以摘要代替剩餘實作。
 

@@ -39,7 +39,7 @@ This repo uses a single-context domain docs layout. See `docs/agents/domain.md`.
 
 環境失敗、憑證同步或最終驗收缺設定時，依 `docs/agents/environment-contract.md`「環境故障的執行閉環」以實際工具結果診斷、修復並續作；已授權來源依測試憑證指引完成同步與載入，不以口頭承諾或重複詢問取代執行。
 
-`implement-spec` 啟動後，先建立或核實 `<spec_name>-merge` integration worktree，再由主 agent 產生並維護主 repo 唯一可寫的 `execution-state.md` 與 `test.md`。`setup-testing` 確認測試環境、完成前置實測並產生 `test.md`；環境就緒後才放行自動實作，使用者無需另行觸發。放行後主 agent 與 owner 以主 repo 的 `test.md` 為測試環境單一執行依據，不另行配置；文件缺口先核實更新再執行。兩份文件的建立、更新與提交時點依 `docs/agents/environment-contract.md`「產生文件的 merge branch 快照」及 `docs/agents/subagent.md`「執行表與唯一寫入者」；最終版本供 integration review 核對。
+`implement-spec` 啟動時完成 spec／跨 spec blocker／Git 基線的最小核對後，立即建立或核實 `<spec_name>-merge` integration worktree，再由主 agent 直接在其中產生、維護及提交唯一權威 `execution-state.md` 與 `test.md`。主 agent 的 OpenCode session 仍留在 `dev`，以明確路徑與 `workdir` 操作 integration。`setup-testing` 完成環境確認、前置實測與 `test.md` 後才放行產品實作。放行後所有執行者唯讀採用 integration 的 `test.md`，文件由主 agent 唯一修訂，不在 dev／票級 worktree 雙寫。路徑與提交時點依 `docs/agents/environment-contract.md`「產生文件的 merge branch 快照」及 `docs/agents/subagent.md`「執行表與唯一寫入者」；最終版本供 integration review 核對。
 
 所有 command／測試（含安裝、建置、環境操作及背景命令）依 `docs/agents/test-execution.md` 的共同執行上限：每次有期限，同一操作每輪最多 3 次含首次，時限依序為 T、2T、4T；成功即結束該輪，失敗先診斷及清理。新變更的必要驗證與失敗重試分開計算，輪次依該文件判定。
 
