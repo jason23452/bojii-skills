@@ -1,6 +1,6 @@
 ---
 name: tdd
-description: 測試驅動開發。使用於要求 test-first、red-green-refactor、回歸修復或整合測試的工作。
+description: 測試驅動開發。使用於明確要求 test-first、red-green-refactor，或實作者已選擇先寫失敗測試來降低返工的工作；一般實作與驗證由 test 及實作流程選擇方法。
 ---
 
 # Test-Driven Development

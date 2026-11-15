@@ -19,7 +19,7 @@ This skill has you show commands, outputs and captured artifacts. **Redact every
 
 以能抓住該問題的快速 pass/fail 訊號作為排錯核心。先讀實際呼叫鏈、型別、版本契約及既有失敗證據，據此選擇最小重現；讀碼與提出待驗證假設是建立迴圈的方法，不能取代修復後的實測。
 
-Spend disproportionate effort here. **Be aggressive. Be creative. Refuse to give up.**
+以足以定位根因及驗證修復的最低總成本建立回饋；已有適用證據就沿用，新增實驗只補尚未釐清的缺口。
 
 ### Ways to construct one, in roughly this order
 
@@ -60,36 +60,36 @@ Runtime 不可執行、授權已限次或歷史輸出不足時，先走離線路
 
 只有上述路徑仍受具體外部條件阻擋，才列已試方法、所缺證據及最小必要輸入詢問使用者。離線證實的缺陷可修復並驗證，但原 runtime／端到端驗收保留未完成；使用者明確限制不因找到新缺陷而失效。
 
-### Completion criterion: a tight loop that goes red
+### 完成判準：足以定位與驗證的回饋
 
-Phase 1 is done when the loop is **tight** and **red-capable**: you can name **one command** (a script path, a test invocation, a curl) that you have **already run at least once** (show the invocation and its output, redacted), and that is:
+確認以下事項即可進入根因判定或修復，不要求先完成理想化重現：
 
-- [ ] **Red-capable**: it drives the actual bug code path and asserts the **user's exact symptom**, so it can go red on this bug and green once fixed. Not "runs without erroring"; it must be able to _catch this specific bug_.
-- [ ] **Deterministic**: same verdict every run (flaky bugs: a pinned, high reproduction rate, per above).
-- [ ] **Fast**: seconds, not minutes.
-- [ ] **Agent-runnable**: you can run it unattended; a human in the loop only via `scripts/hitl-loop.template.sh`.
+- **失敗證據**：有可執行重現，或足以支持根因判定的既有事故證據／契約違約證據；明列症狀、來源與適用版本，區分觀察事實及待驗證推論。已有充分證據時不為製造 Red 重跑事故。
+- **驗證路徑**：已選定能檢查預期行為及原缺陷的最小入口與斷言；修復後仍須實測，不能只以讀碼宣稱修復成功。入口受阻時沿離線路徑處理，明列未涵蓋的原驗收。
+- **成本與可重複性**：按必要依賴及故障特性選擇最快充分的方法；長時間、併發或間歇問題可使用有限時限的量測／受控重播，不以秒級完成或完全確定性作為放行條件。
+- **自主執行**：優先由 agent 執行並保存脫敏結果；只有確實需要使用者操作的外部條件才使用 `scripts/hitl-loop.template.sh`。
 
-完成判準適用於可執行的重現；離線路徑須明記涵蓋的缺陷與未涵蓋的原始症狀。尚無 red-capable 命令時繼續讀碼、查契約與設計 probe，推論保持待驗證，不宣稱已重現或修復原問題。
+尚無足以定位的證據時，繼續查契約或建立針對性 probe；沒有實際重現就不宣稱已重現，原情境未驗證就保留該驗收缺口。
 
 ## Phase 2: Reproduce + minimise
 
-Run the loop. Watch it go red as the bug appears.
+依證據缺口選擇執行重現或沿用有效事故證據；只有額外執行能區分假設或確認間歇性時才重跑。
 
 Confirm:
 
 - [ ] The loop produces the failure mode the **user** described, not a different failure that happens to be nearby. Wrong bug = wrong fix.
-- [ ] The failure is reproducible across multiple runs (or, for non-deterministic bugs, reproducible at a high enough rate to debug against).
+- [ ] 證據足以支持本次定位；間歇性問題記錄觸發條件與重現限制，不一律要求多次重跑。
 - [ ] You have captured the exact symptom (error message, wrong output, slow timing) so later phases can verify the fix actually addresses it.
 
 ### Minimise
 
-Once it's red, shrink the repro to the **smallest scenario that still goes red**. Cut inputs, callers, config, data, and steps **one at a time**, re-running the loop after each cut, and keep only what's load-bearing for the failure.
+重現過大或訊號不明時，移除能降低定位成本的無關輸入、依賴及步驟，保持同一故障模式。縮小操作須能減少假設或驗證成本，已有充分定位時直接進入修復。
 
 Why bother: a minimal repro shrinks the hypothesis space in Phase 3 (fewer moving parts left to suspect) and becomes the clean regression test in Phase 5.
 
-Done when **every remaining element is load-bearing**: removing any one of them makes the loop go green.
+能區分根因並支援修復驗證即完成；不要求逐一證明所有剩餘元素都不可移除。
 
-可執行時先重現並縮小；因具體外部條件無法執行時沿離線路徑繼續，保留驗證缺口。
+需要新增證據時才執行或縮小重現；具體外部條件阻擋時沿離線路徑繼續，保留驗證缺口。
 
 ## Phase 3: Hypothesise
 
@@ -115,29 +115,31 @@ Tool preference:
 
 **Tag every debug log** with a unique prefix, e.g. `[DEBUG-a4f2]`. Cleanup at the end becomes a single grep. Untagged logs survive; tagged logs die.
 
-**Perf branch.** For performance regressions, logs are usually wrong. Instead: establish a baseline measurement (timing harness, `performance.now()`, profiler, query plan), then bisect. Measure first, fix second.
+**效能分支**：先以計時 harness、profiler 或 query plan 取得可比量測，再依證據修復。已定位熱點就直接驗證修法；只有需要定位引入回歸的版本，且具備可比較基線與有效判定訊號時才使用 bisect。
 
 ## Phase 5: Fix + regression test
 
-Write the regression test **before the fix**, but only if there is a **correct seam** for it.
+保留足以證明原缺陷的失敗證據，選擇能驗證真實錯誤模式的測試邊界。已有有效重現或原始證據時，可直接修復後補回歸；先寫失敗測試能降低返工或使用者明確要求 test-first 時，才採測試先行。不為補齊 Red → Green 歷程而重做已充分證明的步驟。
 
 A correct seam is one where the test exercises the **real bug pattern** as it occurs at the call site. If the only available seam is too shallow (single-caller test when the bug needs multiple callers, unit test that can't replicate the chain that triggered the bug), a regression test there gives false confidence.
 
-**If no correct seam exists, that itself is the finding.** Note it. The codebase architecture is preventing the bug from being locked down. Flag this for the next phase.
+若現有邊界不足，先沿真實呼叫鏈選擇最小可行的整合入口或 harness，記錄仍未覆蓋的行為；不僅因缺少單元測試 seam 就認定架構有缺陷或要求重構。
 
 If a correct seam exists:
 
-1. Turn the minimised repro into a failing test at that seam.
-2. Watch it fail. If you forced the red by mutating code or a fixture, `diff` against a pristine copy to prove the mutation landed before you trust it.
-3. Apply the fix.
-4. Watch it pass.
-5. Re-run the Phase 1 feedback loop against the original (un-minimised) scenario.
+1. 將最小重現保存為回歸案例，沿用有效的原始失敗證據；必要時在隔離副本驗證案例能捕捉修正前的缺陷，不改壞目前交付來製造 Red。
+2. 完成修復並執行回歸，確認預期行為與受影響合法情境通過；測試及修復的撰寫順序依上述原則選擇。
+3. 回到原始情境驗證，不以縮小重現取代尚未涵蓋的原驗收；同版本且仍適用的成功證據直接沿用。
+
+### 根因模式與 CI 防線
+
+確認根因並修復後，依 `docs/agents/review-prevention.md` 的「根因模式的通用防線」將本次教訓接入既有驗證入口。原情境回歸負責證明 bug 已修；通用檢查負責攔截其他位置再次使用相同錯誤模式。使用 `test` 選擇最小適用工具與驗證方式，交付規則／測試位置、適用範圍、執行命令及實際結果，供後續 code-review 沿用。
 
 ## Phase 6: Cleanup
 
 Required before declaring done:
 
-- [ ] Original repro no longer reproduces (re-run the Phase 1 loop)
+- [ ] 原缺陷及必要驗收已有充分修復證據；沿用同版本且仍適用的成功結果，只補跑證據缺口。沒有可執行的原始重現時，以涵蓋已證實根因與必要行為的實測判定，不為收尾強制重建 Phase 1；仍未覆蓋的原情境明記未完成，不宣稱已完整修復原問題。
 - [ ] Regression test passes (or absence of seam is documented)
 - [ ] All `[DEBUG-...]` instrumentation removed (`grep` the prefix)
 - [ ] Throwaway prototypes deleted (or moved to a clearly-marked debug location)

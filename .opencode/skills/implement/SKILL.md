@@ -10,6 +10,6 @@ disable-model-invocation: true
 
 1. 使用者提供 ticket 時，依 tracker 讀取並說明票名；引用有歧義才詢問。核對範圍與驗收，不將共用執行流程加入產品 TODO。
 2. 根據實作 TODO／驗收查 repo，檢查所需環境、有效設定與操作授權，依 `docs/agents/environment-contract.md` 準備並驗證實際依賴；準備狀態另記執行紀錄，不改寫 spec／tickets。
-3. 使用 `tdd` 完成適用的行為迴圈，以 `test` 選擇必要檢查；純文件變更採適當替代檢查。
+3. 依 implement-spec 的「最小充分實作」與「開發方法與測試品質」選擇實作順序，以 `test` 完成必要驗證，需 test-first 時使用 `tdd`；純文件變更採適當替代檢查。
 4. 完成後使用 `code-review` 審查固定基準的變更，修正阻擋問題並重驗受影響範圍。
 5. 核對實際分支與 staged diff，只提交本次交付；沿用專案要求的隔離與提交規則，不直接提交未知工作分支。

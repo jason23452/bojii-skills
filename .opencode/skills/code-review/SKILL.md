@@ -3,12 +3,16 @@ name: code-review
 description: "Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \"review since X\"."
 ---
 
-Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
+依明確基準與審查範圍，對已提交或未提交變更進行兩軸審查：
 
-- **Standards**: does the code conform to this repo's documented coding standards?
+- **Standards**：核對既有 CI／自動檢查的覆蓋與有效結果，以及本次交付適用的明文契約。
 - **Spec**: does the code faithfully implement the originating issue / spec?
 
 Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings.
+
+兩軸皆由 agent 自動執行，不要求使用者人工讀碼或審查放行。以 spec／TODO／AC、實際接線與驗證證據為判準；已由適用 CI 覆蓋且通過的錯誤模式直接採認，不再逐行掃描同類問題。
+
+過去 bug 經 `diagnosing-bugs` 修復後建立的通用防線，依 `docs/agents/review-prevention.md`「根因模式的通用防線」核對適用性與結果；沿用對本候選有效的證據。發現新的具體 bug 或已證實漏報時，交修正 owner 診斷、修復並補足防線，不在每次 review 重跑診斷流程。
 
 本 repo 的 reviewer 生命週期依 `docs/agents/session-lifecycle.md`：首次及全新獨立審查使用未參與產出的新 session；同輪修正複查預設續用各軸原 reviewer，回報明列類型。保留兩軸分離，不把 resume 複查當成另一份全新獨立證據。
 
@@ -16,50 +20,39 @@ Both axes run as **parallel sub-agents** so they don't pollute each other's cont
 
 進入修正複查時，主 agent、owner 與兩軸 reviewer 都載入 `docs/agents/review-convergence.md`，以穩定 finding ID 對照版本、完成條件及證據，停滯或爭議依該規則收斂；保留兩軸分列，跨軸相同根因可引用同一修正項。
 
-沿用已提供的 issue tracker 設定；缺少時請使用者執行 `/setup-bojii-skills`。
-
 ## Process
 
 ### 1. Pin the fixed point
 
-Whatever the user said is the fixed point (a commit SHA, branch name, tag, `main`, `HEAD~5`, etc.). If they didn't specify one, ask for it.
+沿用使用者指定的基準與範圍。要求審查目前未提交修改時，以 `HEAD` 為基準；分支／PR 則使用指定 base 的 merge-base。只有無法從要求與上下文判定時才詢問。
 
-Capture the diff command once: `git diff <fixed-point>...HEAD` (three-dot, so the comparison is against the merge-base). Also note the list of commits via `git log <fixed-point>..HEAD --oneline`.
+先以 `git status --short` 核對變更種類，固定適用的 diff 命令與檔案清單：
 
-Before going further, confirm the fixed point resolves (`git rev-parse <fixed-point>`) and the diff is non-empty. A bad ref or empty diff should fail here, not inside two parallel sub-agents.
+| 審查範圍 | 比較方式 |
+| --- | --- |
+| 已提交分支／PR | `git diff <base>...HEAD`；記錄 `git log <base>..HEAD --oneline` |
+| 全部未提交變更 | `git diff HEAD --`，涵蓋 tracked 檔案的 staged 與 unstaged 最終結果 |
+| 僅 staged | `git diff --cached --`，讀取 index 版本，不以工作樹內容替代 |
+| 僅 unstaged | `git diff --`，以 index 為基準 |
+| 指定 commit 至目前工作樹 | `git diff <base> --`；另記錄 base 至 HEAD 的 commits |
+
+範圍包含工作樹新增檔案時，另以 `git ls-files --others --exclude-standard` 列出未追蹤檔案，核對歸屬並讀取適用內容；它們不會出現在一般 diff。僅 staged 或已提交範圍不混入未追蹤檔案。秘密檔只核對追蹤／ignore 狀態，不將內容放入審查輸出。
+
+派工前確認使用到的 Git refs 可解析，且該範圍的 diff 或新增檔案非空；無變更就回報該範圍無可審內容。記錄 base／head SHA、diff、檔案清單及未提交內容的版本／hash，供兩軸核對同一候選；審查期間停止相關寫入，變更後只複查受影響範圍。未提交工作不得僅以 HEAD SHA 代表受審版本。
 
 ### 2. Identify the spec source
 
-Look for the originating spec, in this order:
+優先沿用使用者已指定或確認的需求來源：指定文件／issue，以及目前對話中已確認的需求、修正與完成條件。對話需求也是有效規格，不因缺少 spec 文件再次索取文件或跳過 Spec 軸；不把 agent 的建議自行當成已確認需求。
 
-1. Issue references in the commit messages (`#123`, `Closes #45`, GitLab `!67`, etc.), fetched via the workflow in the tracker doc.
-2. A path the user passed as an argument.
-3. A spec file under `docs/`, `specs/`, or `.scratch/` matching the branch name or feature.
-4. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** sub-agent will skip and report "no spec available".
+來源尚不明時，再查 commit 的 issue 引用與 `docs/`、`specs/`、`.scratch/` 中對應文件。來源互有差異時，沿用使用者明確確認的修訂；仍會影響判定的歧義才集中詢問。確實沒有任何可核對需求且使用者確認無規格時，Spec 軸才標示「無需求來源，未審查需求符合度」。
+
+派工提供精簡的已確認需求、完成條件及來源定位（文件行號、issue 或對話訊息／原文摘錄）；保留必要限制與範圍，不要求為審查另建 spec 文件。
 
 ### 3. Identify the standards sources
 
-Search the repo for every file that documents how code should be written. When `CODING_STANDARDS.md` or `CONTRIBUTING.md` exists, it must be on the list.
+讀取 repo 的 `AGENTS.md` 與變更範圍適用的規範；存在 `CODING_STANDARDS.md` 或 `CONTRIBUTING.md` 時核對相關條款。找出既有 CI／驗證入口及本次候選的結果，確認規則啟用、掃描範圍與證據適用性。必要證據缺失時記錄需要補跑的檢查，不以 agent 逐行模擬工具替代。
 
-On top of whatever the repo documents, the Standards axis always carries the **smell baseline** below: a fixed set of Fowler code smells (_Refactoring_, ch.3) that applies even when a repo documents nothing. Two rules bind it:
-
-- **The repo overrides.** A documented repo standard always wins; where it endorses something the baseline would flag, suppress the smell.
-- **Always a judgement call.** Each smell is a labelled heuristic ("possible Feature Envy"), never a hard violation. Like any standard here, skip anything tooling already enforces.
-
-Each smell reads *what it is* → *how to fix*; match it against the diff:
-
-- **Mysterious Name**: a function, variable, or type whose name doesn't reveal what it does or holds. → rename it; if no honest name comes, the design's murky.
-- **Duplicated Code**: the same logic shape appears in more than one hunk or file in the change. → extract the shared shape, call it from both.
-- **Feature Envy**: a method that reaches into another object's data more than its own. → move the method onto the data it envies.
-- **Data Clumps**: the same few fields or params keep travelling together (a type wanting to be born). → bundle them into one type, pass that.
-- **Primitive Obsession**: a primitive or string standing in for a domain concept that deserves its own type. → give the concept its own small type.
-- **Repeated Switches**: the same `switch`/`if`-cascade on the same type recurs across the change. → replace with polymorphism, or one map both sites share.
-- **Shotgun Surgery**: one logical change forces scattered edits across many files in the diff. → gather what changes together into one module.
-- **Divergent Change**: one file or module is edited for several unrelated reasons. → split so each module changes for one reason.
-- **Speculative Generality**: abstraction, parameters, or hooks added for needs the spec doesn't have. → delete it; inline back until a real need shows.
-- **Message Chains**: long `a.b().c().d()` navigation the caller shouldn't depend on. → hide the walk behind one method on the first object.
-- **Middle Man**: a class or function that mostly just delegates onward. → cut it, call the real target direct.
-- **Refused Bequest**: a subclass or implementer that ignores or overrides most of what it inherits. → drop the inheritance, use composition.
+不附加通用 code smell 巡查清單。工具未涵蓋的事項，只針對本次交付的具體規範違反或可達缺陷提出 finding，附契約、證據及可觀察完成條件；依 `docs/agents/review-convergence.md` 採認最小充分實作與驗證。新增 CI 防線依 `docs/agents/review-prevention.md`，由實際缺陷修復觸發，不以缺少某工具作為一般交付的阻擋。
 
 ### 4. Spawn both sub-agents in parallel
 
@@ -67,21 +60,23 @@ Issue both sub-agent calls together, in the foreground, and aggregate the report
 
 首次／新視角審查為兩軸各建新 session；修正複查則在同一輪各軸原 session 傳入修正範圍、新版本與 finding 對照。原 session 不可恢復時依生命週期交接，仍標示修正複查。
 
-兩軸派工都附 `docs/agents/review-prevention.md` 路徑並要求載入：具體缺陷附根因、共通證據與預防候選，未確認的 smell 保留判斷性標記；修正複查核對 owner 的判定、實際接入與驗證證據。預防資訊隨原 finding 呈現，不另計為缺陷；下列 400 words 限制適用摘要，必要 finding 與預防證據可另附精簡清單。
+兩軸派工都附 `docs/agents/review-prevention.md` 與 `docs/agents/review-convergence.md` 路徑並要求載入：核對既有自動檢查證據，具體缺陷附根因與必要預防候選；修正複查只核對原問題、修正影響及新增證據。預防資訊隨原 finding 呈現，不另計為缺陷；下列 400 words 限制適用摘要，必要 finding 與預防證據可另附精簡清單。
 
 **Standards sub-agent prompt** should include:
 
 - The full diff command and commit list.
-- The list of standards-source files you found in step 3, **plus the smell baseline from step 3** pasted in full (the sub-agent has no other access to it).
-- The brief: "Report, per file/hunk where relevant, (a) every place the diff violates a documented standard: cite the standard (file + the rule); and (b) any baseline smell you spot: name it and quote the hunk. Distinguish hard violations from judgement calls: documented-standard breaches can be hard, but baseline smells are always judgement calls, and a documented repo standard overrides the baseline. Skip anything tooling enforces. Under 400 words."
+- 第 3 步取得的適用規範、CI／驗證入口、候選版本及有效結果。
+- 第 1 步的範圍、未追蹤檔案及候選證據；未提交審查的 commits 可為空，兩軸須讀取同一受審版本。
+- 派工要求：核對既有自動檢查是否涵蓋本次修改且通過；已涵蓋事項採認工具證據，不重做相同掃描。只回報必要檢查缺口，以及工具未涵蓋的具體明文契約違反或可達缺陷，附要求、證據與完成條件。不要求使用者人工審查，不追加 smell 清單或偏好性重構。摘要 400 words 以內。
 
 **Spec sub-agent prompt** should include:
 
 - The diff command and commit list.
-- The path or fetched contents of the spec.
-- The brief: "Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong. Quote the spec line for each finding. Under 400 words."
+- 已確認需求與完成條件，以及文件／issue／對話來源摘錄。
+- 第 1 步的範圍、未追蹤檔案及候選證據，與 Standards 使用同一版本。
+- 派工要求：回報需求缺漏／部分完成、未要求的範圍擴張，以及看似已實作但行為錯誤的項目；每項引用對應需求的文件行號或對話原文，附具體證據與完成條件。摘要 400 words 以內。
 
-If the spec is missing, skip the Spec sub-agent and note this in the final report.
+只有第 2 步確認沒有任何可核對需求時才跳過 Spec 子代理，並在最終報告明記；缺少 spec 檔案本身不構成跳過理由。
 
 ### 5. Aggregate
 

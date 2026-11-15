@@ -27,7 +27,7 @@ This repo uses a single-context domain docs layout. See `docs/agents/domain.md`.
 
 ### Implement-spec 整票自主交付
 
-使用 `implement-spec` 時，依 `docs/agents/implement-spec.md` 從完成的 TODO／AC 盤點環境與操作授權，自動載入 `worktree` 建立隔離環境；每票新建獨立實作 subagent owner，可獨立開工票背景平行派出。同票 owner 自主完成 TDD、排錯與驗收，獨立票級審查後逐票整合；全部交付與收尾完成才結束。
+使用 `implement-spec` 時，依 `docs/agents/implement-spec.md` 的結果導向交付，從已定案的 TODO／AC 盤點環境與操作授權，自動載入 `worktree` 建立隔離環境；每票新建獨立實作 subagent owner，可獨立開工票背景平行派出。同票 owner 採最小充分方法自主完成實作、排錯與驗收，按需要採 TDD，獨立票級審查後逐票整合；全部交付與收尾完成才結束。
 
 ### 專案接手
 
@@ -39,7 +39,9 @@ This repo uses a single-context domain docs layout. See `docs/agents/domain.md`.
 
 環境失敗、憑證同步或最終驗收缺設定時，依 `docs/agents/environment-contract.md`「環境故障的執行閉環」以實際工具結果診斷、修復並續作；已授權來源依測試憑證指引完成同步與載入，不以口頭承諾或重複詢問取代執行。
 
-`implement-spec` 啟動時完成 spec／跨 spec blocker／Git 基線的最小核對後，立即建立或核實 `<spec_name>-merge` integration worktree，再由主 agent 直接在其中產生、維護及提交唯一權威 `execution-state.md` 與 `test.md`。主 agent 的 OpenCode session 仍留在 `dev`，以明確路徑與 `workdir` 操作 integration。`setup-testing` 完成環境確認、前置實測與 `test.md` 後才放行產品實作。放行後所有執行者唯讀採用 integration 的 `test.md`，文件由主 agent 唯一修訂，不在 dev／票級 worktree 雙寫。路徑與提交時點依 `docs/agents/environment-contract.md`「產生文件的 merge branch 快照」及 `docs/agents/subagent.md`「執行表與唯一寫入者」；最終版本供 integration review 核對。
+實作與驗收需要設定時，已授權直接複製 dev `.env` 為暫用 `.env.test`；依 `.opencode/skills/test/references/test-env.md`「已授權的 dev 設定暫用方式」配置、禁止秘密輸出與 Git 提交，並於依賴驗收完成後刪除本任務副本。
+
+`implement-spec` 啟動時完成 spec／跨 spec blocker／Git 基線的最小核對後，立即建立或核實 `<spec_name>-merge` integration worktree，再由主 agent 直接在其中產生、維護及提交唯一權威 `execution-state.md` 與 `test.md`。主 agent 的 OpenCode session 仍留在 `dev`，以明確路徑與 `workdir` 操作 integration。`setup-testing` 完成環境確認、前置實測與 `test.md` 後才放行產品實作。放行後以 integration 的 `test.md` 為共同基線，方法修復與邊界變更依 `docs/agents/environment-contract.md`「診斷與修訂」分流；文件由主 agent 唯一修訂，不在 dev／票級 worktree 雙寫。路徑與提交時點依該契約「產生文件的 merge branch 快照」及 `docs/agents/subagent.md`「執行表與唯一寫入者」；最終版本供 integration review 核對。
 
 所有 command／測試（含安裝、建置、環境操作及背景命令）依 `docs/agents/test-execution.md` 的共同執行上限：每次有期限，同一操作每輪最多 3 次含首次，時限依序為 T、2T、4T；成功即結束該輪，失敗先診斷及清理。新變更的必要驗證與失敗重試分開計算，輪次依該文件判定。
 

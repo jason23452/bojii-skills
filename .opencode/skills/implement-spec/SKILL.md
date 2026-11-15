@@ -13,9 +13,9 @@ disable-model-invocation: true
 1. **啟動即建立交付位置**：先核對 spec 身分、跨 spec blocker 與 `dev` Git 基線；未受阻即建立或核實 `<spec_name>-merge` integration worktree，直接在其中初始化並提交 `execution-state.md`。主 session 留在 dev，以明確路徑與 `workdir` 操作 integration。
 2. **完整盤點與環境放行**：讀完整 spec、tickets、決策與研究，建立 TODO／AC、責任與成果依賴圖，更新 integration 執行表。再自動載入 `setup-testing`，直接在 integration 產生並提交 `test.md` 初稿、smoke 結果及後續重要狀態。取得就緒結果後才進入產品派工，不另自行確認一套環境；有缺項先留在該流程解除。
 3. **整票派工**：主對話留在 dev；每票新建 owner，綁定票級 worktree，一次交付完整目標、邊界與驗收。所有可獨立開工票背景並行，同票續作 resume。
-4. **Owner 自主交付**：使用 `test`、`tdd` 完成實作、fixtures、排錯與驗證；普通失敗在 owner 內處理。主 agent 協調依賴與跨票問題，不逐測試派工。
+4. **Owner 自主交付**：依權威流程「最小充分實作」選擇開發方法，以 `test` 完成必要驗證，需 test-first 時使用 `tdd`；普通失敗在 owner 內處理。主 agent 協調依賴與跨票問題，不逐步派工。
 5. **審查與整合**：載入 `docs/agents/delivery-pipeline.md`，固定候選並行驗證與獨立審查；問題整批交原 owner 修正、原 reviewer 複查。證據匯合後整合、跑回歸、即時清理票級資源並解鎖下游。
-6. **全量收尾**：全票整合並完成最終驗證後，在 `<spec_name>-merge` 定稿並提交 `test.md` 與 `execution-state.md`；接著固定最終 head、完成獨立 integration review、PR 報告與約定收尾。實作期間測試環境只依 integration 權威 `test.md` 執行，必要修訂先更新並提交再執行；reviewer 核對 branch 內兩份交付快照與工作檔的 hash／版本，精確版本與全部必要證據一致才回報完成。
+6. **全量收尾**：全票整合並完成最終驗證後，在 `<spec_name>-merge` 定稿並提交 `test.md` 與 `execution-state.md`；接著固定最終 head、完成獨立 integration review、PR 報告與約定收尾。實作期間以 integration 的 `test.md` 為共同基線，方法修復與邊界變更依環境契約「診斷與修訂」分流；reviewer 核對 branch 內兩份交付快照與工作檔的 hash／版本，精確版本與全部必要證據一致才回報完成。
 
 ## 分支入口
 
@@ -30,4 +30,4 @@ disable-model-invocation: true
 
 ## 持續排程
 
-每次回報後依 `subagent.md` 選定並實際執行下一動作。有有效背景呼叫才等待；全部可推進工作用盡才集中詢問必要外部輸入。一次呼叫或單票結束不等於整份完成，也不需使用者再次輸入本命令。遠端推送／發布依使用者明確授權。
+每次回報後依 `subagent.md` 選定並實際執行下一動作。有有效背景呼叫才等待；外部問題依權威流程「集中詢問與恢復」，實作前問完可預見事項，執行中新缺項確認後集中補問，其他無相依工作繼續。一次呼叫或單票結束不等於整份完成，也不需使用者再次輸入本命令。遠端推送／發布依使用者明確授權。
