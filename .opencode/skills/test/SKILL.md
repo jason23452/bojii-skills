@@ -25,7 +25,7 @@ description: 配置專案測試方式與 .env.test、選擇本機／混合／容
 | Node.js 內建 test runner | [Node.js test](references/node-test.md) |
 | lint／格式靜態檢查 | [Lint](references/lint.md) |
 | 候選修正、基線同步、整合或改善慢驗證 | [增量驗證與證據沿用](references/incremental-verification.md)；分開判定 affected、快取與 review 沿用 |
-| 新增行為、回歸修復的 Red → Green → Refactor | `tdd` skill；本入口選擇邊界，TDD 負責開發節奏 |
+| 明確要求 test-first、implement-spec 選定 TDD，或先寫測試能降低返工 | `tdd` skill；一般新增行為與回歸修復不自動套用 Red → Green → Refactor，implement-spec 依票級選擇器決定方法 |
 | 失敗、停滯或未知原因 | `diagnosing-bugs` skill |
 
 其他 runner 讀取其既有設定及對應版本的指引；只載入本次需要的工具資料。
