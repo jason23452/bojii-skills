@@ -27,11 +27,11 @@ This repo uses a single-context domain docs layout. See `docs/agents/domain.md`.
 
 ### Implement-spec 整票自主交付
 
-使用 `implement-spec` 時，依 `docs/agents/implement-spec.md` 的結果導向交付，從已定案的 TODO／AC 盤點環境與操作授權，自動載入 `worktree` 建立隔離環境；每票新建獨立實作 subagent owner，可獨立開工票背景平行派出。主 agent 派工前依每票實作範圍選擇 SDD／TDD；owner 採選定方法自主完成實作、排錯與必要驗收，經獨立票級審查後逐票整合；全部交付與收尾完成才結束。
+使用 `implement-spec` 時，依 `docs/agents/implement-spec.md` 的結果導向交付，從已定案的 TODO／AC 盤點環境與操作授權，自動載入 `worktree` 建立隔離環境；每票新建獨立實作 subagent owner，可獨立開工票背景平行派出。主 agent 派工前依每票實作範圍選擇 SDD／TDD；TDD 以單元測試執行 Red → Green → Refactor，Playwright E2E 依完整 spec／AC 於全票整合後的最終驗收階段新增或補齊並實跑；owner 經獨立票級審查後逐票整合，全部交付與收尾完成才結束。正式實作期間主 agent、owner 與 reviewer 不使用 `question` 工具；已授權範圍內自主決策執行，超出範圍只暫停受影響操作並記錄回報，不推定新增授權。
 
 ### 專案接手
 
-接手既有成果、恢復中斷任務或將既有工作移至另一環境時，使用 `project-handoff` skill；從零開發、首次建環境及正常新票派工沿用一般開工流程。觸發判定與遺留依賴盤點見該 skill。
+接手既有成果、恢復中斷任務或搬移環境時，先沿用 repo 既有權威紀錄；只有續作資訊缺漏或環境前置條件改變時才使用 `project-handoff` skill，避免為 `implement-spec` 每票另建交接文件。從零開發、首次建環境及正常新票派工沿用一般開工流程。
 
 ### 測試與靜態檢查
 
@@ -41,7 +41,7 @@ This repo uses a single-context domain docs layout. See `docs/agents/domain.md`.
 
 實作與驗收需要設定時，已授權直接複製 dev `.env` 為暫用 `.env.test`；依 `.opencode/skills/test/references/test-env.md`「已授權的 dev 設定暫用方式」配置、禁止秘密輸出與 Git 提交，並於依賴驗收完成後刪除本任務副本。
 
-`implement-spec` 啟動時完成 spec／跨 spec blocker／Git 基線的最小核對後，立即建立或核實 `<spec_name>-merge` integration worktree，再由主 agent 直接在其中產生、維護及提交唯一權威 `execution-state.md` 與 `test.md`。主 agent 的 OpenCode session 仍留在 `dev`，以明確路徑與 `workdir` 操作 integration。`setup-testing` 完成環境確認、前置實測與 `test.md` 後才放行產品實作。放行後以 integration 的 `test.md` 為共同基線，方法修復與邊界變更依 `docs/agents/environment-contract.md`「診斷與修訂」分流；文件由主 agent 唯一修訂，不在 dev／票級 worktree 雙寫。路徑與提交時點依該契約「產生文件的 merge branch 快照」及 `docs/agents/subagent.md`「執行表與唯一寫入者」；最終版本供 integration review 核對。
+`implement-spec` 啟動時完成 spec／跨 spec blocker／Git 基線的最小核對後，立即建立或核實 `<spec_name>-merge` integration worktree，再由主 agent 直接在其中產生、維護及提交唯一權威 `execution-state.md` 與 `test.md`。主 agent 的 OpenCode session 仍留在 `dev`，以明確路徑與 `workdir` 操作 integration。`setup-testing` 完成環境確認、前置實測與 `test.md` 後才放行產品實作。放行後以 integration 的 `test.md` 為測試基線；它不是通用操作授權清單，也不阻擋派工授權內的環境啟動／修復。方法缺漏依 `docs/agents/environment-contract.md` 自主修復並回報，文件由主 agent 唯一修訂；推送／發布／部署等操作另依明確任務授權判斷。路徑與提交時點依該契約「產生文件的 merge branch 快照」及 `docs/agents/subagent.md`「執行表與唯一寫入者」；最終版本供 integration review 核對。
 
 所有 command／測試（含安裝、建置、環境操作及背景命令）依 `docs/agents/test-execution.md` 的共同執行上限：每次有期限，同一操作每輪最多 3 次含首次，時限依序為 T、2T、4T；成功即結束該輪，失敗先診斷及清理。新變更的必要驗證與失敗重試分開計算，輪次依該文件判定。
 

@@ -9,7 +9,7 @@ description: implement-spec 準備或恢復環境時自動使用，亦可直接�
 
 `implement-spec` 先在 `setup-testing` 前建立或核實 `<spec_name>-merge` integration worktree，讓生成的執行文件可提交到目標 branch。這次初始呼叫只完成 worktree 的 Git 建立與路徑／基底核對，不配置測試環境；`test.md` 產生後，再按本文件配置隔離設定、專屬參數、預檢及清理。文件缺口或模式調整依環境契約「診斷與修訂」分流：界線內本票方法修復自主執行並回報，共享衝突或邊界變更先協調；下方模式選擇用於初始配置、方案修訂或獨立 worktree 任務。
 
-實作期間以 integration 執行權威 `test.md` 的路徑與版本操作，owner／reviewer 唯讀使用；票級副本不取代權威。主 agent 直接在 `<spec_name>-merge` 維護及提交 `test.md` 與 `execution-state.md`，路徑與提交節點依環境契約。文件在 integration 自身的 Git 工作樹中須可追蹤；外層 `.worktree/` 被主 repo 忽略不代表 integration 不能追蹤自己的文件。建立後核對路徑解析：文件來源指向 integration，受測程式與可變資料指向本 worktree，憑證讀取已指定來源；依文件執行預檢再放行。主 session 保持在 dev，文件與命令用明確路徑操作。
+實作期間以 integration 執行權威 `test.md` 的路徑與版本操作，owner／reviewer 對權威文件唯讀只限制文件寫入責任，不限制派工授權內的環境啟動或修復；票級副本不取代權威。`test.md` 是測試基線而非通用操作授權清單，方法缺漏依環境契約在既有界線內處理。推送／發布仍依 `implement-spec` 的授權規則。主 agent 直接在 `<spec_name>-merge` 維護及提交 `test.md` 與 `execution-state.md`，路徑與提交節點依環境契約。文件在 integration 自身的 Git 工作樹中須可追蹤；外層 `.worktree/` 被主 repo 忽略不代表 integration 不能追蹤自己的文件。建立後核對路徑解析：文件來源指向 integration，受測程式與可變資料指向本 worktree，憑證讀取已指定來源；依文件執行預檢再放行。主 session 保持在 dev，文件與命令用明確路徑操作。
 
 - 先讀 integration 的 `execution-state.md`，依 TODO／AC 與 repo 設定確認驗收需要的環境；首次建立 integration 尚無執行表時，先依已確認 spec 與 `dev` 基線建立 Git 工作樹，再由主 agent 初始化文件。直接呼叫時自行盤點。未指定模式時依 `docs/agents/environment-contract.md` 的測試執行模式選擇，載入 test 的 [測試方式配置](../test/references/test-setup.md)，分別決定 runner、應用與服務位置。
 - 本機模式使用 worktree 專屬程序、ports 與隔離 fixtures，執行 Git 步驟 1～4 及設定與驗證步驟 8～10 的適用部分。混合模式只為必要服務執行 Docker 步驟；容器模式對相關群組執行完整適用流程。
@@ -30,10 +30,10 @@ description: implement-spec 準備或恢復環境時自動使用，亦可直接�
 3. integration worktree 從本地 `dev` 建立；ticket worktree 從對應 spec 的 `<spec_name>-merge` branch 建立。先解析並記錄來源 commit；來源工作區有未提交修改時，判斷本票是否依賴它。無相依即可從已確認 commit 建立並保留原修改；需要未提交成果時先協調 owner 交付。來源名稱缺少時先查既有分支及交接紀錄；只有仍無法確定 base 或成果歸屬時才詢問，不自行替換基底。建立後依環境契約的「流程版本同步」核對實際規則。
 4. 依根目錄 `AGENTS.md` 的位置規則，計算 `<project-root>/.worktree/<worktree-name>` 的絕對路徑；名稱必須是單一目錄名稱，且解析後的父目錄必須是主 repo 內的 `.worktree`（包含檢查 symlink/junction 的實際指向）。確認該目錄已列入 repo 的 ignore 設定，再使用可明確指定路徑的 `git worktree add` 建立對應 branch；若工具無法指定或保證此路徑，改用 Git 指令。建立後以 `git worktree list --porcelain` 核對實際登錄路徑與預定路徑一致、branch 正確，且檔案內容基於預期 base；全部符合才繼續初始化環境。委派 subagent 時提供已解析的絕對路徑及相同驗證要求。
 5. **僅驗收明確需要 `dev` 資料副本時**，從 Docker 設定、labels、Compose project/service 與 container mounts 交叉辨識來源 volume；仍無法辨識時只暫停依賴該副本的工作並詢問來源。一般測試略過來源辨識，使用 migration／seed／最少 fixtures。
-6. 為需要持久化資料的服務建立專屬 volume，預設由 repo 入口初始化；僅步驟 5 適用時複製已確認來源。副本與來源完全分離，來源保持不變；若一致複製必須停止 `dev` 容器，沿用已確認停止／恢復授權，缺少時才詢問該差額。
+6. 為需要持久化資料的服務建立專屬 volume，預設由 repo 入口初始化；僅步驟 5 適用時複製已確認來源。副本與來源完全分離，來源保持不變；若一致複製必須停止 `dev` 容器，沿用已確認停止／恢復授權。`implement-spec` 正式實作期間若此必要授權缺漏，只記錄並回報、暫停該操作，不呼叫 `question` 工具；其他流程依其授權確認規則。
 7. 為使用容器的 worktree 配置唯一的 Compose project name、container 名稱、network 與 host ports。受測程式的 image 從該 worktree 程式碼建置並使用專屬 tag，不使用另一 worktree 的應用 image；資料庫等第三方服務可共用鎖定版本的不可變 image，其 containers 與可變資料仍須獨立。挑選尚未占用的 ports，並將實際 port 對應記錄在該 worktree 的本機環境設定中。
 8. 若 repo 有 E2E 測試，為 E2E server 分配此 worktree 專屬且未占用的 port，並將 app server 與測試 runner 的 `baseURL`/port 一起設定為該值。優先使用既有環境變數或 runner CLI；若設定寫死而無法隔離，在此 worktree 中調整為可配置並保留原預設值，執行 E2E 驗證。不得讓測試連到 `dev` 或其他 worktree 的 server。
-9. 優先使用 repo 既有可覆寫的環境變數或 Compose override 隔離設定；本機設定與 secrets 不得寫入 tracked 檔案或輸出到對話。若設定無法區分環境資源，依已授權範圍補齊 worktree 本地設定並驗證；必須異動共享設定且契約未涵蓋時，才使用 `question` 確認該差額。
+9. 優先使用 repo 既有可覆寫的環境變數或 Compose override 隔離設定；本機設定與 secrets 不得寫入 tracked 檔案或輸出到對話。若設定無法區分環境資源，依已授權範圍補齊 worktree 本地設定並驗證；`implement-spec` 正式實作期間若必須異動契約未涵蓋的共享設定，只記錄並回報、暫停該操作，不呼叫 `question` 工具；其他流程依其授權確認規則。
 10. 啟動隔離環境，核對程序的工作目錄、app/E2E ports、測試 runner 的 `baseURL`、上游 endpoint 及可變資料／fixtures 路徑；Docker 模式另核對 containers、image tags 與 volume mounts，確認實際使用此 worktree 的程式碼與專屬資源。執行健康檢查及指定驗收，記錄 worktree/branch、base、資源歸屬及結果，不揭露 secrets。全部適用檢查通過才標示環境就緒；僅建立 Git 目錄不算完成。完成後依開工契約清理本次資源，保留約定的 integration 與證據。
 
 ## 隔離與安全

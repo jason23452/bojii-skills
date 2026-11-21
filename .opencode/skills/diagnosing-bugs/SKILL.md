@@ -13,7 +13,7 @@ When exploring the codebase, read `GLOSSARY.md` (if it exists) to get a clear me
 
 This skill has you show commands, outputs and captured artifacts. **Redact every secret first**: write `<REDACTED>` in its place. Build loops against env vars, so the credential stays in the environment rather than in what you show. Captured artifacts carry auth headers: quote only the lines that carry the signal.
 
-脫敏輸出不足時，先核對錯誤捕捉邊界與實際呼叫鏈，補足安全的階段／斷言 ID、錯誤分類、欄位及預期／實際型別；秘密與私人 payload 仍遮蔽。能由程式、固定版本 API／SDK 或本機重現取得的資訊自行查證；只有確實無法取得的外部證據或權限才詢問使用者。執行時沿專案 `docs/agents/test-execution.md` 的「可診斷的驗證入口」，區分產品失敗、cleanup 與 evidence 轉換失敗。
+脫敏輸出不足時，先核對錯誤捕捉邊界與實際呼叫鏈，補足安全的階段／斷言 ID、錯誤分類、欄位及預期／實際型別；秘密與私人 payload 仍遮蔽。能由程式、固定版本 API／SDK 或本機重現取得的資訊自行查證；其他流程只有確實無法取得的外部證據或權限才詢問使用者；`implement-spec` 正式實作期間依其不使用 `question` 工具規則記錄並回報缺項。執行時沿專案 `docs/agents/test-execution.md` 的「可診斷的驗證入口」，區分產品失敗、cleanup 與 evidence 轉換失敗。
 
 ## Phase 1: Build a feedback loop
 
@@ -58,7 +58,7 @@ Runtime 不可執行、授權已限次或歷史輸出不足時，先走離線路
 2. 使用脫敏既有輸入或版本契約 fixture，呼叫實際產品／runner 函式建立最小重現。對 evidence 問題測到 producer → projector → serializer，不只測人工整理好的最終物件。
 3. 若仍缺關鍵訊號，在既有修改範圍內補最小診斷與離線回歸；需要修訂測試入口或跨票責任時交主 agent 依既有流程處理，繼續其他可執行調查。
 
-只有上述路徑仍受具體外部條件阻擋，才列已試方法、所缺證據及最小必要輸入詢問使用者。離線證實的缺陷可修復並驗證，但原 runtime／端到端驗收保留未完成；使用者明確限制不因找到新缺陷而失效。
+只有上述路徑仍受具體外部條件阻擋，才列已試方法、所缺證據及最小必要輸入。`implement-spec` 正式實作期間將此缺項依其「不使用 question 工具」規則回報，不呼叫 question 工具；其他流程依各自入口取得必要輸入。離線證實的缺陷可修復並驗證，但原 runtime／端到端驗收保留未完成；使用者明確限制不因找到新缺陷而失效。
 
 ### 完成判準：足以定位與驗證的回饋
 

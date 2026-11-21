@@ -1,5 +1,7 @@
 # Playwright UI／API 驗證
 
+在 `implement-spec` 中，依完整 spec／AC 撰寫或補齊的產品 Playwright E2E 情境，安排於全部 tickets 整合後、最終 integration review 前，對最終候選與指定真實環境實跑並留存證據；不把 E2E 當作 TDD 的 Red 測試，也不在各票 TDD 迴圈中逐步產生。前置環境準備可使用既有 smoke；沒有 spec 所要求的端到端情境時，不額外擴大測試範圍。
+
 ## 邊界與環境
 
 - 讀取既有 Playwright config、projects、fixtures、webServer、reporter 與 CI；先確認使用者要驗收的入口、角色及部署政策。
