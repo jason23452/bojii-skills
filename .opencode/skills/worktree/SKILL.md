@@ -38,7 +38,7 @@ description: implement-spec 準備或恢復環境時自動使用，亦可直接�
 
 ## 隔離與安全
 
-`implement-spec` 的票級資源依 `docs/agents/implement-spec.md`「票級即時清理」：每票完整交付、審查及 integration 回歸通過後立即保存證據，移除該票 worktree、對應本地 branch、containers、network、專屬 image tag／可安全移除的 image、volumes 與自有程序，確認 ports 釋放。branch 須在 worktree 移除後安全刪除；確切檢查及保留條件依 implement-spec。Integration worktree、branch 與專屬資源保留至最終 merge；全部來源合併至 `dev` 並驗證通過後，依 [merge skill](../merge/SKILL.md) 清理。部分交付票保留續作必要資源。清理時點由上述流程統一決定，不延至整批結束。
+`implement-spec` 的票級資源依 `docs/agents/implement-spec.md`「票級即時清理」：每票完整交付、審查及 integration 回歸通過後立即保存證據，移除該票 worktree、對應本地 branch、containers、network、專屬 image tag／可安全移除的 image、volumes 與自有程序，確認 ports 釋放。worktree 清理必須分開驗證 Git 登錄已移除及其精確磁碟目錄不存在（Windows 用 `Test-Path -LiteralPath $worktreePath` 確認為 `False`；POSIX 用 `test ! -e "$worktree_path"` 確認成功）；若只移除 Git 登錄後仍有目錄殘留，先核實實體路徑（包含 symlink／junction 解析）位於主 repo `.worktree` 內、未被任何 worktree 登錄，且內容明確屬於該來源，再只刪除該精確目錄。若 symlink／junction 指向 `.worktree` 外，或內容歸屬不明，停止清理並回報；保留未知／使用者資料，不刪 `.worktree` 父目錄、不用廣域或強制清理。branch 須在實體目錄不存在後安全刪除；確切檢查及保留條件依 implement-spec。Integration worktree、branch 與專屬資源保留至最終 merge；全部來源合併至 `dev` 並驗證通過後，依 [merge skill](../merge/SKILL.md) 清理，且同樣驗證實體目錄不存在。部分交付票保留續作必要資源。清理時點由上述流程統一決定，不延至整批結束。
 
 - Worktree 之間不得共用可變執行資源：container、network、受測應用 image tag、host port 與 volume 均須有 worktree 專屬識別。
 - Network 隔離與外連限制依環境契約分開判定；專屬 network 本身不要求另建 proxy 或禁止外連。

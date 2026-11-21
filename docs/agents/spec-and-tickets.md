@@ -36,16 +36,16 @@ spec-level `Blocked by` 必須引用前置 spec 的 repo 相對路徑，並說�
 
 ```md
 Status: ready-for-agent
-Blocked by: .scratch/<前置-feature>/spec.md — 前置 spec 完成 implement-spec 全部條件並合併至 dev
+Blocked by: .scratch/<前置-feature>/spec.md — 前置 spec 完成 implement-spec 全部條件，經使用者明確要求合併後納入 dev
 ```
 
-有多個前置 spec 時，以分號分隔並逐一列出；沒有跨 spec 依賴時寫 `Blocked by: 無`。因 `implement-spec` 的 integration worktree 從 `dev` 建立，前置 spec 不只要完成實作及最終驗收，也必須依 [merge 流程](../../.opencode/skills/merge/SKILL.md) 合併到 `dev`，讓下游以包含前置成果的基線開工。例如：
+有多個前置 spec 時，以分號分隔並逐一列出；沒有跨 spec 依賴時寫 `Blocked by: 無`。因 `implement-spec` 的 integration worktree 從 `dev` 建立，前置 spec 不只要完成實作及最終驗收，也必須依 [merge 流程](../../.opencode/skills/merge/SKILL.md) 在使用者明確要求後合併到 `dev`，讓下游以包含前置成果的基線開工。完成或標註可合併不會自動觸發合併。例如：
 
 ```md
-Blocked by: .scratch/shared-api/spec.md — 前置 spec 完成 implement-spec 全部條件並合併至 dev
+Blocked by: .scratch/shared-api/spec.md — 前置 spec 完成 implement-spec 全部條件，經使用者明確要求合併後納入 dev
 ```
 
-被阻擋不妨礙先完成規劃或標示 `ready-for-agent`；該標籤表示規劃可交由 Agent 承接，不代表可以派任一張 ticket 實作。前置 spec 完成最終驗收並合併到 `dev` 後，[merge 流程](../../.opencode/skills/merge/SKILL.md) 會從所有 spec 的 `Blocked by` 移除已完成的前置 spec，保留其他未完成 blocker，並把變更與 PR 報告一起提交。只有 `Blocked by` 已無未完成項的 spec 才解除整批實作門檻；之後 `implement-spec` 記錄前置交付 SHA 與新的 `dev` 基線 SHA，再開始整份 tickets。若前置契約尚未明確到足以定義新 spec 的範圍與驗收，先標待釐清，不把猜測當成已確認依賴。
+被阻擋不妨礙先完成規劃或標示 `ready-for-agent`；該標籤表示規劃可交由 Agent 承接，不代表可以派任一張 ticket 實作。前置 spec 完成最終驗收後仍須等待使用者明確要求合併；合併到 `dev` 後，[merge 流程](../../.opencode/skills/merge/SKILL.md) 才會從所有 spec 的 `Blocked by` 移除已完成的前置 spec，保留其他未完成 blocker，並把變更與 PR 報告一起提交。只有 `Blocked by` 已無未完成項的 spec 才解除整批實作門檻；之後 `implement-spec` 記錄前置交付 SHA 與新的 `dev` 基線 SHA，再開始整份 tickets。若前置契約尚未明確到足以定義新 spec 的範圍與驗收，先標待釐清，不把猜測當成已確認依賴。
 
 ### TODO 的獨立完成判定
 

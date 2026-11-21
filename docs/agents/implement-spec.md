@@ -4,6 +4,8 @@
 
 本文件是 `implement-spec` 的執行權威，優先於通用 skill。以已確認的 spec、tickets、研究與授權為輸入，持續完成整份工作；**所有 tickets 的 TODO、本票驗收、跨票 AC、整合驗證及約定收尾均完成，才回報完成**。子代理回報、單票通過、時間／輪數預算或局部 Green 都是中間狀態。
 
+`implement-spec` 的完成與候選標示「可合併」只代表 integration 交付已就緒，不授權合併至 `dev`。完成後保留 integration worktree／branch 與必要資源；只有使用者明確要求合併並指定來源範圍，才依 `/merge` 流程執行。沒有明確要求時不得自動合併或主動啟動 merge。
+
 **結果導向交付**：Agent 對約定結果與正確性負責，自主選擇最低總成本的實作及驗證路徑。需求、必要品質、授權／資料邊界與可核對的交付證據是完成依據；開發順序、工具、環境規模及輔助文件不是成果本身。可合併的準備、檢查與回報合併處理，已有有效證據沿用；不為展示流程而新增角色、文件、實驗或重複審查。專案明定的隔離、唯一寫入者、獨立審查及發布門檻仍遵循，審查深度與驗證範圍按實際變更及影響決定。
 
 - 主 agent 負責完整進度、排程、依賴、驗收與整合，環境確認統一交 `setup-testing`；每票新建一位實作 subagent owner，負責產品程式、測試、fixtures、排錯與驗證。同票續作 resume 原 owner，不以主 agent 逐票自行實作取代派工；工具無法建立子代理時回報執行阻擋。
@@ -20,7 +22,7 @@
 
 之後讀取全部 spec／tickets、[產品交付規劃](spec-and-tickets.md)、決策／研究及 [subagent 交接規則](subagent.md)，建立完整任務圖並更新同一執行表；從 TODO／AC 推導環境需求，不要求規劃文件預先提供準備表。核對完成後啟動 `setup-testing`，直接在 integration 產生 `test.md`，初稿須先提交才開始 smoke test。兩份文件的路徑及提交時點依 [merge branch 文件規則](environment-contract.md#產生文件的-merge-branch-快照)。
 
-正常新票派工與同 owner 續作，直接使用 ticket、integration 的 `execution-state.md`／`test.md` 及 Git／驗證證據，不另做接手盤點或建立票級 handoff 文件。跨 session 接手時先檢查既有紀錄；只有必要資訊缺漏或搬移環境改變了前置條件，才載入 [project-handoff](../../.opencode/skills/project-handoff/SKILL.md) 補查。續作狀態回寫既有執行表，不複製整份票面內容。
+正常新票派工與同 owner 續作，直接使用 ticket、integration 的 `execution-state.md`／`test.md` 及 Git／驗證證據，不另建票級 handoff 文件。跨 session 接手時先檢查既有紀錄；若需攜帶摘要至新 session，使用 `/handoff`。續作狀態回寫既有執行表，不複製整份票面內容。
 
 開工前必須具備：
 
@@ -76,7 +78,7 @@ Tickets 規劃核對且 integration worktree 已就緒後，主 agent 自動載�
 - 前述 `<spec_name>-merge` integration worktree 已在文件生成前建立／核實；此階段主 agent 使用 [worktree skill](../../.opencode/skills/worktree/SKILL.md) 建立票級 `.worktree/<spec_name>-tickets-<NN>` worktree，並核對主 repo、integration branch 與票級 worktree 的路徑及基底關係。實際測試環境套用 `test.md` 的配置及專屬參數規則；需要調整方案時依環境契約修訂同一權威入口，再交 owner 採用。
 - 明確啟動 `implement-spec` 即包含本地 integration／票級 worktrees 與任務必要的隔離執行環境。先核對來源、歸屬與恢復方式，再依「環境自主處理」建立、啟動、診斷及修復，不逐項詢問 Docker／runtime／E2E 授權。
 - 準備與恢復優先沿用 `test.md` 的可重跑入口；入口失效時依環境契約修復，將成功方法回收到既有入口並交接，不因等待文件更新中斷界線內驗收。
-- 派工一併提供 integration 執行權威 `test.md` 的絕對路徑與 hash／版本，以及執行表路徑；owner／reviewer 唯讀使用只限制權威文件的寫入者，不限制其在派工授權內執行測試、啟動或修復任務自有環境。`test.md` 不是通用操作授權清單；文件缺少方法時依環境契約自主處理並回報，push／release／deploy 等操作則另依明確任務授權判斷。主 agent 依環境契約在初版、必要規則變更與執行生命週期重要節點，直接在 `<spec_name>-merge` 維護並提交兩份文件；reviewer 核對最終提交與工作檔 hash。文件須在 integration 自身的 Git 工作樹中可追蹤。
+- 派工一併提供 integration 執行權威 `test.md` 的絕對路徑與 hash／版本，以及執行表路徑；owner／reviewer 唯讀使用只限制權威文件的寫入者，不限制其在派工授權內執行測試、啟動或修復任務自有環境。`test.md` 不是通用操作授權清單；文件缺少方法時依環境契約自主處理並回報，push／release／deploy 等操作則另依明確任務授權判斷。主 agent 依環境契約在初版、必要規則變更與執行生命週期重要節點，直接在 `<spec_name>-merge` 維護並提交兩份文件；reviewer 對文件只核對最終提交與工作檔的路徑、版本、hash 及驗收證據，不審文件內容。文件須在 integration 自身的 Git 工作樹中可追蹤。
 - **環境就緒門檻**：初始配置以 `setup-testing` 的放行為準；後續 worktree 與 integration 依 `test.md` 套用專屬值並執行預檢，結果記入執行表。不重新選擇環境；屬產品交付的 harness 依文件記錄的責任在放行後建立並驗收。
 - 暫停、關機或服務中斷後續作，依環境契約的「暫停或關機後的恢復」執行權威 `test.md`：自行啟動缺少的自有服務、核對就緒並重跑受影響 smoke，通過後接續剩餘工作。沿用有效成果與資料，不重新選環境；歷史通過不等於現在仍就緒。
 - 維護整份 TODO／AC 責任對照及執行表。每條依賴指向下游真正需要的已驗收成果；同一共用介面由唯一 owner 負責。
@@ -143,7 +145,7 @@ TODO 固定的是交付結果、契約與完成條件，不把尚未證實必要
 
 在有意義且可還原的功能檢查點提交產品與測試。票完成或實際換手時，由 owner 回報 AC、命令、結果、環境及剩餘工作；主 agent 只把必要狀態差異更新到共享 `execution-state.md`。每個小測試不另設主 agent 核准、分角色 commit 或 evidence commit 門檻。提交前核對 staged diff 與檔案歸屬。
 
-票券 TODO／AC 是產品範圍的唯一來源，`execution-state.md` 是執行狀態的唯一來源，`test.md` 是驗證環境的共同基線。`implement-spec` 不為每張票另建或提交 `project-handoff` 文件；需要換手時，owner 提供變更、證據與下一步，主 agent 更新既有執行表。
+票券 TODO／AC 是產品範圍的唯一來源，`execution-state.md` 是執行狀態的唯一來源，`test.md` 是驗證環境的共同基線。`implement-spec` 不為每張票另建 handoff 文件；需要換手時，owner 提供變更、證據與下一步，主 agent 更新既有執行表。只有確需攜帶上下文至新 session 時才使用 `/handoff`。
 
 ## 4. 獨立票級審查與修正
 
@@ -191,13 +193,13 @@ owner 完成實作及必要快速檢查、停寫並固定候選 base／head 後�
 1. 核對整票 TODO／AC、審查及合併回歸證據，保留精確交付 commit 與 integration SHA。未納入 Git 的必要 logs／附件另移至票級 worktree／volume 以外的持久證據位置並驗證可讀。
 2. 確認 owner、reviewer 及本票背景測試／產生器已停止使用環境，沒有待提交或未知成果。下游只使用已驗證 integration 的程式碼與可重建 fixtures，不依賴本票存活的服務、ports 或資料卷；發現此依賴先修正交接，不能直接刪除仍被使用的資源。
 3. 依執行表的資源歸屬，停止並移除本票 containers、自有程序、network、專屬 image tag／可安全移除的 image 及 volumes，釋放 host／E2E ports。保留 dev、integration、其他票與共用 image layers／build cache；使用精確識別清理，不執行全域 prune。
-4. 移除前以 `git worktree list --porcelain` 記錄本票 worktree 對應的本地 branch；核對工作樹乾淨、交付已整合及證據已移出後，移除精確的本票 Git worktree。若 worktree 移除失敗，不刪 branch，先排錯並保留原因與資源 ID。
-5. worktree 移除後，確認該 branch 已不被任何 worktree 使用，且票級交付已合入 `<spec_name>-merge`。在該 integration worktree 中對記錄的本票 branch 執行 `git branch -d -- <branch>`，讓 Git 以目前 integration HEAD 做安全檢查；不使用 `-D`，不刪遠端 branch。若 branch 歸屬不明、仍被使用、尚未合入或安全刪除遭拒，保留 branch 並視為清理未完成，查明原因後再處理，不強制刪除。
-6. 重查本票 worktree 與本地 branch 均已移除，並確認容器／network／image tag／volume 及本票程序已清理、ports 不再由本票占用；若 port 已由其他程序取得，不停止該程序。將 branch 名稱及刪除結果、其他清理結果與釋放容量記入執行表，再重算可派工票。
+4. 移除前以 `git worktree list --porcelain` 記錄本票 worktree 的精確絕對路徑與對應本地 branch；核對工作樹乾淨、交付已整合及證據已移出後，移除精確的本票 Git worktree。分別確認路徑已不在 Git worktree 登錄中、磁碟上的精確目錄也不存在。若 Git 登錄已移除但目錄仍存在，依 [worktree 清理安全規則](../../.opencode/skills/worktree/SKILL.md#隔離與安全) 核實路徑與內容歸屬，只能清理精確且確認屬於本票的殘留目錄；歸屬不明時保留並回報。若 worktree 移除失敗，不刪 branch，先排錯並保留原因與資源 ID。
+5. 實體 worktree 目錄不存在後，確認該 branch 已不被任何 worktree 使用，且票級交付已合入 `<spec_name>-merge`。在該 integration worktree 中對記錄的本票 branch 執行 `git branch -d -- <branch>`，讓 Git 以目前 integration HEAD 做安全檢查；不使用 `-D`，不刪遠端 branch。若 branch 歸屬不明、仍被使用、尚未合入或安全刪除遭拒，保留 branch 並視為清理未完成，查明原因後再處理，不強制刪除。
+6. 重查本票 worktree 路徑不在 Git 登錄中、磁碟目錄不存在、本地 branch 已移除，並確認容器／network／image tag／volume 及本票程序已清理、ports 不再由本票占用；若 port 已由其他程序取得，不停止該程序。將精確路徑、branch 名稱及刪除結果、其他清理結果與釋放容量記入執行表，再重算可派工票。
 
 票級及最終收尾同時依 [測試設定暫用方式](../../.opencode/skills/test/references/test-env.md#已授權的-dev-設定暫用方式) 清理本任務產生且已無依賴驗收的 `.env.test`／憑證副本，包含位於 worktree 外的暫用檔；核對刪除與未追蹤狀態，保留使用者來源檔。Integration 尚需使用的副本留至其必要驗收及重驗完成後清理。
 
-Integration worktree 及其 branch 保留供後續合併與最終驗收，按整份收尾規則處理；票級清理不移除 integration。
+Integration worktree 及其 branch 保留供後續合併與最終驗收，按整份收尾規則處理；票級清理不移除 integration。經使用者明確要求合併並完成 `dev` 驗證後，integration 清理另依 [merge skill](../../.opencode/skills/merge/SKILL.md)，須確認 Git 登錄、磁碟實體目錄、本地 branch 與專屬資源均完成清理。
 
 已有執行中的舊版 Test／Green 配對或 ticket-to-ticket 分支時，先核對現況、已提交／未提交變更與執行程序，待原角色停寫後指定單一 owner 接手；保留既有成果與依賴歷史，不 reset 或重做已完成工作。
 
@@ -261,19 +263,19 @@ Runtime 暫不能執行或輸出不足時，原 owner 依 `diagnosing-bugs` 追�
 
 ### PR 前的整合審查門檻
 
-全部 tickets 合入 integration 後，主 agent 指定唯一 owner 依完整 spec／AC 實際新增或補齊所需的 Playwright E2E 測試並納入候選；之後固定最終程式候選，執行整份 spec AC／跨票整合驗證及 E2E。TDD 單元測試不取代這項真實端到端驗收。依下方規則在 integration 提交最終 `test.md` 與 `execution-state.md` 交付快照後，再固定預定 PR 目標分支的 base SHA 與 integration head SHA，並新建未參與本批實作或合併修正的獨立 reviewer session，審查包含兩份文件快照的最終整合版本及其相對目標分支的完整變更。這是必跑的最終 integration review，不能由票級審查或測試成功取代；不需使用者另行呼叫 `code-review`。
+全部 tickets 合入 integration 後，主 agent 指定唯一 owner 依完整 spec／AC 實際新增或補齊所需的 Playwright E2E 測試並納入候選；之後固定最終程式候選，執行整份 spec AC／跨票整合驗證及 E2E。TDD 單元測試不取代這項真實端到端驗收。依下方規則在 integration 提交最終 `test.md` 與 `execution-state.md` 交付快照後，再固定預定 PR 目標分支的 base SHA 與 integration head SHA，並新建未參與本批實作或合併修正的獨立 reviewer session，審查程式實作相對 spec／tickets 的符合度與驗收證據；對兩份文件僅核對版本、hash 及驗收證據，不審其內容。這是必跑的最終 integration review，不能由票級審查或測試成功取代；不需使用者另行呼叫 `code-review`。
 
-- Reviewer 直接核對 spec、各票責任、最終 diff 與驗證證據，重點檢查跨票介面、schema／migration、共用設定、初始化／接線、錯誤處理與相容性，以及合併解衝突是否遺失、覆蓋或重複交付。
+- Reviewer 以 spec／各票責任及驗收證據為判準，審查最終程式 diff，重點檢查跨票介面、schema／migration、共用設定、初始化／接線、錯誤處理與相容性，以及合併解衝突是否遺失、覆蓋或重複交付。
 - 審查期間固定候選、停止相關寫入；必要長驗證可依交付管線並行，reviewer 收齊同一版本的必要證據後才給最終結論。Integration worktree 與審查／驗證所需資源保留至本門檻通過，已清理的票級 worktree 無需為審查重建。
 - 發現阻擋問題時，指定原 owner 或整合修正 owner，從包含問題的 integration 基線建立隔離修正環境，修正並整合；重跑受影響回歸及必要跨票驗收，由原最終 reviewer 複查新候選與影響範圍。修正環境仍依票級清理門檻處理。
 - Reviewer 與修正 owner 載入 [根因預防](review-prevention.md) 及 [審查收斂](review-convergence.md)，沿用相同的預防措施、finding 追蹤與停滯裁決規則；最終審查不另開一套無界修正迴圈。
-- 記錄 base／head SHA、reviewer session、findings 處置、驗證證據與 verdict。全部必要驗收成功且無未解阻擋，才產生可發布的 PR 交付報告或標示可合併。
+- 記錄 base／head SHA、findings 處置、驗證證據與 verdict；不在執行文件記錄 reviewer session ID。全部必要驗收成功且無未解阻擋，才產生可發布的 PR 交付報告或標示「可合併」；此標示只代表候選已就緒，不是合併授權。
 - 發布 PR 前重核實際目標 base 與 head；任一改變都重新判定合併影響、驗證受影響範圍並交 reviewer 複查，不能沿用舊版本 verdict 宣告新版本通過。PR 更新提交也適用此門檻。
 
-最終審查前，主 agent 直接在 `<spec_name>-merge` 將 `test.md` 更新至實際受測程式版本與最終驗收證據，定稿 `execution-state.md` 並提交。依環境契約核對兩份工作檔與提交版本的路徑、版本及 hash；reviewer 唯讀審查已提交的檔案。測試方法修復與邊界變更依 [診斷與修訂](environment-contract.md#診斷與修訂) 分流：界線內修復可先執行留證，最終方法與證據須在交付 reviewer 前完成提交。之後若程式或文件再變更，依實際影響判定重驗與證據沿用，更新同一權威檔並提交結果，再由 reviewer 複查。產品或驗收缺口回 owner 修復／重驗。
+最終審查前，主 agent 直接在 `<spec_name>-merge` 將 `test.md` 更新至實際受測程式版本與最終驗收證據，定稿 `execution-state.md` 並提交。依環境契約核對兩份工作檔與提交版本的路徑、版本及 hash；reviewer 只核對快照與工作檔一致、版本正確及驗收證據適用，不審文件內容。測試方法修復與邊界變更依 [診斷與修訂](environment-contract.md#診斷與修訂) 分流：界線內修復可先執行留證，最終方法與證據須在交付 reviewer 前完成提交。之後若程式或文件再變更，依實際影響判定重驗與證據沿用，更新同一權威檔並提交結果，再由 reviewer 複查程式變更與受影響的快照完整性。產品或驗收缺口回 owner 修復／重驗。
 
-主 agent 核對所有 TODO、各票驗收、跨票 AC、審查問題及整合修正均有通過證據，實際交付與 integration HEAD 一致，且最終 `test.md` 與 `execution-state.md` 快照均已提交在 `<spec_name>-merge` branch、與 integration 工作檔 hash／版本一致並由 reviewer 核對。各票 worktree、對應本地 branch 與專屬資源應已依票級即時清理移除；此處只核對清理紀錄與處理有明確原因的殘留，不首次集中清理全部票。確認沒有仍在執行的子代理／寫入程序或遺漏未提交成果；保留來源 integration 的專屬資源供後續 merge 流程在合併、解除下游 blocker、提交 PR 報告後統一清理。
+主 agent 核對所有 TODO、各票驗收、跨票 AC、審查問題及整合修正均有通過證據，實際交付與 integration HEAD 一致，且最終 `test.md` 與 `execution-state.md` 快照均已提交在 `<spec_name>-merge` branch、與 integration 工作檔版本及 hash 一致；reviewer 已核對版本、hash 與驗收證據，不審文件內容。各票 worktree、對應本地 branch 與專屬資源應已依票級即時清理移除；此處只核對清理紀錄與處理有明確原因的殘留，不首次集中清理全部票。確認沒有仍在執行的子代理／寫入程序或遺漏未提交成果；保留來源 integration 的專屬資源供後續 merge 流程在合併、解除下游 blocker、提交 PR 報告後統一清理。
 
-保留 integration worktree、branch 與證據供後續合併。依 `pr` skill 架構在主 `dev` 工作區產生 `pr/<識別碼>.html`（無 PR 編號用 spec／ticket 識別碼），包含 Summary、Evidence、Merge Danger；Evidence 引用最終 integration review 的 base／head、verdict 與跨票驗證結果。此為 PR 交付報告，不是平台 PR；由 [merge skill](../../.opencode/skills/merge/SKILL.md) 在本次所有來源合併及驗證通過後，將本次報告與因這些 spec 完成而解除的下游 `Blocked by` 更新明確加入並提交至 `dev`，再清理來源 integration 的專屬環境、ports、worktree 與本地 branch。完成約定收尾後回報交付 SHA、驗收與狀態；不能以摘要代替剩餘實作。
+保留 integration worktree、branch 與證據供後續合併。依 `pr` skill 架構在主 `dev` 工作區產生 `pr/<識別碼>.html`（無 PR 編號用 spec／ticket 識別碼），包含 Summary、Evidence、Merge Danger；Evidence 引用最終 integration review 的 base／head、verdict 與跨票驗證結果。此為 PR 交付報告，不是平台 PR，也不代表來源已合併至 `dev`。`implement-spec` 收尾不執行來源合併；只有使用者明確要求合併並指定涵蓋的來源後，才依 [merge skill](../../.opencode/skills/merge/SKILL.md) 合併，並在成功驗證後提交本次報告及解除 blocker 的更新，再清理來源 integration 的專屬環境、ports、worktree 與本地 branch。完成約定收尾後回報交付 SHA、驗收與待合併狀態；不能以摘要代替剩餘實作。
 
 本流程預設只提交本地，不自動推送遠端或建立 draft PR。使用者另行明確要求推送／發布時，依其授權核對目標分支、tag 與發布慣例後執行。PR 建立後核對平台必要檢查及衝突狀態，通過才標示可合併。

@@ -12,7 +12,7 @@
 
 - 主 agent 協調受影響 owner 在安全交接點停止相關寫入，沿專案更新入口同步同一版本。保留本地客製與未提交成果；有衝突時先在暫存目錄取得同版本公開套件，再比對合併，不能用整份覆寫或重設分支消除差異。
 - 在既有執行表記錄 worktree、來源版本、適用文件內容識別、保留的客製差異與同步狀態。新建 worktree 同樣核對，避免從舊 integration 基底再次帶入舊規則。
-- 同步後將變更指標交給 owner，要求從其實際工作目錄重新讀取並回報採用的規則及下一動作；已載入的 skill 內容若仍舊，須重新載入或以新 session 交接。進入 `project-handoff` 時先核對既有權威紀錄並補足缺項；只有既有紀錄無法承載續作資訊時才另建 handoff 文件，不 resume 舊 session。檔案更新與代理採用分別確認；未完成者只暫停依賴新規則的操作，不宣稱全體已生效。
+- 同步後將變更指標交給 owner，要求從其實際工作目錄重新讀取並回報採用的規則及下一動作；已載入的 skill 內容若仍舊，須重新載入或以新 session 交接。交接前先核對既有權威紀錄；需要攜帶上下文至新 session 時使用 `/handoff`，不 resume 舊 session。檔案更新與代理採用分別確認；未完成者只暫停依賴新規則的操作，不宣稱全體已生效。
 
 ### 實作階段以 test.md 為準
 
@@ -31,11 +31,11 @@
 | 文件 | 初次提交 | 後續提交 |
 | --- | --- | --- |
 | `test.md` | 在 integration 產生初稿後、依該版本執行 smoke test 前；smoke 結果寫回同一檔後，再提交可放行版本，並在放行 owner 前完成 | 邊界變更依「診斷與修訂」先確認；界線內的方法修復可先執行留證，在回報節點由主 agent 核實更新並提交，再交接其他執行者採用。最終受測版本、方法與證據須在最終 integration review 前提交 |
-| `execution-state.md` | 主 agent 在 integration 初始化執行表後、完整盤點與環境準備前 | 在派工／交接、owner 或票級 reviewer 回報、阻擋解除、部分或完整整合、回歸結果及清理等會改變續作或交付判定的排程節點，直接提交更新；彙整同一節點的變更，不為讀取或輪詢建立提交 |
+| `execution-state.md` | 主 agent 在 integration 初始化執行表後、完整盤點與環境準備前 | 在派工／責任移轉、阻擋解除、部分或完整整合、回歸結果及清理等會改變續作或交付判定的排程節點提交更新。同一節點的多份回報先彙整後一次更新；純資訊性回報不另建提交，不因每則交接訊息重複 stage／commit |
 
-提交前核對 integration 的 Git top-level、branch、兩份檔案的 repo-relative 路徑及內容 hash，只 stage 明確的文件，不混入產品變更或其他未知成果。主 repo 忽略外層 `.worktree/` 不妨礙 linked worktree 自己追蹤檔案；必須在 integration 根目錄檢查 ignore／追蹤狀態，文件不得再放入 integration 內被忽略的巢狀 `.worktree/`。`execution-state.md` 的路徑標明所屬根目錄（主 repo、integration 或票級 worktree），內容不得包含秘密、憑證值或個人資料。
+到達必要提交節點且該節點文件內容已彙整定稿後，核對 integration 的 Git top-level、branch、兩份檔案的 repo-relative 路徑及內容 hash，再一次只 stage 明確文件，不混入產品變更或其他未知成果；文件編輯或交接完成本身不觸發 `git add`。主 repo 忽略外層 `.worktree/` 不妨礙 linked worktree 自己追蹤檔案；必須在 integration 根目錄檢查 ignore／追蹤狀態，文件不得再放入 integration 內被忽略的巢狀 `.worktree/`。`execution-state.md` 的路徑標明所屬根目錄（主 repo、integration 或票級 worktree），內容不得包含秘密、憑證值或個人資料。
 
-最終 integration review 前，主 agent 直接在 integration 定稿並提交兩份文件，核對工作檔與提交版本的 hash 一致；reviewer 唯讀檢查快照及其對應的受測版本。Review 後有文件或程式變更時，依上表更新同一權威檔、完成受影響驗證並提交，再交 reviewer 複查。通過後的最終 verdict 記入 PR 交付報告，不再改動已審查的執行表快照。兩份文件隨 integration 合入 `dev`；清理 integration 前須確認目標分支已保有最終文件及必要證據。
+最終 integration review 前，主 agent 直接在 integration 定稿並提交兩份文件，核對工作檔與提交版本的 hash 一致；reviewer 對兩份執行文件只核對路徑、版本與 hash 是否一致，以及驗收證據是否對應受測版本，不審文件內容。Review 後有文件或程式變更時，依上表更新同一權威檔、完成受影響驗證並提交，再交 reviewer 複查程式變更與受影響快照的完整性。通過後的最終 verdict 記入 PR 交付報告，不再改動已審查的執行表快照。兩份文件隨 integration 合入 `dev`；清理 integration 前須確認目標分支已保有最終文件及必要證據。
 
 舊流程續作時，主 agent 先核對 dev 與 integration 的既有文件、未提交成果及原寫入者狀態，保留差異並整合有效內容至 integration，提交後更新所有派工指標。Dev 舊檔只作歷史參考，不繼續雙寫；未知差異先查明歸屬，不直接覆蓋或刪除。通知活躍 owner 重新讀取新權威路徑及版本後才續作受影響操作。
 
@@ -208,4 +208,4 @@
 
 配置交接分為「已驗證可用」「待使用者補充」「待產品實作後驗證」「環境故障待修復」，均附受影響 ID 與下一步。已確認環境但產品尚未實作時，可放行對應 owner 建立產品／fixtures；未定目標只阻擋相關環境操作及驗收，其他工作繼續。配置文件完成、某群組就緒與整份產品驗收完成是不同狀態，不能互相代替。
 
-逐項依上述依賴分流放行檢查。產品環境須入口可重跑、身分可確認、最薄路徑與清理已有成功證據，且清理後證據仍可讀，才放行依賴它的驗收。首次採用共同 harness 時先由一位 owner 跑通這個完整迴圈，再將其用於多票平行驗收；不需等待整張產品票完成。純文件工作記錄無需執行資源；從零開發依此準備即可，無需額外進入 project-handoff。
+逐項依上述依賴分流放行檢查。產品環境須入口可重跑、身分可確認、最薄路徑與清理已有成功證據，且清理後證據仍可讀，才放行依賴它的驗收。首次採用共同 harness 時先由一位 owner 跑通這個完整迴圈，再將其用於多票平行驗收；不需等待整張產品票完成。純文件工作記錄無需執行資源；從零開發依此準備即可，無需額外產生 handoff 文件。

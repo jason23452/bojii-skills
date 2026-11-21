@@ -10,7 +10,7 @@
 - 完整交付結果、必要依賴的已驗證 integration SHA、環境的準備／預檢／fixtures／驗收／清理入口，以及 implement-spec 環境就緒門檻的證據；尚待 owner 完成的環境準備須列明責任與放行條件。
 - 正式實作期間遵循 [不使用 question 工具與授權沿用](implement-spec.md#正式實作期間不使用-question-工具)：派工需提供已確認範圍與授權；owner 在該範圍內自主執行，必要輸入或授權缺口只回報主 agent，不呼叫 question 工具。
 - owner 修改範圍、worktree 絕對路徑、branch、完成條件及執行表位置。
-- Integration 執行權威 `test.md` 的絕對路徑與 hash／版本，以及主 agent 維護的 `execution-state.md` 路徑。Owner 與 reviewer 對這兩份共享文件唯讀，這只限制文件寫入責任，不限制派工授權內的測試、任務自有環境啟動或修復。`test.md` 是測試基線而非通用授權清單；方法缺漏依環境契約自主處理並回報，push／release／deploy 等操作另依明確任務授權判斷。測試證據與文件缺口回報主 agent；主 agent 依 [環境契約的文件快照規則](environment-contract.md#產生文件的-merge-branch-快照) 直接在 integration 維護並提交兩份文件，reviewer 唯讀檢查 `<spec_name>-merge` branch 中的最新快照。
+- Integration 執行權威 `test.md` 的絕對路徑與 hash／版本，以及主 agent 維護的 `execution-state.md` 路徑。Owner 與 reviewer 對這兩份共享文件唯讀，這只限制文件寫入責任，不限制派工授權內的測試、任務自有環境啟動或修復。`test.md` 是測試基線而非通用授權清單；方法缺漏依環境契約自主處理並回報，push／release／deploy 等操作另依明確任務授權判斷。測試證據與文件缺口回報主 agent；主 agent 依 [環境契約的文件快照規則](environment-contract.md#產生文件的-merge-branch-快照) 直接在 integration 維護並提交兩份文件，reviewer 對 `<spec_name>-merge` branch 中的快照只核對版本、hash 與驗收證據，不審文件內容。
 - 與其他票共用部分的唯一 owner 及變更協調邊界；owner 發現需跨界修改時先回報主 agent 調整責任與依賴，再取得寫入範圍，不能自行改入別票成果。
 - [測試執行規則](test-execution.md)、已知耗時與證據位置。其他資料按下表分支提供，續派只傳變動與未完成責任。
 
@@ -19,7 +19,7 @@
 | 審查修正／複查 | [審查收斂](review-convergence.md)與[根因預防](review-prevention.md)、有效 findings／版本／完成條件、已知共用能力及停滯裁決 |
 | 交付／審查 | [交付管線](delivery-pipeline.md)、固定 base／head、必要驗證與背景工作位置 |
 | 真實先導票 | [先導規則](implement-spec.md#以真實先導票建立開發基線)、選擇理由、待驗證阻力及實際下游 |
-| 實際換手／中斷後恢復 | 由 owner 回報變更、證據與下一步；主 agent 更新既有 `execution-state.md`，新 session 依 ticket、執行表與 Git／驗證證據承接。只有既有紀錄不足或搬移環境時才用 `project-handoff` 補查，不另建每票文件；連續執行中的單次測試逾時由原 owner 排錯 |
+| 實際換手／中斷後恢復 | 由 owner 回報變更、證據與下一步；主 agent 更新既有 `execution-state.md`，新 session 依 ticket、執行表與 Git／驗證證據承接。需攜帶上下文至新 session 時使用 `/handoff`，不另建每票文件；連續執行中的單次測試逾時由原 owner 排錯 |
 
 ### 派結果，不派每一步
 
@@ -43,11 +43,11 @@ Owner 以本票 TODO／AC 為實作與進度更新範圍。可唯讀其他票理
 
 ## 執行表與唯一寫入者
 
-- 主 agent 維護 `<integration-root>/<execution-doc-dir>/<feature>/execution-state.md`，與 `test.md` 同置；根目錄、可追蹤路徑及提交節點依 [環境契約](environment-contract.md#產生文件的-merge-branch-快照)。執行表記錄 ticket、owner／reviewer session、worktree、branch、已驗證基線、狀態與證據，以及環境準備、操作授權與恢復入口；integration 檔案是唯一即時來源，owner 回報證據，由主 agent 唯一寫入並直接提交。首次派工前及改變續作／交付判定的節點提交快照，不為讀取或輪詢提交；路徑標明根目錄，內容不得包含秘密、憑證值或個人資料。
+- 主 agent 維護 `<integration-root>/<execution-doc-dir>/<feature>/execution-state.md`，與 `test.md` 同置；根目錄、可追蹤路徑及提交節點依 [環境契約](environment-contract.md#產生文件的-merge-branch-快照)。執行表記錄 ticket、責任 owner／reviewer、worktree、branch、已驗證基線、狀態與證據，以及環境準備、操作授權與恢復入口；不記錄 subagent session ID。Resume／session_move 所需 ID 僅在當下工具調度中使用。Integration 檔案是唯一即時來源，owner 回報證據，由主 agent 唯一寫入並直接提交。首次派工前及改變續作／交付判定的節點提交快照，不為讀取或輪詢提交；路徑標明根目錄，內容不得包含秘密、憑證值或個人資料。
 - Ticket 文件記錄可版本控制的程式碼 TODO／驗收進度；執行表引用，不另維護第二套產品完成條件，也不把環境操作反向寫成產品 TODO。
 - 文件更新依 [即時狀態與固定證據的分工](environment-contract.md#即時狀態與固定證據的分工)：派工使用當次核實的 Git 基線；handoff／evidence 引用固定受測與交付版本，不為純文件 commit 造成的 HEAD 前進反覆派修 chronology。
 - 每個未完成項目另記 `next_action`（下一個具體工具動作）及 `blocker`（無、背景 session／程序、或待使用者決策）；恢復時依 Git／程序實況核對後續作。
-- 背景工作另記最近一次派工的工具結果、session／job ID 與狀態（執行中、已回報、失敗／中斷、未知）。Session ID 只表示對話存在；執行表中的「修正中」須有已接受且尚未結束的背景呼叫支持。
+- 背景工作另記最近一次派工的工具結果、仍在執行時必要的 job ID 與狀態（執行中、已回報、失敗／中斷、未知）；不記錄 subagent session ID。執行表中的「修正中」須有已接受且尚未結束的背景呼叫支持。
 - 阻擋與依賴細化到成果及 TODO／驗收 ID，記錄已交付 commit、可用的 integration SHA、未完成責任與解除條件；票級摘要可為部分完成／部分受阻，不能代替逐項狀態。
 - 不同票使用獨立 worktree；同一 worktree 同時一位寫入者。Reviewer 唯讀審查 owner 已停寫的穩定 commit；合併由唯一 merger／主 agent 操作。
 - 寫入權移轉或修改候選前確認原角色及受影響背景測試／產生器停止，再核對實際 branch、HEAD、diff、未追蹤檔與歸屬。固定候選上的唯讀審查可依交付管線與隔離的驗證並行；未知變更保留查明。
@@ -75,8 +75,8 @@ Worktree 建立位置與 session 綁定是不同檢查；前者依 worktree skil
 以精簡摘要及證據路徑回報，不重貼完整規格與輸出：
 
 1. **狀態與交付**：依 [TODO 的獨立完成判定](spec-and-tickets.md#todo-的獨立完成判定) 更新本票勾選與證據，分列本票未完成項目、下游承接及跨票 AC；不因下游未實作而保留已完成 TODO 未勾。工具 `completed` 只代表呼叫結束。
-2. **位置與版本**：worktree、branch、commit、修改檔案及未提交變更歸屬；是否停寫、背景程序狀態。Session／job ID 用於當次調度或選填追溯，交接資料本身須可獨立使用。
-   正常交付不需另附 `project-handoff` 文件；若實際中斷或更換 owner，提供必要差異、證據與下一步，由主 agent 更新共享執行表。
+2. **位置與版本**：worktree、branch、commit、修改檔案及未提交變更歸屬；是否停寫、背景程序狀態。僅在仍有待追蹤的背景呼叫時提供必要 job ID；交接內容不包含 subagent session ID，且須能獨立承接。
+   正常交付不另建 handoff 文件；若實際中斷或更換 owner，提供必要差異、證據與下一步，由主 agent 更新共享執行表。需跨 session 攜帶摘要時使用 `/handoff`。
 3. **驗證**：AC 對應、命令／工作目錄、結果、環境與證據位置；區分通過、有效 Red、環境失敗及未執行。
    審查修正另附根因預防判定、採用位置與證據，格式依 [根因預防規則](review-prevention.md)。
 4. **阻擋與下一步**：未解問題、已試方案、必要外部條件與仍可推進工作；部分交付另列可分離成果、精確 commit、涵蓋及未涵蓋的驗收。阻擋立即回報主 agent；正式實作期間依「不使用 question 工具」規則記錄並一般回報，不呼叫 question 工具；內部修復仍由原 owner 接續。
@@ -95,7 +95,7 @@ Worktree 建立位置與 session 綁定是不同檢查；前者依 worktree skil
 | 狀態 | 下一步 |
 | --- | --- |
 | owner 回報局部完成，尚有可自主完成工作 | 預設 resume；符合換新條件時先交接，再由新 session 承接剩餘責任，不新增 Test／Green 配對 |
-| 聲稱等待但沒有有效背景呼叫，或呼叫已失敗／中斷 | 尚未派工則立即派工；連續執行中的呼叫結束則核對剩餘工作後續派。任務中斷且需更換 owner 時，先確認原寫入者已停止，由主 agent 將必要差異更新到 `execution-state.md`；只有缺少可攜基線或搬移環境時才用 `project-handoff` 補查，不預設另建文件 |
+| 聲稱等待但沒有有效背景呼叫，或呼叫已失敗／中斷 | 尚未派工則立即派工；連續執行中的呼叫結束則核對剩餘工作後續派。任務中斷且需更換 owner 時，先確認原寫入者已停止，由主 agent 將必要差異更新到 `execution-state.md`；需攜帶上下文至新 session 時使用 `/handoff`，不另建每票 handoff 文件 |
 | 局部外部受阻且有可分離成果 | 依 implement-spec 部分交付門檻審查、整合並解鎖下游；原 owner 保留剩餘責任 |
 | 新發現外部阻擋 | 記錄具體受影響項及待補條件，重算同票／跨票可執行工作；正式實作期間依 implement-spec「不使用 question 工具」規則回報，不呼叫 question 工具，其他無相依工作繼續 |
 | 程式就緒、驗證中（或驗證已完成但未審查） | 固定 base／head，安排必要驗證與獨立 reviewer 並行；無法並行則串行並記錄原因 |
@@ -112,7 +112,7 @@ Worktree 建立位置與 session 綁定是不同檢查；前者依 worktree skil
 | Agent 自設門檻，或修復會影響共享資源／其他 owner | 主 agent 校正自設門檻，或先協調唯一責任與受影響操作，再立即續派完整修復 |
 | 入口修正／partial merge 已通過，但原驗收仍未完成 | 依 [診斷與修訂](environment-contract.md#診斷與修訂) 核對重驗條件；已滿足即續派原驗收，未滿足則指定缺項的 owner 與具體解除動作。主 agent 自設的解鎖條件由自己當輪裁決，不等待使用者代為啟動 |
 | 全票整合完成 | 執行最終整合驗證，在 `<spec_name>-merge` 定稿並提交 `test.md` 與 `execution-state.md`，再固定 PR base／integration head 並派獨立 integration reviewer；缺口交明確 owner 修正、重驗與複查 |
-| 最終整合驗證與 integration review 皆通過 | 核對兩份最終快照已提交於 `<spec_name>-merge` integration branch，與 integration 工作檔版本及 hash 一致且由 reviewer 核對；再產生 PR 報告及收尾。缺漏驗收交回修復；實際發布依既有授權，base／head 變更依影響範圍重驗與複查 |
+| 最終整合驗證與 integration review 皆通過 | 核對兩份最終快照已提交於 `<spec_name>-merge` integration branch，與 integration 工作檔版本及 hash 一致；reviewer 只核對版本、hash 與驗收證據，不審文件內容。產生 PR 報告並標示候選就緒後保留 integration worktree／branch 等候；TODO 完成或「可合併」不授權合併至 `dev`，只有使用者明確要求並指定範圍後才執行 `/merge` |
 
 每次更新後重算所有可執行成果及票內剩餘工作，依依賴、檔案所有權及環境容量平行派出；同一票仍維持單一 owner。等待背景工作時保留 ID 並等通知，不重複派工或輪詢。
 
@@ -121,7 +121,7 @@ Worktree 建立位置與 session 綁定是不同檢查；前者依 worktree skil
 逐項核對整份 TODO、驗收、審查、整合修正及收尾後，以目前狀態處理：
 
 - **可推進**：執行 `next_action`，回到排程迴圈。
-- **僅等待背景工作**：以已接受且尚未結束的背景呼叫為依據，保留 session／job ID，依工具通知機制暫時交還控制；通知到達即回到排程迴圈，不需使用者再次啟動。正常等待不輪詢；使用者要求繼續或中斷恢復時，先核對既有工具結果，沒有有效執行依據就走上表恢復分支，不重複回覆「正在等待」。
+- **僅等待背景工作**：以已接受且尚未結束的背景呼叫為依據，保留工具結果及必要 job ID，依工具通知機制暫時交還控制；通知到達即回到排程迴圈，不需使用者再次啟動。正常等待不輪詢；使用者要求繼續或中斷恢復時，先核對既有工具結果，沒有有效執行依據就走上表恢復分支，不重複回覆「正在等待」。
 - **需要外部輸入**：依 implement-spec 確認全部剩餘工作確實受阻且無可推進項目，明記未完成及必要問題；取得答案後續作。
 - **使用者暫停／取消**：停止新派工，處理執行中工作的交接，記錄可恢復狀態並遵循指示。
-- **全部完成**：全部必要項目及約定收尾均有證據，才回覆整份交付結果。
+- **全部完成**：全部必要項目及約定收尾均有證據，才回覆整份交付結果。`implement-spec` 的完整交付不包含自動合併至 `dev`；合併須等待使用者明確要求。

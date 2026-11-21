@@ -82,5 +82,5 @@ disable-model-invocation: true
 
 - 只有想法：`/grill-with-docs` → `/to-spec` → `/to-tickets`。
 - 已有 spec／tickets：`/implement-spec <路徑>`，自動核對開工條件與必要接手基線。
-- 只有待接手成果、尚無下一個需求：`/project-handoff`。
+- 只有待接手成果、尚無下一個需求，且需交給新 session：`/handoff`。
 - 不確定：`/bojii-guide`。

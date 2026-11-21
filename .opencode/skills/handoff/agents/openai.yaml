@@ -1,5 +1,5 @@
 interface:
-  display_name: "Handoff"
-  short_description: "Compact a conversation into a handoff"
+  display_name: "交接摘要"
+  short_description: "整理已核實狀態供新 session 續作"
 policy:
   allow_implicit_invocation: false

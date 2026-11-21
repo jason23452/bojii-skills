@@ -1,5 +1,5 @@
 interface:
-  display_name: "Merge Worktrees"
-  short_description: "Merge verified, merge-ready spec worktrees."
+  display_name: "合併 Worktrees"
+  short_description: "依使用者明確要求合併指定的已就緒來源"
 policy:
   allow_implicit_invocation: false

@@ -27,11 +27,13 @@ This repo uses a single-context domain docs layout. See `docs/agents/domain.md`.
 
 ### Implement-spec 整票自主交付
 
-使用 `implement-spec` 時，依 `docs/agents/implement-spec.md` 的結果導向交付，從已定案的 TODO／AC 盤點環境與操作授權，自動載入 `worktree` 建立隔離環境；每票新建獨立實作 subagent owner，可獨立開工票背景平行派出。主 agent 派工前依每票實作範圍選擇 SDD／TDD；TDD 以單元測試執行 Red → Green → Refactor，Playwright E2E 依完整 spec／AC 於全票整合後的最終驗收階段新增或補齊並實跑；owner 經獨立票級審查後逐票整合，全部交付與收尾完成才結束。正式實作期間主 agent、owner 與 reviewer 不使用 `question` 工具；已授權範圍內自主決策執行，超出範圍只暫停受影響操作並記錄回報，不推定新增授權。
+使用 `implement-spec` 時，依 `docs/agents/implement-spec.md` 的結果導向交付，從已定案的 TODO／AC 盤點環境與操作授權，自動載入 `worktree` 建立隔離環境；每票新建獨立實作 subagent owner，可獨立開工票背景平行派出。主 agent 派工前依每票實作範圍選擇 SDD／TDD；TDD 以單元測試執行 Red → Green → Refactor，Playwright E2E 依完整 spec／AC 於全票整合後的最終驗收階段新增或補齊並實跑；owner 經獨立票級審查後逐票整合。全票驗收、最終 integration review、PR 交付報告與 `implement-spec` 階段的約定收尾完成後，才結束 `implement-spec`；這不包含將 integration worktree 合併至 `dev` 或合併後清理，兩者屬於獨立的 `/merge` 流程。正式實作期間主 agent、owner 與 reviewer 不使用 `question` 工具；已授權範圍內自主決策執行，超出範圍只暫停受影響操作並記錄回報，不推定新增授權。
+
+`implement-spec` 完成、TODO／AC 全數完成或候選標示「可合併」，都不代表授權合併。不得自動將 integration worktree 合併至 `dev` 或自動啟動 merge skill；須等待使用者明確要求合併並指定來源範圍。未收到要求時保留 integration worktree／branch 與必要資源並回報待命；使用者已要求合併但範圍不明時，依 merge skill 釐清後再執行。
 
 ### 專案接手
 
-接手既有成果、恢復中斷任務或搬移環境時，先沿用 repo 既有權威紀錄；只有續作資訊缺漏或環境前置條件改變時才使用 `project-handoff` skill，避免為 `implement-spec` 每票另建交接文件。從零開發、首次建環境及正常新票派工沿用一般開工流程。
+接手既有成果、恢復中斷任務或搬移環境時，先沿用 repo 既有權威紀錄；需攜帶上下文至新 session 時使用 `/handoff`，交接文件不記 subagent session ID。`implement-spec` 正常派工與續作以 ticket、integration `execution-state.md`／`test.md` 及 Git／驗證證據交接，不另建每票 handoff 文件。從零開發、首次建環境及正常新票派工沿用一般開工流程。
 
 ### 測試與靜態檢查
 

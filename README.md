@@ -41,7 +41,8 @@ npx --yes --package="github:jason23452/bojii-skills#${TAG}" -- bojii-skills upda
 | 首次配置專案 | `/setup-bojii-skills`；已有配置只補缺項 |
 | 想法尚未釐清 | `/grill-with-docs` → `/to-spec` → `/to-tickets` |
 | Spec／tickets 已完成規劃審查 | `/implement-spec .scratch/<feature>/spec.md`；先建立 merge worktree 並提交執行表初始快照；`setup-testing` 確認目標後提交 `test.md` 草稿，smoke 通過後提交放行版，再開始實作 |
-| 接手未完成成果，尚無明確下一個任務 | `/project-handoff` |
+| 已完成實作，使用者明確要求合併至 `dev` | `/merge`；只合併使用者指定的來源。TODO 完成或標示「可合併」不會自動合併 |
+| 需要把未完成成果交給新 session | 核對 repo 權威紀錄後使用 `/handoff` 產生可攜交接摘要 |
 | 單獨配置目前環境的測試方式 | `/test`，附測試範圍與環境限制 |
 | 只要審查變更 | `/code-review <固定基準>`，附需求來源 |
 

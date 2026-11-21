@@ -4,7 +4,7 @@
 
 ## 選擇 new 或 resume
 
-下表的 resume 僅適用目前流程版本下、未進入接手流程的連續工作。恢復中斷任務或搬移環境時，先使用 repo 既有權威紀錄與 Git／驗證證據；只有缺少續作所需資訊時才依 `project-handoff` 補查，不恢復或 fork 舊對話。`implement-spec` 以 ticket、integration `execution-state.md`／`test.md` 為基線，不另建每票交接文件。
+下表的 resume 僅適用目前流程版本下、未進入接手流程的連續工作。恢復中斷任務或搬移環境時，先使用 repo 既有權威紀錄與 Git／驗證證據；需攜帶上下文至新 session 時使用 `/handoff`，不恢復或 fork 舊對話。`implement-spec` 以 ticket、integration `execution-state.md`／`test.md` 為基線，不另建每票交接文件。
 
 | 情境 | 預設動作 |
 | --- | --- |
@@ -29,11 +29,11 @@
 ## 交接與審查輸入
 
 1. Resume 傳新 HEAD／diff、finding 或待辦 ID、變動證據與下一動作；要求讀取變動處，不反覆貼整份歷史。
-   必要事實落在 repo 權威紀錄與證據中，session ID 僅供選填追溯，不能以「回原 session 繼續」作為交接內容。
-2. New 提供必要的 spec／票、工作目錄、基準／目前 SHA、未提交成果歸屬、未完成驗收、證據及下一動作；其餘細節由新 session 從既有權威文件與 Git 查取，不重複搬運。研究交接遵循 [調查結果自足](../../.opencode/skills/research/SKILL.md#調查結果自足)。`implement-spec` 換手時由 owner 回報差異、主 agent 更新 `execution-state.md`；只有既有紀錄不足以承接或需搬移環境時才另建 handoff 文件。必要附件存於持久位置，不傳 secrets。
+   必要事實落在 repo 權威紀錄與證據中。Session ID 僅供當下工具調度，不寫入交接資料或 repo 執行文件；交接者依權威紀錄與下一動作承接，不以「回原 session 繼續」為必要條件。
+2. New 提供必要的 spec／票、工作目錄、基準／目前 SHA、未提交成果歸屬、未完成驗收、證據及下一動作；其餘細節由新 session 從既有權威文件與 Git 查取，不重複搬運。研究交接遵循 [調查結果自足](../../.opencode/skills/research/SKILL.md#調查結果自足)。`implement-spec` 換手時由 owner 回報差異，主 agent 更新 `execution-state.md`；需要攜帶上下文至新 session 時使用 `/handoff`，必要附件存於持久位置，不傳 secrets。
 3. 全新 reviewer 從規格、程式 diff、設定與原始驗證證據取證，不 fork 實作者或前 reviewer 的整段對話，不將「前輪已通過」作為結論前提。前輪 finding 可在完成自身檢查後用於對照，避免遺漏已知問題；修正複查則一開始提供 finding 對照。
-4. 寫入者換 session 前，確認原 owner 與自有背景寫入程序已停止。保留 worktree、分支、有效環境與未提交成果，更新 owner/session 對照及交接理由。新 session 先唯讀核對，再取得寫入責任；無法確認原寫入者停止時，不啟動第二位寫入者。
-5. `implement-spec` 的新 session 依 [Session 綁定](subagent.md#session-綁定) 移至既有票級 worktree，核對 ticket、共享執行表及變更證據；只在有具體缺口時載入 `project-handoff`。同票同時仍只有一位 owner；主對話留在 dev，不因換 context 重建環境或重問已確認需求。
+4. 寫入者換 session 前，確認原 owner 與自有背景寫入程序已停止。保留 worktree、分支、有效環境與未提交成果，更新責任 owner、停寫狀態及交接理由。新 session 先唯讀核對，再取得寫入責任；無法確認原寫入者停止時，不啟動第二位寫入者。Resume／session_move 所需的 ID 僅在當下工具調度中使用，不寫入交接紀錄。
+5. `implement-spec` 的新 session 依 [Session 綁定](subagent.md#session-綁定) 移至既有票級 worktree，核對 ticket、共享執行表及變更證據；需要攜帶摘要時使用 `/handoff`。同票同時仍只有一位 owner；主對話留在 dev，不因換 context 重建環境或重問已確認需求。
 
 ## 成本與有效性
 

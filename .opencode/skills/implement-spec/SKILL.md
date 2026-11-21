@@ -15,13 +15,13 @@ disable-model-invocation: true
 3. **整票派工**：主對話留在 dev；主 agent 派工前依權威流程的票級 SDD／TDD 選擇器判斷每票實作規模，並在派工中註明方法與理由。每票新建 owner，綁定票級 worktree，一次交付完整目標、邊界與驗收。所有可獨立開工票背景並行，同票續作 resume。
 4. **Owner 自主交付**：依派工選定的方法完成實作；SDD 使用 `sdd` skill 依 ticket TODO／AC 開發，TDD 使用 `tdd` skill 以單元測試執行 test-first；兩者都以 `test` 完成必要驗證。普通失敗在 owner 內處理。主 agent 協調依賴與跨票問題，不逐步派工。
 5. **審查與整合**：載入 `docs/agents/delivery-pipeline.md`，固定候選並行驗證與獨立審查；問題整批交原 owner 修正、原 reviewer 複查。證據匯合後整合、跑回歸、即時清理票級資源並解鎖下游。
-6. **全量收尾**：全票整合後，主 agent 指定唯一 owner 依完整 spec／AC 在最終 integration 驗收階段實際新增或補齊所需的 Playwright E2E 測試、納入並固定候選後實跑；再定稿並提交 `test.md` 與 `execution-state.md`，完成獨立 integration review、PR 報告與約定收尾。TDD 的 Red → Green → Refactor 使用單元測試，Playwright E2E 不作為逐票 TDD 測試。實作期間以 integration 的 `test.md` 為共同基線，方法修復與邊界變更依環境契約「診斷與修訂」分流；reviewer 核對 branch 內兩份交付快照與工作檔的 hash／版本，精確版本與全部必要證據一致才回報完成。
+6. **全量收尾**：全票整合後，主 agent 指定唯一 owner 依完整 spec／AC 在最終 integration 驗收階段實際新增或補齊所需的 Playwright E2E 測試、納入並固定候選後實跑；再定稿並提交 `test.md` 與 `execution-state.md`，完成獨立 integration review、PR 報告與約定收尾。Reviewer 審程式實作是否符合 spec／tickets；對兩份執行文件只核對版本、hash 與驗收證據，不審文件內容。TDD 的 Red → Green → Refactor 使用單元測試，Playwright E2E 不作為逐票 TDD 測試。實作期間以 integration 的 `test.md` 為共同基線，方法修復與邊界變更依環境契約「診斷與修訂」分流。候選標示「可合併」只代表交付就緒；不得由 TODO／AC 完成自動合併至 `dev`，須等待使用者明確要求並指定來源範圍，再另行使用 `/merge`。
 
 ## 分支入口
 
 | 情況 | 處理入口 |
 | --- | --- |
-| 恢復中斷／搬移既有工作 | 先沿 ticket、`execution-state.md`／`test.md` 與 Git 證據續作；只有必要資訊缺漏或環境前置條件改變時使用 `project-handoff` |
+| 恢復中斷／搬移既有工作 | 先沿 ticket、`execution-state.md`／`test.md` 與 Git 證據續作；需要攜帶上下文至新 session 時使用 `/handoff` |
 | 缺少可信開發基線 | 權威流程「以真實先導票建立開發基線」 |
 | 修正與重驗需要判斷授權 | 權威流程「授權沿用」 |
 | 審查 finding、反覆修正或爭議 | `docs/agents/review-convergence.md`；預防措施依 `review-prevention.md` |

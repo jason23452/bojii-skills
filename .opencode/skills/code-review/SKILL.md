@@ -1,12 +1,14 @@
 ---
 name: code-review
-description: "Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \"review since X\"."
+description: "Review code implementation changes since a fixed point (commit, branch, tag, or merge-base) along Standards and Spec axes. Use spec/tickets as requirements, not review targets; do not review updated documents. Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \"review since X\"."
 ---
 
-依明確基準與審查範圍，對已提交或未提交變更進行兩軸審查：
+依明確基準與審查範圍，只對程式實作進行兩軸審查：
 
 - **Standards**：核對既有 CI／自動檢查的覆蓋與有效結果，以及本次交付適用的明文契約。
-- **Spec**: does the code faithfully implement the originating issue / spec?
+- **Spec**：核對程式實作是否符合 originating issue／spec／ticket TODO／AC。
+
+程式實作包含產品程式碼、測試程式碼，以及直接影響其行為或執行的必要設定。Spec、tickets、Markdown、skill、`AGENTS.md` 等文件可作為需求、規範或證據來源，但不是審查目標；不評判其文字品質、完整性或文件更新本身，也不為文件變更提出 findings。若範圍內沒有程式實作變更，回報「無程式實作可審」，不派程式碼審查。
 
 Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings.
 
@@ -26,7 +28,7 @@ Both axes run as **parallel sub-agents** so they don't pollute each other's cont
 
 沿用使用者指定的基準與範圍。要求審查目前未提交修改時，以 `HEAD` 為基準；分支／PR 則使用指定 base 的 merge-base。只有無法從要求與上下文判定時才詢問。
 
-先以 `git status --short` 核對變更種類，固定適用的 diff 命令與檔案清單：
+先以 `git status --short` 核對變更種類，固定適用的 diff 命令與完整檔案清單，再標記程式實作審查目標及只供參照的文件：
 
 | 審查範圍 | 比較方式 |
 | --- | --- |
@@ -36,9 +38,9 @@ Both axes run as **parallel sub-agents** so they don't pollute each other's cont
 | 僅 unstaged | `git diff --`，以 index 為基準 |
 | 指定 commit 至目前工作樹 | `git diff <base> --`；另記錄 base 至 HEAD 的 commits |
 
-範圍包含工作樹新增檔案時，另以 `git ls-files --others --exclude-standard` 列出未追蹤檔案，核對歸屬並讀取適用內容；它們不會出現在一般 diff。僅 staged 或已提交範圍不混入未追蹤檔案。秘密檔只核對追蹤／ignore 狀態，不將內容放入審查輸出。
+範圍包含工作樹新增檔案時，另以 `git ls-files --others --exclude-standard` 列出未追蹤檔案，核對歸屬並分類；程式碼與必要設定可列為審查目標，文件只供需求、規範或證據參照，不審查其內容。它們不會出現在一般 diff。僅 staged 或已提交範圍不混入未追蹤檔案。秘密檔只核對追蹤／ignore 狀態，不將內容放入審查輸出。
 
-派工前確認使用到的 Git refs 可解析，且該範圍的 diff 或新增檔案非空；無變更就回報該範圍無可審內容。記錄 base／head SHA、diff、檔案清單及未提交內容的版本／hash，供兩軸核對同一候選；審查期間停止相關寫入，變更後只複查受影響範圍。未提交工作不得僅以 HEAD SHA 代表受審版本。
+派工前確認使用到的 Git refs 可解析，且該範圍的 diff 或新增檔案非空；無程式實作變更就回報無程式實作可審，不派審查代理。記錄 base／head SHA、完整 diff、程式實作檔案清單、參照文件及未提交內容的版本／hash，供兩軸核對同一候選；派工時明確區分審查目標與參照文件。審查期間停止相關寫入，變更後只複查受影響程式實作。未提交工作不得僅以 HEAD SHA 代表受審版本。
 
 ### 2. Identify the spec source
 
@@ -64,17 +66,17 @@ Issue both sub-agent calls together, in the foreground, and aggregate the report
 
 **Standards sub-agent prompt** should include:
 
-- The full diff command and commit list.
+- The full diff command and commit list, plus the classified implementation-code target list; read documents only as standards/evidence context.
 - 第 3 步取得的適用規範、CI／驗證入口、候選版本及有效結果。
-- 第 1 步的範圍、未追蹤檔案及候選證據；未提交審查的 commits 可為空，兩軸須讀取同一受審版本。
-- 派工要求：核對既有自動檢查是否涵蓋本次修改且通過；已涵蓋事項採認工具證據，不重做相同掃描。只回報必要檢查缺口，以及工具未涵蓋的具體明文契約違反或可達缺陷，附要求、證據與完成條件。不要求使用者人工審查，不追加 smell 清單或偏好性重構。摘要 400 words 以內。
+- 第 1 步的程式實作目標、參照文件、未追蹤檔案及候選證據；未提交審查的 commits 可為空，兩軸須讀取同一受審版本。
+- 派工要求：只審查程式實作與必要設定；核對既有自動檢查是否涵蓋本次程式變更且通過，文件只供參照，不對文件內容提出 finding。已涵蓋事項採認工具證據，不重做相同掃描。只回報必要檢查缺口，以及工具未涵蓋的具體明文契約違反或可達缺陷，附要求、證據與完成條件。不要求使用者人工審查，不追加 smell 清單或偏好性重構。摘要 400 words 以內。
 
 **Spec sub-agent prompt** should include:
 
-- The diff command and commit list.
+- The diff command and commit list, plus the classified implementation-code target list; spec/tickets and other documents are requirements context, not review targets.
 - 已確認需求與完成條件，以及文件／issue／對話來源摘錄。
-- 第 1 步的範圍、未追蹤檔案及候選證據，與 Standards 使用同一版本。
-- 派工要求：回報需求缺漏／部分完成、未要求的範圍擴張，以及看似已實作但行為錯誤的項目；每項引用對應需求的文件行號或對話原文，附具體證據與完成條件。摘要 400 words 以內。
+- 第 1 步的程式實作目標、參照需求文件、未追蹤檔案及候選證據，與 Standards 使用同一版本。
+- 派工要求：只核對程式實作是否有需求缺漏／部分完成、未要求的程式行為擴張，以及看似已實作但行為錯誤的項目；不審查 spec／ticket 文件本身。每項引用對應需求的文件行號或對話原文，附程式證據與完成條件。摘要 400 words 以內。
 
 只有第 2 步確認沒有任何可核對需求時才跳過 Spec 子代理，並在最終報告明記；缺少 spec 檔案本身不構成跳過理由。
 

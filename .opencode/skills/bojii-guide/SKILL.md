@@ -15,8 +15,9 @@ disable-model-invocation: true
 | 首次使用，尚未配置 tracker／領域文件指引 | `/setup-bojii-skills`；已有設定沿用，只補缺項 |
 | 不知道該從哪裡開始 | 說明目前 repo、目標與已完成成果，本導覽給出下一個可執行指令 |
 | 有想法，需求與方案尚未確認 | 有 repo 用 `/grill-with-docs`；無工作目錄用 `/grill-me` |
-| 接手未完成成果、恢復中斷或搬移既有工作環境 | 先核對 repo 既有權威紀錄；只有資訊缺漏或環境前置條件改變時才用 `/project-handoff`。已有 spec／tickets 可直接 `/implement-spec`，由其沿用執行表判斷是否需補盤點 |
+| 接手未完成成果、恢復中斷或搬移既有工作環境 | 先核對 repo 既有權威紀錄；需攜帶上下文至新 session 時用 `/handoff`。已有 spec／tickets 可直接 `/implement-spec`，沿用執行表續作 |
 | Spec／tickets 已完成規劃審查 | `/implement-spec <spec 或 feature 路徑>`，先建立 merge worktree 並提交執行文件快照，再由 `setup-testing` 確認環境；就緒後開始實作 |
+| Integration 已完成，使用者明確要求合併至 `dev` | `/merge`，僅合併使用者指定的來源；完成／標示「可合併」本身不會觸發合併 |
 | 已有 spec，尚未拆票 | `/to-tickets <spec 路徑>` |
 | 已釐清需求，尚未形成 spec | `/to-spec`，接著 `/to-tickets` |
 | 單一已定義任務，不需整份 spec 協調 | `/implement <ticket 或需求>`；只要 test-first 行為實作則 `/tdd` |
@@ -33,7 +34,7 @@ disable-model-invocation: true
 3. **自主交付**：tickets 規劃審查完成後使用 `/implement-spec`，啟動時完成最小核對即建立 merge worktree，在其中直接產生、維護及提交 `execution-state.md`，再自動載入 `setup-testing` 完成環境確認與 `test.md` 初版及 smoke 快照；就緒後才派出獨立 owner。主 session 留在 dev，以 integration 的 `test.md` 為共同基線，界線內方法調整依環境契約自主執行；需 TDD 時以單元測試執行，Playwright E2E 依 spec 於全票整合後的最終驗收階段新增或補齊並實跑。
 4. **必要時跑先導票**：只有本次路徑缺少可信開發基線，才選現有小型真實票，隨功能交付補最小基礎；不要求先全庫 review 或預建完整腳手架。
 5. **持續改善**：已確認的先導阻力／審查缺陷依 `docs/agents/review-prevention.md` 自動沉澱適用能力，後續票沿用。修正停滯依 `docs/agents/review-convergence.md` 診斷／裁決，不盲目重複 review。
-6. **交付與回顧**：必要驗收與約定收尾完成才結束。`implement-spec` 預設提交本地；推送、tag 或發布須有明確授權。寫 PR body 使用 `/pr`，回顧整段工作的環境改善可用 `/retro`。
+6. **交付與回顧**：`implement-spec` 在全票驗收、最終 integration review、PR 交付報告及票級收尾完成後結束，並保留待合併的 integration worktree；不包含合併至 `dev` 或合併後清理。合併是獨立的 `/merge` 流程，須有使用者明確要求及指定來源範圍。`implement-spec` 預設提交本地；推送、tag 或發布另須明確授權。寫 PR body 使用 `/pr`，回顧整段工作的環境改善可用 `/retro`。
 
 `implement-spec` 必跑票級獨立審查及 PR 前最終 integration review；完整雙軸 `/code-review` 僅於明確要求時額外執行。`/implement` 則依自身流程呼叫完整 review。Session 續作／換新遵循 `docs/agents/session-lifecycle.md`，不以固定 context 大小或每票清空作通則。
 
@@ -50,7 +51,7 @@ disable-model-invocation: true
 已有工作時只選適用入口：
 
 ```text
-/project-handoff 接手目前未完成成果，核對可沿用基線及阻擋。
+/handoff 將已核實的目前成果、阻擋與下一步交給新 session。
 /implement-spec .scratch/order-query/spec.md 繼續未完成工作。
 /code-review main 需求來源是 .scratch/order-query/spec.md。
 ```
@@ -60,7 +61,7 @@ disable-model-invocation: true
 - 外部回報尚未整理：`/triage`；已由 `to-tickets` 完成的票不重做 triage。
 - 架構改善機會：`/improve-codebase-architecture`；設計模組介面用 `/codebase-design`。
 - 領域術語與 ADR：`/domain-modeling`；驗證入口用 `/test`。
-- 只有權威紀錄不足或跨環境前置條件改變時使用 `/project-handoff`；`implement-spec` 平時以 ticket、integration `execution-state.md`／`test.md` 與 Git 證據交接，不另建每票 handoff 文件。
+- 需要跨 session 攜帶上下文時使用 `/handoff`；`implement-spec` 平時以 ticket、integration `execution-state.md`／`test.md` 與 Git 證據交接，不另建每票 handoff 文件。
 - 只有人能完成的外部設定：`/wizard`；寫 agent 文件用 `/writing-for-agents`。
 
 回覆時給出「目前階段、下一個指令、必要輸入、完成後接哪一步」即可，依問題補充原因，不重貼整份技能清單。
